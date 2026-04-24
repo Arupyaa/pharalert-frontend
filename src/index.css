@@ -1,6 +1,79 @@
+/*import inter font from google fonts*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap');
+
 @import "tailwindcss";
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "flowbite/src/themes/default";
 @plugin "flowbite/plugin";
 @source "../node_modules/flowbite";
+
+
+/*custom colors*/
+:root {
+    /*30% brand*/
+    --brand-primary: #00AB79;
+    --brand-light: #cdfbe4;
+    --brand-dark: #2b6f54;
+
+    /* 60% Background */
+    --bg-neutral: #FFFFFF;
+    /* main background */
+    --bg-secondary: #F8F9FA;
+    /* cards/sections */
+    --bg-tertiary: #EEF1F4;
+    /* modals/navbars/dropdowns */
+
+    /* 10% Accent */
+    --accent: #0053b5;
+
+    /* Text */
+    --text-main: #333333;
+    --text-heading: #000000;
+    --text-muted: #6B7280;
+}
+
+.dark {
+
+    /*30% brand*/
+    --brand-primary: #00AB79;
+    --brand-light: #1A3D33;
+    --brand-dark: #6EF0B8;
+
+    /* 60% Background*/
+    --bg-neutral: #121212;
+    /* main background */
+    --bg-secondary: #1B1B1B;
+    /* cards / containers */
+    --bg-tertiary: #242424;
+    /* modals/nav/sidebar */
+
+    /* 10% Accent */
+    --accent: #4A90FF;
+    /* lighter blue works better on dark backgrounds */
+
+    /* Text */
+    --text-main: #E5E5E5;
+    /* body text */
+    --text-heading: #FFFFFF;
+    /* headings */
+    --text-muted: #A0A0A0;
+    /* secondary text */
+}
+
+@theme {
+    /*custom colors*/
+    --color-brand-primary: var(--brand-primary);
+    --color-brand-light: var(--brand-light);
+    --color-brand-dark: var(--brand-dark);
+    --color-neutral-main: var(--bg-neutral);
+    --color-neutral-secondary: var(--bg-secondary);
+    --color-neutral-tertiary: var(--bg-tertiary);
+    --color-accent: var(--accent);
+    --color-paragraph: var(--text-main);
+    --color-heading: var(--text-heading);
+    --color-muted: var(--text-muted);
+
+    /*custom font*/
+    --font-sans: "Inter", sans-serif;
+}
