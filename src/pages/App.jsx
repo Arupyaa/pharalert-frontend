@@ -1,14 +1,12 @@
-import ExampleNavbar from "../components/shared/ExampleNavbar"
+import PharmacyDashboard from "./pharmacy/PharmacyDashboard"
+
 
 function App() {
   
 
   return (
     <>
-    <ExampleNavbar/>
-    <h1 class="text-3xl font-bold underline">
-    Hello world!
-  </h1>
+    <PharmacyDashboard/>
     </>
   )
 }
