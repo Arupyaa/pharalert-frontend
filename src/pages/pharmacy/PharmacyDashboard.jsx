@@ -8,6 +8,8 @@ import DashboardIcon from "../../features/pharmacy/svg/DashboardIcon.jsx";
 import SettingsIcon from "../../features/pharmacy/svg/SettingsIcon.jsx"
 import PillIcon from "../../features/pharmacy/svg/PillIcon.jsx";
 import SalesIcon from "../../features/pharmacy/svg/SalesIcon.jsx";
+import { useAvatarStore } from "../../store/UseAvatarStore.js";
+import avatarImage from "../../assets/avatar.avif"
 
 const dashboardItems = [
     { name: "Dashboard", path: "/pharmacy/dashboard", icon: DashboardIcon },
@@ -18,11 +20,17 @@ const dashboardItems = [
 ];
 
 
+
 export default function PharmacyDashboard() {
+    // const {changeAvatarName,changeAvatarImage} = useAvatarStore(); //for testing purposes for the avatar store
     return (
         <>
             <RetractableSidebar sidebarLogo={logoName} sidebarItems={dashboardItems}/>
             <PDashboardMain/>
+
+            {/* for testing purposes for the avatar store */}
+            {/* <input type="text" onChange={(e)=>{changeAvatarName(e.target.value)}}/>
+            <button onClick={()=>{changeAvatarImage(avatarImage)}}>change image</button>  */}
         </>
     )
 }

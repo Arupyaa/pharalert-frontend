@@ -1,5 +1,7 @@
 
-
+//collapsed: state, if true collapse the sidebar to show only the icons
+//setCollapsed: state Setter function
+//SidebarLogo; the website logo in the header
 export default function SidebarHeader({collapsed,setCollapsed,sidebarLogo}) {
     return (
         <div className={`h-[60px] flex items-center ${collapsed ? 'justify-center' : 'justify-between'}  px-2 shadow-sm bg-neutral-main z-120`}>
