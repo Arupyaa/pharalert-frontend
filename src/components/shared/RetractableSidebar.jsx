@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import logoName from "../../assets/logo_name.svg";
+import logoName from "../../assets/logo_name v1.1.svg";
 // import receiptIcon from "../../assets/icons/receipts.svg";
 import logo from '../../assets/icons/logo.svg'
 import ReceiptIcon from "../../features/pharmacy/svg/ReceiptIcon.jsx";
@@ -8,29 +8,34 @@ import DashboardIcon from "../../features/pharmacy/svg/DashboardIcon.jsx";
 import SettingsIcon from "../../features/pharmacy/svg/SettingsIcon.jsx"
 import PillIcon from "../../features/pharmacy/svg/PillIcon.jsx";
 import SalesIcon from "../../features/pharmacy/svg/SalesIcon.jsx";
+import AvatarWithName from "./AvatarWithName.jsx";
+import Avatar from "./Avatar.jsx";
+import avatarImage from "../../assets/avatar.avif"
+
 
 const dashboardItems = [
     { name: "Dashboard", path: "/pharmacy/dashboard", icon: DashboardIcon },
-    { name: "Inventory", path: "/pharmacy/inventory", icon: PillIcon},
-    { name: "Sales", path: "/pharmacy/sales", icon: SalesIcon},
-    { name: "Receipts", path: "/pharmacy/receipts", icon: ReceiptIcon},
-    { name: "Settings", path: "/pharmacy/settings", icon: SettingsIcon},
+    { name: "Inventory", path: "/pharmacy/inventory", icon: PillIcon },
+    { name: "Sales", path: "/pharmacy/sales", icon: SalesIcon },
+    { name: "Receipts", path: "/pharmacy/receipts", icon: ReceiptIcon },
+    { name: "Settings", path: "/pharmacy/settings", icon: SettingsIcon },
 ];
 
 export default function RetractableSidebar() {
     const [collapsed, setCollapsed] = useState(false);
 
     return (
+        //z-100 is needed to make sure aside is above other elements and the shadow appears correctly
         <aside
             className={`h-screen bg-neutral-main shadow-md
-        flex flex-col overflow-hidden
+        flex flex-col overflow-hidden z-100
         transition-all duration-300 ease-in-out
 
         //changes width based on state
         ${collapsed ? "w-16" : "w-64 sm:w-60 lg:w-56"}`}>
 
             {/* Logo Section */}
-            <div className="h-[60px] flex items-center justify-center px-3 shadow-sm bg-neutral-main">
+            <div className={`h-[60px] flex items-center ${collapsed ? 'justify-center' : 'justify-between'}  px-2 shadow-sm bg-neutral-main z-120`}>
 
                 {/* Logo */}
                 {!collapsed && (
@@ -83,42 +88,51 @@ export default function RetractableSidebar() {
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 px-2 py-4 space-y-2 bg-neutral-main">
-                {dashboardItems.map((item) =>{
+            <nav className={`flex-1 px-2 py-4 space-y-2 bg-neutral-main shadow-sm ${collapsed && 'flex flex-col items-center'}`}>
+                {dashboardItems.map((item) => {
                     const Icon = item.icon;
-                    return(
-                    //assign navlink item's icon reference to its respective component 
+                    return (
+                        //assign navlink item's icon reference to its respective component 
 
-                    <NavLink
-                        key={item.name}
-                        to={item.path}
-                        className={({ isActive }) =>
-                            
-                        `flex items-center gap-3
+                        <NavLink
+                            key={item.name}
+                            to={item.path}
+                            className={({ isActive }) =>
+
+                                `flex items-center gap-3
                         rounded-md px-3 py-2
                         transition-all duration-200 text-heading
 
                         ${isActive
-                                ? "bg-brand-light"
-                                : "hover:bg-brand-light/20"
-                            }
+                                    ? "bg-brand-light"
+                                    : "hover:bg-brand-light/20"
+                                }
                         `
-                        }
-                    >
-                        {/* Icon */}
-                        {
-                        <Icon color='text-heading' width="w-4" height="h-4"/>
-                        }
+                            }
+                        >
+                            {/* Icon */}
+                            {
+                                <Icon color='text-heading' width="w-4" height="h-4" />
+                            }
 
-                        {/* navlink name (hidden when collapsed) */}
-                        {!collapsed && (
-                            <span className="font-semibold whitespace-nowrap">
-                                {item.name}
-                            </span>
-                        )}
-                    </NavLink>
-                )})}
+                            {/* navlink name (hidden when collapsed) */}
+                            {!collapsed && (
+                                <span className="font-semibold whitespace-nowrap">
+                                    {item.name}
+                                </span>
+                            )}
+                        </NavLink>
+                    )
+                })}
             </nav>
+            {/* avatar section for both collapsed image only or uncollapsed with image and name */}
+            <div className={`py-4 px-2 ${collapsed && 'flex justify-center'}`} >
+                {!collapsed ?
+                    <AvatarWithName avatarImg={avatarImage} avatarName={'Ibrahim Hosasm'} /> :
+                    <Avatar avatarImg={avatarImage} />
+                }
+
+            </div>
         </aside>
     );
 }
