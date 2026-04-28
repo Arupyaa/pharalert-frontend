@@ -1,16 +1,19 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import MasterGrid from './pages/master/MasterGrid'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import './index.css'
-import App from './pages/App'
 import "flowbite"
+import PharmacyDashboard from './pages/pharmacy/PharmacyDashboard'
+
 
 const routes = createBrowserRouter([
 {
   path: '/', element: <MasterGrid/>, children:[
     //template
     // { path: '/', element: <Home /> },
+    {path: '/pharmacy', element: <Navigate to= "/pharmacy/dashboard" replace/>},
+    {path: '/pharmacy/dashboard', element: <PharmacyDashboard/>}
   ]
 }
 ]);
