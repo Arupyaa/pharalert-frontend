@@ -29,7 +29,7 @@ export default function PharmacyDashboard() {
         <>
             {/* all of this is wrapped by master page flex layout */}
             <RetractableSidebar sidebarLogo={logoName} sidebarItems={dashboardItems} />
-            <div className="flex flex-col w-full">
+            <div className="flex flex-col w-full h-screen">
                 <DashboardNavBar />
                 <PDashboardMain />
             </div>

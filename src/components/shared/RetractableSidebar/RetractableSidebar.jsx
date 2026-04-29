@@ -13,12 +13,12 @@ export default function RetractableSidebar({sidebarItems,sidebarLogo}) {
     return (
         //z-100 is needed to make sure aside is above other elements and the shadow appears correctly
         <aside
-            className={`h-screen bg-neutral-main shadow-md
+            className={`h-screen bg-neutral-main shadow-md absolute top-0 left-0 sm:static
         flex flex-col overflow-hidden z-100
-        transition-all duration-300 ease-in-out shrink-0
+        transition-all duration-300 ease-in-out shrink-0 
 
         //changes width based on state
-        ${collapsed ? "w-16" : "w-64 sm:w-60 lg:w-56"}`}>
+        ${collapsed ? "w-16" : "w-52 sm:w-60 lg:w-56"}`}>
 
             {/* Logo Section */}
             <SidebarHeader collapsed={collapsed} setCollapsed={setCollapsed} sidebarLogo={sidebarLogo}/>
