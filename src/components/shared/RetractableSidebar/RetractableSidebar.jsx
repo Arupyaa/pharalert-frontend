@@ -15,7 +15,7 @@ export default function RetractableSidebar({sidebarItems,sidebarLogo}) {
         <aside
             className={`h-screen bg-neutral-main shadow-md
         flex flex-col overflow-hidden z-100
-        transition-all duration-300 ease-in-out
+        transition-all duration-300 ease-in-out shrink-0
 
         //changes width based on state
         ${collapsed ? "w-16" : "w-64 sm:w-60 lg:w-56"}`}>

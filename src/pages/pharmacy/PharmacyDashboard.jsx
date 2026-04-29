@@ -10,6 +10,8 @@ import PillIcon from "../../features/pharmacy/svg/PillIcon.jsx";
 import SalesIcon from "../../features/pharmacy/svg/SalesIcon.jsx";
 import { useAvatarStore } from "../../store/UseAvatarStore.js";
 import avatarImage from "../../assets/avatar.avif"
+import DashboardNavBar from "../../features/pharmacy/components/DashboardNavBar.jsx";
+
 
 const dashboardItems = [
     { name: "Dashboard", path: "/pharmacy/dashboard", icon: DashboardIcon },
@@ -25,8 +27,12 @@ export default function PharmacyDashboard() {
     // const {changeAvatarName,changeAvatarImage} = useAvatarStore(); //for testing purposes for the avatar store
     return (
         <>
-            <RetractableSidebar sidebarLogo={logoName} sidebarItems={dashboardItems}/>
-            <PDashboardMain/>
+            {/* all of this is wrapped by master page flex layout */}
+            <RetractableSidebar sidebarLogo={logoName} sidebarItems={dashboardItems} />
+            <div className="flex flex-col w-full">
+                <DashboardNavBar />
+                <PDashboardMain />
+            </div>
 
             {/* for testing purposes for the avatar store */}
             {/* <input type="text" onChange={(e)=>{changeAvatarName(e.target.value)}}/>

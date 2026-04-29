@@ -31,6 +31,9 @@
     --text-main: #333333;
     --text-heading: #000000;
     --text-muted: #6B7280;
+
+    /* for borders */
+    --border-gray: #E5E7EB;
 }
 
 .dark {
@@ -59,6 +62,9 @@
     /* headings */
     --text-muted: #A0A0A0;
     /* secondary text */
+
+    /* for borders */
+    --border-gray: #2A2A2A;
 }
 
 @theme {
@@ -73,6 +79,7 @@
     --color-paragraph: var(--text-main);
     --color-heading: var(--text-heading);
     --color-muted: var(--text-muted);
+    --color-border-primary: var(--border-gray);
 
     /*custom font*/
     --font-sans: "Inter", sans-serif;
