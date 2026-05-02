@@ -1,19 +1,22 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import MasterGrid from "./pages/master/MasterGrid";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import "./index.css";
-// import App from "./pages/App";
-import "flowbite";
-
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import MasterGrid from './pages/master/MasterGrid'
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
+import './index.css'
+import "flowbite"
+import PharmacyDashboard from './pages/pharmacy/PharmacyDashboard'
 import LandingPage from "./pages/Global/LandingPage";
 
 const routes = createBrowserRouter([
-  {
-    path: "/",
-    element: <MasterGrid />,
-    children: [{ path: "/", element: <LandingPage /> }],
-  },
+{
+  path: '/', element: <MasterGrid/>, children:[
+    //template
+    // { path: '/', element: <Home /> },
+    { path: "/", element: <LandingPage /> },
+    {path: '/pharmacy', element: <Navigate to= "/pharmacy/dashboard" replace/>},
+    {path: '/pharmacy/dashboard', element: <PharmacyDashboard/>}
+  ]
+}
 ]);
 
 createRoot(document.getElementById("root")).render(

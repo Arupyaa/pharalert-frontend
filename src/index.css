@@ -3,7 +3,7 @@
 
 @import "tailwindcss";
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 /* @import "flowbite/src/themes/default"; */
 @plugin "flowbite/plugin";
 @source "../node_modules/flowbite";
@@ -26,10 +26,13 @@
   /* 10% Accent */
   --accent: #0053b5;
 
-  /* Text */
-  --text-main: #333333;
-  --text-heading: #000000;
-  --text-muted: #6b7280;
+    /* Text */
+    --text-main: #333333;
+    --text-heading: #000000;
+    --text-muted: #6B7280;
+
+    /* for borders */
+    --border-gray: #E5E7EB;
 }
 
 .dark {
@@ -46,31 +49,36 @@
   --bg-tertiary: #242424;
   /* modals/nav/sidebar */
 
-  /* 10% Accent */
-  --accent: #4a90ff;
-  /* lighter blue works better on dark backgrounds */
 
-  /* Text */
-  --text-main: #e5e5e5;
-  /* body text */
-  --text-heading: #ffffff;
-  /* headings */
-  --text-muted: #a0a0a0;
-  /* secondary text */
+    /* 10% Accent */
+    --accent: #4A90FF;
+    /* lighter blue works better on dark backgrounds */
+
+    /* Text */
+    --text-main: #E5E5E5;
+    /* body text */
+    --text-heading: #FFFFFF;
+    /* headings */
+    --text-muted: #A0A0A0;
+    /* secondary text */
+
+    /* for borders */
+    --border-gray: #2A2A2A;
 }
 
 @theme {
-  /*custom colors*/
-  --color-brand-primary: var(--brand-primary);
-  --color-brand-light: var(--brand-light);
-  --color-brand-dark: var(--brand-dark);
-  --color-neutral-main: var(--bg-neutral);
-  --color-neutral-secondary: var(--bg-secondary);
-  --color-neutral-tertiary: var(--bg-tertiary);
-  --color-accent: var(--accent);
-  --color-paragraph: var(--text-main);
-  --color-heading: var(--text-heading);
-  --color-muted: var(--text-muted);
+    /*custom colors*/
+    --color-brand-primary: var(--brand-primary);
+    --color-brand-light: var(--brand-light);
+    --color-brand-dark: var(--brand-dark);
+    --color-neutral-main: var(--bg-neutral);
+    --color-neutral-secondary: var(--bg-secondary);
+    --color-neutral-tertiary: var(--bg-tertiary);
+    --color-accent: var(--accent);
+    --color-paragraph: var(--text-main);
+    --color-heading: var(--text-heading);
+    --color-muted: var(--text-muted);
+    --color-border-primary: var(--border-gray);
 
   /* fixed colors for displaying on images */
   --color-fixed-white: #ffffff;
