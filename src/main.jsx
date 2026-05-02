@@ -8,15 +8,16 @@ import PharmacyDashboard from './pages/pharmacy/PharmacyDashboard'
 import LandingPage from "./pages/Global/LandingPage";
 
 const routes = createBrowserRouter([
-{
-  path: '/', element: <MasterGrid/>, children:[
-    //template
-    // { path: '/', element: <Home /> },
-    { path: "/", element: <LandingPage /> },
-    {path: '/pharmacy', element: <Navigate to= "/pharmacy/dashboard" replace/>},
-    {path: '/pharmacy/dashboard', element: <PharmacyDashboard/>}
-  ]
-}
+  { path: "/", element: <LandingPage /> },
+
+  {
+    path: "/",
+    element: <MasterGrid />,
+    children: [
+      { path: "pharmacy/dashboard", element: <PharmacyDashboard /> },
+      { path: "pharmacy", element: <Navigate to="/pharmacy/dashboard" replace /> },
+    ],
+  },
 ]);
 
 createRoot(document.getElementById("root")).render(
