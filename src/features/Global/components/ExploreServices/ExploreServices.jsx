@@ -78,11 +78,13 @@ export default function ExploreServices() {
     <section className="py-8">
       {/* Header */}
       <div className="text-center mb-14">
-        <span className="section-label">Who We Serve</span>
-        <h2 className="text-3xl md:text-4xl font-bold text-[var(--text-heading)] mt-1">
+        <span className="text-[var(--brand-primary)] font-semibold text-sm uppercase tracking-widest mb-3">
+          Who We Serve
+        </span>
+        <h2 className="text-3xl md:text-4xl font-bold text-[var(--text-heading)]">
           Explore Services
         </h2>
-        <div className="section-divider" />
+        <div className="w-12 h-1 bg-[var(--brand-primary)] rounded-full mx-auto mt-4" />
       </div>
 
       <div className="grid grid-cols-12 gap-5">
