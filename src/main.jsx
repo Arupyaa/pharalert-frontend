@@ -5,6 +5,7 @@ import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import './index.css'
 import "flowbite"
 import PharmacyDashboard from './pages/pharmacy/PharmacyDashboard'
+import Inventory from './pages/pharmacy/Inventory'
 
 
 const routes = createBrowserRouter([
@@ -13,7 +14,8 @@ const routes = createBrowserRouter([
     //template
     // { path: '/', element: <Home /> },
     {path: '/pharmacy', element: <Navigate to= "/pharmacy/dashboard" replace/>},
-    {path: '/pharmacy/dashboard', element: <PharmacyDashboard/>}
+    {path: '/pharmacy/dashboard', element: <PharmacyDashboard/>},
+    {path:'/company/inventory',element: <Inventory/>}
   ]
 }
 ]);
