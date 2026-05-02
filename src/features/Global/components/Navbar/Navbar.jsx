@@ -1,7 +1,16 @@
 import { NavLink } from "react-router-dom";
 import logo from "../../../../assets/images/logo_name v1.1.svg";
+import { useState } from "react";
 
 export default function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
+  function mobileMenu() {
+
+
+
+    
+  }
+
   return (
     <nav
       className="w-full px-6 md:px-16 py-4 fixed top-0 left-0 z-[999] flex items-center justify-between"
@@ -14,7 +23,7 @@ export default function Navbar() {
     >
       {/* logo  */}
       <div>
-        <img className="h-[36px] w-auto" src={logo} alt="PharAlert" />
+        <img className="h-[36px]  w-auto" src={logo} alt="PharAlert" />
       </div>
 
       {/* nav links */}
@@ -30,7 +39,7 @@ export default function Navbar() {
           <div className="flex items-center gap-1 cursor-pointer hover:text-[var(--brand-primary)] transition-colors duration-200">
             <span>Portals</span>
             <svg
-              className="w-3.5 h-3.5 opacity-60 mt-0.5"
+              className="w-3.5  h-3.5 opacity-60 mt-0.5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -124,6 +133,9 @@ export default function Navbar() {
       {/* mobile menu */}
       <div className="md:hidden">
         <svg
+          onClick={() => {
+            mobileMenu();
+          }}
           className="w-6 h-6 text-gray-700 cursor-pointer"
           fill="none"
           viewBox="0 0 24 24"
