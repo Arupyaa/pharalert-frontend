@@ -1,7 +1,6 @@
 import { NavLink } from "react-router-dom";
 import logo from "../../../../assets/images/logo_name v1.1.svg";
-import { useEffect, useState } from "react";
-import { useIsMobile } from "../../../../hooks/useIsMobile";
+import { useEffect, useRef, useState } from "react";
 import Overlay from "../../../../components/shared/Overlay";
 
 const portalsLinks = ["Companies", "Pharmacies", "Customers"];
@@ -21,9 +20,68 @@ const ChevronIcon = ({ open }) => (
   </svg>
 );
 
-export default function Navbar() {
-  const isMobile = useIsMobile();
+// Desktop Hover Dropdown
+function HoverDropdown({ label, links, basePath }) {
+  const [open, setOpen] = useState(false);
+  const timerRef = useRef(null);
 
+  const handleMouseEnter = () => {
+    clearTimeout(timerRef.current);
+    setOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    timerRef.current = setTimeout(() => setOpen(false), 120);
+  };
+
+  return (
+    <li
+      className="relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <button
+        className={`flex items-center gap-1 transition-colors duration-200 ${
+          open
+            ? "text-[var(--brand-primary)]"
+            : "hover:text-[var(--brand-primary)]"
+        }`}
+      >
+        {label} <ChevronIcon open={open} />
+      </button>
+
+      <ul
+        className={`absolute left-0 top-full pt-2 w-[180px] z-50 transition-all duration-200 origin-top ${
+          open
+            ? "opacity-100 scale-y-100 translate-y-0 pointer-events-auto"
+            : "opacity-0 scale-y-95 -translate-y-1 pointer-events-none"
+        }`}
+      >
+        <div className="bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden">
+          {links.map((item) => (
+            <li key={item}>
+              <NavLink
+                to={`${basePath}/${item.toLowerCase().replace(" ", "-")}`}
+                onClick={() => setOpen(false)}
+                className={({ isActive }) =>
+                  `block px-4 py-3 text-sm transition-colors duration-150 ${
+                    isActive
+                      ? "text-[var(--brand-primary)] bg-emerald-50 font-medium"
+                      : "text-slate-500 hover:bg-gray-50 hover:text-[var(--brand-primary)]"
+                  }`
+                }
+              >
+                {item}
+              </NavLink>
+            </li>
+          ))}
+        </div>
+      </ul>
+    </li>
+  );
+}
+
+export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [openPortals, setOpenPortals] = useState(false);
   const [openHelp, setOpenHelp] = useState(false);
@@ -34,42 +92,48 @@ export default function Navbar() {
     setOpenHelp(false);
   }
 
+  // Close mobile drawer on xl+ resize
   useEffect(() => {
-    if (!isMobile) {
-      closeAll();
-    }
-  }, [isMobile]);
+    const mq = window.matchMedia("(min-width: 1280px)");
+    const handler = (e) => {
+      if (e.matches) closeAll();
+    };
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  // Lock body scroll
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   return (
     <>
-      {/* ===== NAVBAR ===== */}
-      <nav
-        className="
-        w-[92%] lg:w-[80%] max-w-6xl rounded-full
-        px-4 sm:px-6 md:px-10 lg:px-16
-        py-3
-        fixed top-3 left-1/2 -translate-x-1/2
-        z-[1000]
-        flex items-center justify-between
-        bg-white/70 backdrop-blur-xl
-        border border-[rgba(0,171,121,0.12)]
-        shadow-[0_2px_24px_rgba(0,0,0,0.06)]
-      "
-      >
-        {/* LOGO */}
-        <NavLink to="/" onClick={closeAll}>
-          <img className="h-[34px]" src={logo} alt="logo" />
+      {/* ================= NAVBAR ================= */}
+      <nav className="w-[95%] sm:w-[92%] lg:w-[85%] xl:w-[80%] max-w-7xl rounded-full px-4 sm:px-6 md:px-10 lg:px-12 xl:px-16 py-3 fixed top-3 left-1/2 -translate-x-1/2 z-[1000] flex items-center justify-between bg-white/70 backdrop-blur-xl border border-[rgba(0,171,121,0.12)] shadow-[0_2px_24px_rgba(0,0,0,0.06)]">
+        {/* ================= LOGO ================= */}
+        <NavLink to="/" onClick={closeAll} className="flex-shrink-0">
+          <img
+            className="h-[30px] sm:h-[34px] w-auto"
+            src={logo}
+            alt="PharAlert logo"
+          />
         </NavLink>
 
-        {/* ===== DESKTOP MENU ===== */}
-        <ul className="hidden lg:flex items-center gap-8 text-[15px] font-medium text-gray-600">
+        {/* ================= DESKTOP MENU ================= */}
+        <ul className="hidden xl:flex items-center gap-6 xl:gap-8 text-[15px] font-medium text-slate-500">
           <li>
             <NavLink
               to="/"
               end
               className={({ isActive }) =>
-                `hover:text-[var(--brand-primary)] transition-colors ${
-                  isActive ? "text-[var(--brand-primary)] font-semibold" : ""
+                `transition-colors duration-200 ${
+                  isActive
+                    ? "text-[var(--brand-primary)] font-semibold"
+                    : "hover:text-[var(--brand-primary)]"
                 }`
               }
             >
@@ -77,59 +141,43 @@ export default function Navbar() {
             </NavLink>
           </li>
 
-          <li className="relative group cursor-pointer">
-            <div className="flex items-center gap-1 hover:text-[var(--brand-primary)] transition-colors">
-              Portals <ChevronIcon open={false} />
-            </div>
-
-            <ul className="absolute left-0 top-full mt-3 w-[180px] bg-white rounded-xl shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-              {portalsLinks.map((item) => (
-                <li key={item}>
-                  <NavLink
-                    to={`/portal/${item.toLowerCase()}`}
-                    className="block px-4 py-3 hover:bg-gray-50 text-sm hover:text-[var(--brand-primary)]"
-                  >
-                    {item}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </li>
+          {/* Portals — hover dropdown */}
+          <HoverDropdown
+            label="Portals"
+            links={portalsLinks}
+            basePath="/portal"
+          />
 
           <li>
             <NavLink
               to="/pricing"
-              className="hover:text-[var(--brand-primary)] transition-colors"
+              className={({ isActive }) =>
+                `transition-colors duration-200 ${
+                  isActive
+                    ? "text-[var(--brand-primary)] font-semibold"
+                    : "hover:text-[var(--brand-primary)]"
+                }`
+              }
             >
               Pricing
             </NavLink>
           </li>
 
-          <li className="relative group cursor-pointer">
-            <div className="flex items-center gap-1 hover:text-[var(--brand-primary)] transition-colors">
-              Help Center <ChevronIcon open={false} />
-            </div>
-
-            <ul className="absolute left-0 top-full mt-3 w-[180px] bg-white rounded-xl shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-              {helpLinks.map((item) => (
-                <li key={item}>
-                  <NavLink
-                    to={`/help/${item.toLowerCase().replace(" ", "-")}`}
-                    className="block px-4 py-3 hover:bg-gray-50 text-sm hover:text-[var(--brand-primary)]"
-                  >
-                    {item}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </li>
+          {/* Help Center — hover dropdown */}
+          <HoverDropdown
+            label="Help Center"
+            links={helpLinks}
+            basePath="/help"
+          />
 
           <li>
             <NavLink
               to="/about"
               className={({ isActive }) =>
-                `hover:text-[var(--brand-primary)] transition-colors ${
-                  isActive ? "text-[var(--brand-primary)] font-semibold" : ""
+                `transition-colors duration-200 ${
+                  isActive
+                    ? "text-[var(--brand-primary)] font-semibold"
+                    : "hover:text-[var(--brand-primary)]"
                 }`
               }
             >
@@ -138,28 +186,28 @@ export default function Navbar() {
           </li>
         </ul>
 
-        {/* ===== DESKTOP BUTTONS ===== */}
-        <div className="hidden lg:flex items-center gap-3">
+        {/* ================= DESKTOP BUTTONS ================= */}
+        <div className="hidden xl:flex items-center gap-3">
           <NavLink
             to="/login"
-            className="text-gray-600 px-3 py-2 hover:text-black transition"
+            className="text-slate-500 px-3 py-2 hover:text-slate-800 transition-colors duration-200"
           >
             Login
           </NavLink>
 
           <NavLink
             to="/signup"
-            className="bg-[var(--brand-primary)] text-white px-5 py-2 rounded-lg hover:scale-105 transition"
+            className="bg-[var(--brand-primary)] text-white px-5 py-2 rounded-lg hover:scale-105 transition-transform duration-200 shadow-sm"
           >
             Sign Up
           </NavLink>
         </div>
 
-        {/* ===== MOBILE BUTTON ===== */}
+        {/* ================= MOBILE ICON ================= */}
         <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="lg:hidden"
-          aria-label="Toggle menu"
+          onClick={() => setIsOpen(true)}
+          className="xl:hidden p-2 -mr-2 rounded-lg hover:bg-gray-100 transition"
+          aria-label="Open menu"
         >
           <svg
             className="w-6 h-6 text-gray-700"
@@ -168,109 +216,167 @@ export default function Navbar() {
             stroke="currentColor"
             strokeWidth={2}
           >
-            {isOpen ? (
-              <path d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path d="M4 6h16M4 12h16M4 18h16" />
-            )}
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
           </svg>
         </button>
       </nav>
 
-      {/* ===== OVERLAY ===== */}
+      {/* ================= OVERLAY ================= */}
       <Overlay isVisible={isOpen} onClose={closeAll} />
 
-      {/* ===== MOBILE MENU ===== */}
+      {/* ================= MOBILE DRAWER ================= */}
       <div
-        className={`lg:hidden fixed top-0 left-0 h-screen w-[75%] bg-white z-[1001]
-        shadow-xl transition-all duration-500 ease-in-out
-        ${isOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"}`}
+        className={`xl:hidden fixed top-0 left-0 h-full w-[80%] max-w-[320px] bg-white z-[1001] shadow-2xl transition-transform duration-300 ease-in-out flex flex-col ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
-        <div className="p-6 flex flex-col gap-6">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <NavLink to="/" onClick={closeAll}>
+            <img className="h-[30px] w-auto" src={logo} alt="PharAlert logo" />
+          </NavLink>
+
+          <button
+            onClick={closeAll}
+            className="p-2 rounded-lg hover:bg-gray-100 transition"
+          >
+            <svg
+              className="w-5 h-5 text-gray-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        {/* Mobile Links */}
+        <nav className="flex-1 overflow-y-auto px-5 py-6 flex flex-col gap-1">
+          <NavLink
+            to="/"
+            end
+            onClick={closeAll}
+            className={({ isActive }) =>
+              `block px-3 py-3 rounded-lg font-medium transition-colors ${
+                isActive
+                  ? "text-[var(--brand-primary)] bg-[var(--brand-light)]"
+                  : "text-slate-600 hover:bg-gray-50 hover:text-[var(--brand-primary)]"
+              }`
+            }
+          >
             Home
           </NavLink>
 
-          {/* PORTALS */}
+          {/* Portals */}
           <div>
             <button
               onClick={() => setOpenPortals(!openPortals)}
-              className="flex justify-between w-full font-semibold"
+              className="flex justify-between items-center w-full px-3 py-3 rounded-lg font-medium text-slate-600 hover:bg-gray-50 transition-colors"
             >
               Portals <ChevronIcon open={openPortals} />
             </button>
 
             <div
-              className={`overflow-hidden transition-all duration-300 ${
-                openPortals ? "max-h-40 mt-2 opacity-100" : "max-h-0 opacity-0"
-              }`}
+              className={`overflow-hidden transition-all duration-300 ${openPortals ? "max-h-48 opacity-100" : "max-h-0 opacity-0"}`}
             >
-              {portalsLinks.map((item) => (
-                <NavLink
-                  key={item}
-                  to={`/portal/${item.toLowerCase()}`}
-                  onClick={closeAll}
-                  className="block py-2 text-gray-600"
-                >
-                  {item}
-                </NavLink>
-              ))}
+              <div className="pl-4 pb-2 flex flex-col gap-1 mt-1">
+                {portalsLinks.map((item) => (
+                  <NavLink
+                    key={item}
+                    to={`/portal/${item.toLowerCase()}`}
+                    onClick={closeAll}
+                    className="block px-3 py-2.5 text-slate-400 hover:text-[var(--brand-primary)] hover:bg-gray-50 rounded-lg text-sm transition-colors"
+                  >
+                    {item}
+                  </NavLink>
+                ))}
+              </div>
             </div>
           </div>
 
-          <NavLink to="/pricing" onClick={closeAll}>
+          <NavLink
+            to="/pricing"
+            onClick={closeAll}
+            className={({ isActive }) =>
+              `block px-3 py-3 rounded-lg font-medium transition-colors ${
+                isActive
+                  ? "text-[var(--brand-primary)] bg-[var(--brand-light)]"
+                  : "text-slate-600 hover:bg-gray-50 hover:text-[var(--brand-primary)]"
+              }`
+            }
+          >
             Pricing
           </NavLink>
 
-          {/* HELP */}
+          {/* Help */}
           <div>
             <button
               onClick={() => setOpenHelp(!openHelp)}
-              className="flex justify-between w-full font-semibold"
+              className="flex justify-between items-center w-full px-3 py-3 rounded-lg font-medium text-slate-600 hover:bg-gray-50 transition-colors"
             >
               Help Center <ChevronIcon open={openHelp} />
             </button>
 
             <div
-              className={`overflow-hidden transition-all duration-300 ${
-                openHelp ? "max-h-40 mt-2 opacity-100" : "max-h-0 opacity-0"
-              }`}
+              className={`overflow-hidden transition-all duration-300 ${openHelp ? "max-h-48 opacity-100" : "max-h-0 opacity-0"}`}
             >
-              {helpLinks.map((item) => (
-                <NavLink
-                  key={item}
-                  to={`/help/${item.toLowerCase().replace(" ", "-")}`}
-                  onClick={closeAll}
-                  className="block py-2 text-gray-600"
-                >
-                  {item}
-                </NavLink>
-              ))}
+              <div className="pl-4 pb-2 flex flex-col gap-1 mt-1">
+                {helpLinks.map((item) => (
+                  <NavLink
+                    key={item}
+                    to={`/help/${item.toLowerCase().replace(" ", "-")}`}
+                    onClick={closeAll}
+                    className="block px-3 py-2.5 text-slate-400 hover:text-[var(--brand-primary)] hover:bg-gray-50 rounded-lg text-sm transition-colors"
+                  >
+                    {item}
+                  </NavLink>
+                ))}
+              </div>
             </div>
           </div>
 
-          <NavLink to="/about" onClick={closeAll}>
+          <NavLink
+            to="/about"
+            onClick={closeAll}
+            className={({ isActive }) =>
+              `block px-3 py-3 rounded-lg font-medium transition-colors ${
+                isActive
+                  ? "text-[var(--brand-primary)] bg-[var(--brand-light)]"
+                  : "text-slate-600 hover:bg-gray-50 hover:text-[var(--brand-primary)]"
+              }`
+            }
+          >
             About
           </NavLink>
+        </nav>
 
-          {/* ===== AUTH BUTTONS  ===== */}
-          <div className="pt-6 border-t flex flex-col gap-3">
-            <NavLink
-              to="/login"
-              onClick={closeAll}
-              className="text-center py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition"
-            >
-              Login
-            </NavLink>
+        {/* Footer */}
+        <div className="px-5 py-5 border-t border-gray-100 flex flex-col gap-3">
+          <NavLink
+            to="/login"
+            onClick={closeAll}
+            className="text-center py-2.5 rounded-xl border border-gray-300 text-slate-600 font-medium hover:bg-gray-50 transition"
+          >
+            Login
+          </NavLink>
 
-            <NavLink
-              to="/signup"
-              onClick={closeAll}
-              className="text-center py-2 rounded-lg bg-[var(--brand-primary)] text-white hover:scale-[1.02] transition shadow-sm"
-            >
-              Sign Up
-            </NavLink>
-          </div>
+          <NavLink
+            to="/signup"
+            onClick={closeAll}
+            className="text-center py-2.5 rounded-xl bg-[var(--brand-primary)] text-white font-medium hover:opacity-90 transition shadow-sm"
+          >
+            Sign Up
+          </NavLink>
         </div>
       </div>
     </>

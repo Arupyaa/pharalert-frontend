@@ -1,3 +1,5 @@
+import { twMerge } from "tailwind-merge";
+
 export default function Button({
   btnName,
   variant = "primary",
@@ -5,6 +7,7 @@ export default function Button({
   bgColor,
   textColor,
   onClick,
+  className = "",
 }) {
   const base =
     "cursor-pointer inline-flex items-center justify-center font-semibold rounded-full transition-all duration-250 select-none";
@@ -46,19 +49,18 @@ export default function Button({
     `,
   };
 
-  // legacy support for bgColor/textColor props
-  const legacyStyle =
-    bgColor || textColor ? `${bgColor ?? ""} ${textColor ?? ""}`.trim() : null;
+  const legacyStyle = `${bgColor ?? ""} ${textColor ?? ""}`.trim();
+
+  const finalClassName = twMerge(
+    base,
+    sizes[size],
+    variants[variant],
+    legacyStyle,
+    className,
+  );
 
   return (
-    <button
-      onClick={onClick}
-      className={`
-        ${base}
-        ${sizes[size] ?? sizes.md}
-        ${legacyStyle ? legacyStyle + " px-7 py-3 text-[15px]" : (variants[variant] ?? variants.primary)}
-      `}
-    >
+    <button onClick={onClick} className={finalClassName}>
       {btnName}
     </button>
   );

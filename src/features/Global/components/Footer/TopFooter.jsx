@@ -61,29 +61,6 @@ export default function TopFooter() {
 
         <div className="relative flex flex-wrap gap-3 justify-center">
           <Button btnName="Explore Services" variant="white" size="lg" />
-          <button
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-base font-semibold text-white transition-all duration-250"
-            style={{ border: "2px solid rgba(255,255,255,0.4)" }}
-            onMouseEnter={(e) =>
-              (e.target.style.background = "rgba(255,255,255,0.12)")
-            }
-            onMouseLeave={(e) => (e.target.style.background = "transparent")}
-          >
-            Learn More
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2.5}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
         </div>
       </section>
       <BottomFooter />

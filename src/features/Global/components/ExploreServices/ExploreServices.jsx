@@ -111,7 +111,7 @@ export default function ExploreServices() {
               <div className="flex items-center gap-2.5">
                 <div
                   className="w-8 h-8 rounded-xl flex items-center justify-center text-white flex-shrink-0"
-                  style={{ background: "rgba(0,171,121,0.9)" }}
+                  style={{ background: "#0053b5" }}
                 >
                   {item.icon}
                 </div>
@@ -132,7 +132,7 @@ export default function ExploreServices() {
                 <div className="flex items-center gap-2.5 mb-3">
                   <div
                     className="w-9 h-9 rounded-xl flex items-center justify-center text-white flex-shrink-0"
-                    style={{ background: "var(--brand-primary)" }}
+                    style={{ background: "#0053b5" }}
                   >
                     {item.icon}
                   </div>
@@ -144,7 +144,11 @@ export default function ExploreServices() {
                   {item.description}
                 </p>
               </div>
-              <Button btnName="Explore More" variant="white" size="sm" />
+              <Button
+                variant="primary"
+                className="bg-[linear-gradient(135deg,var(--accent)_0%,#0041a0_100%)] shadow-[0_6px_20px_rgba(0,83,181,0.4)] hover:shadow-[0_8px_28px_rgba(0,83,181,0.55)]"
+                btnName="Explore More"
+              />
             </div>
           </div>
         ))}

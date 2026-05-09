@@ -18,7 +18,11 @@ export default function Hero() {
         </p>
 
         <div className="mt-8">
-          <Button btnName="Explore Services" />
+          <Button
+            variant="primary"
+            className="bg-[linear-gradient(135deg,var(--accent)_0%,#0041a0_100%)] shadow-[0_6px_20px_rgba(0,83,181,0.4)] hover:shadow-[0_8px_28px_rgba(0,83,181,0.55)]"
+            btnName="Explore Services"
+          />
         </div>
       </div>
     </section>
