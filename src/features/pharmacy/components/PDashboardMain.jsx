@@ -27,9 +27,8 @@ export default function PDashboardMain() {
 
   return (
     <div className="flex-1 bg-neutral-secondary w-full min-h-screen p-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[400px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
         <LineChartExample data={data} xKey="name" lines={["pv", "uv"]} />
-
         <SimpleBarChart
           data={dataOfBarChart}
           xKey="name"
