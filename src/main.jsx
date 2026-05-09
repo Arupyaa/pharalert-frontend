@@ -5,7 +5,11 @@ import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import './index.css'
 import "flowbite"
 import PharmacyDashboard from './pages/pharmacy/PharmacyDashboard'
-
+import Inventory from './pages/pharmacy/Inventory'
+import Regions from './pages/Regions'
+import Medications from './pages/Medications'
+import Pharmacies from './pages/Pharmacies'
+import Badge from './pages/pharmacy/Badge'
 
 const routes = createBrowserRouter([
 {
@@ -13,7 +17,14 @@ const routes = createBrowserRouter([
     //template
     // { path: '/', element: <Home /> },
     {path: '/pharmacy', element: <Navigate to= "/pharmacy/dashboard" replace/>},
-    {path: '/pharmacy/dashboard', element: <PharmacyDashboard/>}
+    {path: '/pharmacy/dashboard', element: <PharmacyDashboard/>},
+    {path:'/company/inventory',element: <Inventory/>},
+    {path:'/regions' , element:<Regions/>},
+    {path: "/medications", element:<Medications/>},
+    {path: "/pharmacies", element:<Pharmacies/>},
+    {path: "/badge", element:<Badge/>},
+
+
   ]
 }
 ]);
