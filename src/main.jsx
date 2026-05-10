@@ -10,8 +10,10 @@ import Regions from './pages/Regions'
 import Medications from './pages/Medications'
 import Pharmacies from './pages/Pharmacies'
 import Badge from './pages/pharmacy/Badge'
+import LandingPage from './pages/Global/LandingPage'
 
 const routes = createBrowserRouter([
+  {path:'/', element: <LandingPage/>},
 {
   path: '/', element: <MasterGrid/>, children:[
     //template
