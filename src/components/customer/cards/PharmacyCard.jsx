@@ -5,7 +5,7 @@ import { MapPin, Navigation } from "lucide-react";
 import { getDistance } from "geolib";
 import OpenNowBadge from "../../../pages/pharmacy/OpenNowBadge";
 
-export default function Card({
+export default function PharmacyCard({
   name,
   address,
   image,
