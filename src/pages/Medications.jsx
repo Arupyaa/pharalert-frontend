@@ -1,4 +1,4 @@
-import TabsLinks from "../components/shared/RetractableSidebar/Tabslink";
+import TabsLinks from "../components/General/tabslink/Tabslink";
 
 export default function Medications() {
   return (
