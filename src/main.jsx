@@ -9,11 +9,6 @@ import {
 import "./index.css";
 import "flowbite";
 import PharmacyDashboard from "./pages/pharmacy/PharmacyDashboard";
-
-import Regions from "./pages/Regions";
-import Medications from "./pages/Medications";
-import Pharmacies from "./pages/Pharmacies";
-import Badge from "./components/General/badge/Badge";
 import LandingPage from "./pages/LandingPage";
 
 const routes = createBrowserRouter([
@@ -29,11 +24,6 @@ const routes = createBrowserRouter([
         element: <Navigate to="/pharmacy/dashboard" replace />,
       },
       { path: "/pharmacy/dashboard", element: <PharmacyDashboard /> },
-
-      { path: "/regions", element: <Regions /> },
-      { path: "/medications", element: <Medications /> },
-      { path: "/pharmacies", element: <Pharmacies /> },
-      { path: "/badge", element: <Badge /> },
     ],
   },
 ]);
