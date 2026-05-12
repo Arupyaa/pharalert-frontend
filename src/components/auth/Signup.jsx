@@ -1,7 +1,25 @@
-import waveIcon from "../../assets/icons/waving-hand-svgrepo-com.svg";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import waveIcon from "../../assets/icons/waving-hand-svgrepo-com.svg";
 
-export default function Login() {
+export default function Register() {
+  const [activeRole, setActiveRole] = useState("pharmacies");
+
+  const roles = [
+    {
+      id: "pharmacies",
+      label: "Pharmacies",
+    },
+    {
+      id: "companies",
+      label: "Companies",
+    },
+    {
+      id: "users",
+      label: "Users",
+    },
+  ];
+
   return (
     <section className="relative h-screen flex w-full items-center px-4 py-6 lg:py-10 overflow-hidden">
       {/* Split background */}
@@ -18,7 +36,7 @@ export default function Login() {
         <div className="w-full lg:w-1/2 h-full bg-[var(--login-right-bg)]" />
       </div>
 
-      {/* Decorations */}
+      {/* Left decorations */}
       <div className="absolute left-0 top-0 w-1/2 h-full hidden lg:block pointer-events-none overflow-hidden">
         <div
           className="absolute inset-0 opacity-[0.07]"
@@ -70,22 +88,23 @@ export default function Login() {
               </span>
 
               <h1 className="text-[38px] lg:text-[52px] leading-[1.1] font-bold text-white mb-6">
-                Smart Pharmacies Better
+                Join Smart Pharmacies
                 <span className="block text-[var(--brand-light)]">
-                  Healthcare.
+                  Better Healthcare.
                 </span>
               </h1>
 
               <p className="text-[var(--overlay-white-70)] text-[15px] leading-8 mb-10 max-w-md">
-                Sign in to your account and continue tracking medicines in real
-                time across pharmacies.
+                Create your account and become part of the connected pharmacy
+                ecosystem with real-time medicine tracking and intelligent
+                healthcare solutions.
               </p>
             </div>
 
-            {/* LOGIN CARD */}
+            {/* REGISTER CARD */}
             <div className="flex justify-center lg:justify-end py-28 lg:py-0">
               <div
-                className="w-full max-w-[480px] bg-white rounded-3xl p-7 sm:p-9"
+                className="w-full max-w-[520px] bg-white rounded-3xl p-7 sm:p-9"
                 style={{
                   boxShadow: "var(--shadow-card)",
                 }}
@@ -93,17 +112,55 @@ export default function Login() {
                 {/* Header */}
                 <div className="mb-8">
                   <h2 className="text-[28px] sm:text-3xl font-bold flex items-center gap-3 text-slate-800 mb-2">
-                    Welcome Back!
+                    Create Account
                     <img src={waveIcon} alt="Wave Hand" className="w-8 h-8" />
                   </h2>
 
                   <p className="text-slate-500 text-[14px]">
-                    Sign in to your account to continue
+                    Join PharAlert and start your journey
                   </p>
+                </div>
+
+                {/* Role Tabs */}
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                  {roles.map((role) => (
+                    <button
+                      key={role.id}
+                      onClick={() => setActiveRole(role.id)}
+                      className="py-3 rounded-xl text-sm font-semibold transition-all duration-300 border"
+                      style={{
+                        background:
+                          activeRole === role.id
+                            ? "var(--brand-primary)"
+                            : "#f8fafc",
+                        color: activeRole === role.id ? "#fff" : "#334155",
+                        borderColor:
+                          activeRole === role.id
+                            ? "var(--brand-primary)"
+                            : "var(--border-primary-soft)",
+                        boxShadow:
+                          activeRole === role.id
+                            ? "var(--shadow-button)"
+                            : "none",
+                      }}
+                    >
+                      {role.label}
+                    </button>
+                  ))}
                 </div>
 
                 {/* Form */}
                 <form className="space-y-5">
+                  <input
+                    type="text"
+                    placeholder="Enter your username"
+                    className="w-full px-4 py-3.5 border rounded-xl bg-slate-50 outline-none focus:border-[var(--brand-primary)] focus:ring-4 focus:ring-[var(--brand-primary)]/20 placeholder:text-slate-400 placeholder:text-sm transition"
+                    style={{
+                      borderColor: "var(--border-primary-soft)",
+                      color: "var(--text-main)",
+                    }}
+                  />
+
                   <input
                     type="email"
                     placeholder="Enter your email"
@@ -116,7 +173,17 @@ export default function Login() {
 
                   <input
                     type="password"
-                    placeholder="Enter your password"
+                    placeholder="Create a password"
+                    className="w-full px-4 py-3.5 border rounded-xl bg-slate-50 outline-none focus:border-[var(--brand-primary)] focus:ring-4 focus:ring-[var(--brand-primary)]/20 placeholder:text-slate-400 placeholder:text-sm transition"
+                    style={{
+                      borderColor: "var(--border-primary-soft)",
+                      color: "var(--text-main)",
+                    }}
+                  />
+
+                  <input
+                    type="password"
+                    placeholder="Confirm your password"
                     className="w-full px-4 py-3.5 border rounded-xl bg-slate-50 outline-none focus:border-[var(--brand-primary)] focus:ring-4 focus:ring-[var(--brand-primary)]/20 placeholder:text-slate-400 placeholder:text-sm transition"
                     style={{
                       borderColor: "var(--border-primary-soft)",
@@ -131,7 +198,7 @@ export default function Login() {
                       boxShadow: "var(--shadow-button)",
                     }}
                   >
-                    Sign In
+                    Create Account
                   </button>
                 </form>
 
@@ -144,12 +211,12 @@ export default function Login() {
 
                 {/* Footer */}
                 <p className="text-center text-slate-500 text-sm">
-                  Don't have an account?{" "}
+                  Already have an account?{" "}
                   <Link
-                    to="/signup"
+                    to="/login"
                     className="text-[var(--brand-primary)] font-bold hover:underline"
                   >
-                    Create Account
+                    Sign In
                   </Link>
                 </p>
               </div>
