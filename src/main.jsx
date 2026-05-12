@@ -10,6 +10,7 @@ import "./index.css";
 import "flowbite";
 import PharmacyDashboard from "./pages/pharmacy/PharmacyDashboard";
 import LandingPage from "./pages/LandingPage";
+import Login from "./components/auth/Login";
 
 const routes = createBrowserRouter([
   { path: "/", element: <LandingPage /> },
@@ -24,6 +25,7 @@ const routes = createBrowserRouter([
         element: <Navigate to="/pharmacy/dashboard" replace />,
       },
       { path: "/pharmacy/dashboard", element: <PharmacyDashboard /> },
+      { path: "/login", element: <Login /> },
     ],
   },
 ]);
