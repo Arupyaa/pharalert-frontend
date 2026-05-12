@@ -10,6 +10,8 @@ import "./index.css";
 import "flowbite";
 import PharmacyDashboard from "./pages/pharmacy/PharmacyDashboard";
 import LandingPage from "./pages/LandingPage";
+import Login from "./components/auth/Login";
+import Signup from "./components/auth/Signup";
 import ApiTest from "./pages/testing/ApiTest";
 
 const routes = createBrowserRouter([
@@ -26,6 +28,8 @@ const routes = createBrowserRouter([
         element: <Navigate to="/pharmacy/dashboard" replace />,
       },
       { path: "/pharmacy/dashboard", element: <PharmacyDashboard /> },
+      { path: "/login", element: <Login /> },
+      { path: "signup", element: <Signup /> },
     ],
   },
 ]);

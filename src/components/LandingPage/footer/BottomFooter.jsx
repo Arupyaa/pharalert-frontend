@@ -31,17 +31,19 @@ export default function BottomFooter() {
   ];
 
   return (
-    <section className="bg-[#0f4a30] text-white py-14">
+    <section style={{ background: "#0a3d26" }} className="text-white py-16">
       <div className="w-[90%] md:w-[85%] lg:w-[80%] mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10">
           {/* Logo Section */}
           <div className="lg:col-span-5 sm:col-span-2">
-            <img
-              className="w-[44px] h-[44px] bg-white rounded-lg p-1"
-              src={objFooter[0].img}
-              alt="logo"
-            />
-            <p className="mt-4 text-sm leading-relaxed text-white/70 max-w-xs">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-white/10 rounded-2xl p-1 mb-4 border border-white/10">
+              <img
+                className="w-9 h-9 object-contain"
+                src={objFooter[0].img}
+                alt="logo"
+              />
+            </div>
+            <p className="text-sm leading-relaxed text-white/60 max-w-xs">
               {objFooter[0].desc}
             </p>
           </div>
@@ -49,14 +51,17 @@ export default function BottomFooter() {
           {/* Links Sections */}
           {objFooter.slice(1).map((item) => (
             <div key={item.id} className="sm:col-span-1 lg:col-span-2">
-              <h3 className="font-bold mb-5 text-sm uppercase tracking-widest text-green-400">
+              <h3
+                className="font-bold mb-5 text-xs uppercase tracking-[0.16em]"
+                style={{ color: "var(--brand-primary)" }}
+              >
                 {item.title}
               </h3>
-              <ul className="space-y-3 text-sm text-white/65">
+              <ul className="space-y-3 text-sm text-white/55">
                 {item.lists.map((list, index) => (
                   <li
                     key={index}
-                    className="hover:text-white cursor-pointer transition-colors duration-150"
+                    className="hover:text-white cursor-pointer transition-colors duration-150 hover:translate-x-0.5 transform"
                   >
                     {list}
                   </li>
@@ -66,14 +71,14 @@ export default function BottomFooter() {
           ))}
         </div>
 
-        <hr className="my-8 border-white/10" />
+        <hr className="my-10 border-white/[0.08]" />
 
-        <div className="flex lg:flex-row flex-col lg:justify-between justify-center items-center gap-4 text-sm text-white/50">
+        <div className="flex lg:flex-row flex-col lg:justify-between justify-center items-center gap-4 text-xs text-white/40">
           <p>Built by FullStack Development Team — Graduation Project 2026</p>
           <div className="flex items-center gap-3">
             <span>Digilians</span>
             <img
-              className="w-8 h-8 rounded-full ring-2 ring-white/20"
+              className="w-8 h-8 rounded-full ring-2 ring-white/15 object-cover"
               src={logoDigilians}
               alt="Digilians"
             />
