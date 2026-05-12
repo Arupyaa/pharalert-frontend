@@ -25,6 +25,8 @@ export default function ExploreServices() {
           />
         </svg>
       ),
+      accent: "var(--color-brand-primary)",
+      iconBg: "var(--color-primary-12)",
     },
     {
       id: 2,
@@ -48,6 +50,8 @@ export default function ExploreServices() {
           />
         </svg>
       ),
+      accent: "var(--color-brand-primary)",
+      iconBg: "var(--color-primary-12)",
     },
     {
       id: 3,
@@ -71,82 +75,96 @@ export default function ExploreServices() {
           />
         </svg>
       ),
+      accent: "var(--color-brand-primary)",
+      iconBg: "var(--color-primary-12)",
     },
   ];
 
   return (
-    <section className="py-8">
+    <section className="py-8 bg-[var(--color-neutral-main)]">
       {/* Header */}
       <div className="text-center mb-14">
-        <span className="text-[var(--brand-primary)] font-semibold text-sm uppercase tracking-widest mb-3">
+        <span className="inline-block text-xs font-bold bg-[var(--color-primary-6)] border-[1px solid var(--color-primary-20)] text-[var(--color-brand-primary)] uppercase tracking-[0.18em] mb-3 px-3 py-1 rounded-full">
           Who We Serve
         </span>
-        <h2 className="text-3xl md:text-4xl font-bold text-[var(--text-heading)]">
+
+        <h2 className="text-3xl md:text-4xl font-bold mt-3 text-[var(--color-heading)]">
           Explore Services
         </h2>
-        <div className="w-12 h-1 bg-[var(--brand-primary)] rounded-full mx-auto mt-4" />
+
+        <div className="flex items-center justify-center gap-2 mt-4">
+          <div className="w-8 h-0.5 rounded-full bg-[var(--color-primary-20)]" />
+          <div className="w-12 h-1 rounded-full bg-[var(--color-brand-primary)]" />
+          <div className="w-8 h-0.5 rounded-full bg-[var(--color-primary-20)]" />
+        </div>
       </div>
 
+      {/* Cards */}
       <div className="grid grid-cols-12 gap-5">
         {objContent.map((item) => (
           <div
             key={item.id}
-            className="group relative overflow-hidden rounded-2xl col-span-12 sm:col-span-6 lg:col-span-4"
-            style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.1)" }}
+            className="group relative overflow-hidden rounded-3xl col-span-12 sm:col-span-6 lg:col-span-4"
+            style={{
+              boxShadow:
+                "0 4px 24px var(--color-shadow-8), 0 1px 4px var(--color-shadow-4)",
+            }}
           >
-            {/* Tag */}
-            <div className="absolute top-4 left-4 z-10">
-              <span className="badge">{item.tag}</span>
-            </div>
-
-            {/* image */}
             <img
               src={item.image}
-              className="w-full h-[420px] object-cover transition-transform duration-700 group-hover:scale-110"
               alt={item.title}
+              className="w-full h-[320px] sm:h-[380px] lg:h-[420px] object-cover transition-transform duration-700 group-hover:scale-110"
             />
 
-            {/* bottom strip */}
-            <div className="absolute bottom-0 left-0 right-0 px-6 py-5 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+            {/* Gradient */}
+            <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[var(--color-fixed-black)]/75 via-[var(--color-fixed-black)]/30 to-transparent" />
+
+            {/* Bottom */}
+            <div className="absolute bottom-0 left-0 right-0 px-6 py-5 transition-all duration-500 group-hover:opacity-0 group-hover:translate-y-2">
               <div className="flex items-center gap-2.5">
                 <div
-                  className="w-8 h-8 rounded-xl flex items-center justify-center text-white flex-shrink-0"
-                  style={{ background: "#0053b5" }}
+                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg"
+                  style={{
+                    background: item.iconBg,
+                    color: item.accent,
+                  }}
                 >
                   {item.icon}
                 </div>
-                <h3 className="font-bold text-lg text-white leading-tight">
+
+                <h3 className="font-bold text-lg text-[var(--color-fixed-white)] leading-tight">
                   {item.title}
                 </h3>
               </div>
             </div>
 
-            {/* hover overlay */}
-            <div
-              className="absolute inset-0 flex flex-col justify-end items-start gap-5 p-6
-              bg-gradient-to-t from-black/90 via-black/60 to-black/10
-              translate-y-full group-hover:translate-y-0
-              transition-all duration-500 ease-in-out"
-            >
+            {/* Hover */}
+            <div className="absolute inset-0 flex flex-col justify-end items-start gap-5 p-6 bg-gradient-to-t from-[var(--color-fixed-black)]/92 via-[var(--color-fixed-black)]/65 to-[var(--color-fixed-black)]/15 translate-y-full group-hover:translate-y-0 transition-all duration-500 ease-in-out">
               <div>
                 <div className="flex items-center gap-2.5 mb-3">
                   <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center text-white flex-shrink-0"
-                    style={{ background: "#0053b5" }}
+                    className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg"
+                    style={{
+                      background: item.iconBg,
+                      color: item.accent,
+                    }}
                   >
                     {item.icon}
                   </div>
-                  <h3 className="font-bold text-xl text-white leading-tight">
+
+                  <h3 className="font-bold text-xl text-[var(--color-fixed-white)] leading-tight">
                     {item.title}
                   </h3>
                 </div>
-                <p className="text-sm text-white/80 leading-relaxed">
+
+                <p className="text-sm text-[var(--color-fixed-white)]/80 leading-relaxed">
                   {item.description}
                 </p>
               </div>
+
               <Button
                 variant="primary"
-                className="bg-[linear-gradient(135deg,var(--accent)_0%,#0041a0_100%)] shadow-[0_6px_20px_rgba(0,83,181,0.4)] hover:shadow-[0_8px_28px_rgba(0,83,181,0.55)]"
+                className="shadow-[0_8px_32px_rgba(0,171,121,0.4)] hover:shadow-[0_12px_40px_rgba(0,171,121,0.55)] hover:-translate-y-1 transition-all"
                 btnName="Explore More"
               />
             </div>

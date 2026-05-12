@@ -11,9 +11,13 @@ import "flowbite";
 import PharmacyDashboard from "./pages/pharmacy/PharmacyDashboard";
 import LandingPage from "./pages/LandingPage";
 import Cashier from "./pages/pharmacy/Cashier";
+import Login from "./components/auth/Login";
+import Signup from "./components/auth/Signup";
+import ApiTest from "./pages/testing/ApiTest";
 
 const routes = createBrowserRouter([
   { path: "/", element: <LandingPage /> },
+  {path:"/testingApi/:pid/receipt/:rid",element:<ApiTest/>},
   {
     path: "/",
     element: <MasterGrid />,
@@ -26,6 +30,8 @@ const routes = createBrowserRouter([
       },
       { path: "/pharmacy/dashboard", element: <PharmacyDashboard /> },
       { path: "/pharmacy/cashier", element: <Cashier /> },
+      { path: "/login", element: <Login /> },
+      { path: "signup", element: <Signup /> },
     ],
   },
 ]);

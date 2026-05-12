@@ -3,7 +3,7 @@
 
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
 /* @import "flowbite/src/themes/default"; */
 @plugin "flowbite/plugin";
 @source "../node_modules/flowbite";
@@ -12,9 +12,10 @@
 :root {
   /*30% brand*/
   --brand-primary: #00ab79;
+  --brand-linear: #00c98a;
   --brand-light: #cdfbe4;
   --brand-dark: #2b6f54;
-
+  --color-bg-subtle: #f9fffe;
   /* 60% Background */
   --bg-neutral: #ffffff;
   /* main background */
@@ -25,14 +26,54 @@
 
   /* 10% Accent */
   --accent: #0053b5;
+  --blue-50: #e0f2fe;
+  /* Text */
+  --text-main: #333333;
+  --text-heading: #000000;
+  --text-muted: #6b7280;
 
-    /* Text */
-    --text-main: #333333;
-    --text-heading: #000000;
-    --text-muted: #6B7280;
+  /* for borders */
+  --border-gray: #e5e7eb;
 
-    /* for borders */
-    --border-gray: #E5E7EB;
+  /* RGB & Shadow */
+  --color-primary-12: rgba(0, 171, 121, 0.12);
+  --color-primary-6: rgba(0, 171, 121, 0.06);
+  --color-primary-22: rgba(0, 171, 121, 0.22);
+  --color-primary-25: rgba(0, 171, 121, 0.25);
+  --color-primary-20: rgba(0, 171, 121, 0.2);
+  --color-surface-80: rgba(249, 255, 254, 0.8);
+  --color-shadow-8: rgba(0, 0, 0, 0.08);
+  --color-shadow-4: rgba(0, 0, 0, 0.04);
+  --overlay-white-15: rgba(255, 255, 255, 0.15);
+  --overlay-white-25: rgba(255, 255, 255, 0.25);
+  --text-white-75: rgba(255, 255, 255, 0.75);
+  --text-white-95: rgba(255, 255, 255, 0.95);
+
+  /* LOGIN gradients */
+  --login-left-gradient: linear-gradient(
+    145deg,
+    #005c40 0%,
+    #00ab79 55%,
+    #00d495 100%
+  );
+
+  /* overlays */
+  --overlay-white-70: rgba(255, 255, 255, 0.7);
+  --overlay-white-80: rgba(255, 255, 255, 0.8);
+  --overlay-white-90: rgba(255, 255, 255, 0.9);
+  --overlay-white-95: rgba(255, 255, 255, 0.95);
+
+  /* focus ring */
+  --focus-primary: rgba(0, 171, 121, 0.12);
+
+  /* shadows */
+  --shadow-card: 0 20px 80px rgba(0, 0, 0, 0.1), 0 4px 20px rgba(0, 0, 0, 0.06);
+
+  --shadow-button: 0 6px 28px rgba(0, 171, 121, 0.38);
+  --shadow-button-hover: 0 10px 36px rgba(0, 171, 121, 0.52);
+
+  /* subtle bg */
+  --login-right-bg: #f8fffe;
 }
 
 .dark {
@@ -48,38 +89,40 @@
   /* cards / containers */
   --bg-tertiary: #242424;
   /* modals/nav/sidebar */
+  --bg-secondary: #f8f9fa;
+  /* 10% Accent */
+  --accent: #4a90ff;
+  --accent-main: #0053b5;
+  /* lighter blue works better on dark backgrounds */
 
+  /* Text */
+  --text-main: #e5e5e5;
+  /* body text */
+  --text-heading: #ffffff;
+  /* headings */
+  --text-muted: #a0a0a0;
+  /* secondary text */
 
-    /* 10% Accent */
-    --accent: #4A90FF;
-    /* lighter blue works better on dark backgrounds */
-
-    /* Text */
-    --text-main: #E5E5E5;
-    /* body text */
-    --text-heading: #FFFFFF;
-    /* headings */
-    --text-muted: #A0A0A0;
-    /* secondary text */
-
-    /* for borders */
-    --border-gray: #2A2A2A;
+  /* for borders */
+  --border-gray: #2a2a2a;
+  --brand-primary-12: rgba(0, 171, 121, 0.12);
 }
 
 @theme {
-    /*custom colors*/
-    --color-brand-primary: var(--brand-primary);
-    --color-brand-light: var(--brand-light);
-    --color-brand-dark: var(--brand-dark);
-    --color-neutral-main: var(--bg-neutral);
-    --color-neutral-secondary: var(--bg-secondary);
-    --color-neutral-tertiary: var(--bg-tertiary);
-    --color-accent: var(--accent);
-    --color-paragraph: var(--text-main);
-    --color-heading: var(--text-heading);
-    --color-muted: var(--text-muted);
-    --color-border-primary: var(--border-gray);
-
+  /*custom colors*/
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-light: var(--brand-light);
+  --color-brand-dark: var(--brand-dark);
+  --color-neutral-main: var(--bg-neutral);
+  --color-neutral-secondary: var(--bg-secondary);
+  --color-neutral-tertiary: var(--bg-tertiary);
+  --color-accent: var(--accent);
+  --color-accent-main: var(--accent-main);
+  --color-paragraph: var(--text-main);
+  --color-heading: var(--text-heading);
+  --color-muted: var(--text-muted);
+  --color-border-primary: var(--border-gray);
+  --color-blue-50: var(--blue-50);
   /* fixed colors for displaying on images */
   --color-fixed-white: #ffffff;
   --color-fixed-white-secondary: #f8f9fa;
@@ -87,4 +130,18 @@
   --color-fixed-black-secondary: #121212;
   /*custom font*/
   --font-sans: "Inter", sans-serif;
+  --color-subtle: var(--color-bg-subtle);
+  --color-primary-12: var(--color-primary-12);
+  --color-primary-6: var(--color-primary-6);
+  --color-primary-25: var(--color-primary-25);
+  --color-primary-22: var(--color-primary-22);
+  --color-primary-20: var(--color-primary-20);
+  --color-surface-80: var(--color-surface-80);
+  --color-shadow-8: var(--color-shadow-8);
+  --color-shadow-4: var(--color-shadow-4);
+  --brand-linear: var(--brand-linear);
+  --overlay-white-15: var(--overlay-white-15);
+  --overlay-white-25: var(--overlay-white-25);
+  --text-white-75: var(--text-white-75);
+  --text-white-95: var(--text-white-95);
 }
