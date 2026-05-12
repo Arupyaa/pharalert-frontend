@@ -10,9 +10,11 @@ import "./index.css";
 import "flowbite";
 import PharmacyDashboard from "./pages/pharmacy/PharmacyDashboard";
 import LandingPage from "./pages/LandingPage";
+import ApiTest from "./pages/testing/ApiTest";
 
 const routes = createBrowserRouter([
   { path: "/", element: <LandingPage /> },
+  {path:"/testingApi/:pid/receipt/:rid",element:<ApiTest/>},
   {
     path: "/",
     element: <MasterGrid />,
