@@ -1,11 +1,6 @@
-// src/pages/CashierPage.jsx
+import React, { useMemo, useState } from "react";
 
-import React, {
-  useMemo,
-  useState,
-} from "react";
-
-import { useCashierStore } from "../../store/UseCashierStore.js"
+import { useCashierStore } from "../../store/UseCashierStore.js";
 
 export default function CashierPage() {
   const {
@@ -21,505 +16,827 @@ export default function CashierPage() {
     updateDiscount,
   } = useCashierStore();
 
-  // CUSTOMER NAME
-  const [customerName, setCustomerName] =
-    useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [customerPaid, setCustomerPaid] = useState("");
 
-  // CUSTOMER PAID
-  const [customerPaid, setCustomerPaid] =
-    useState("");
-
-  // ENTER
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      addProduct();
-    }
+    if (e.key === "Enter") addProduct();
   };
 
-  // FILTER
   const filteredCart = cart.filter((item) =>
-    item.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
+    item.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  // TOTALS
-  const subtotal = useMemo(() => {
-    return cart.reduce(
-      (acc, item) =>
-        acc + item.price * item.quantity,
-      0
-    );
-  }, [cart]);
+  const subtotal = useMemo(
+    () => cart.reduce((acc, item) => acc + item.price * item.quantity, 0),
+    [cart],
+  );
 
-  const discount = useMemo(() => {
-    return cart.reduce(
-      (acc, item) => acc + item.discount,
-      0
-    );
-  }, [cart]);
+  const discount = useMemo(
+    () => cart.reduce((acc, item) => acc + item.discount, 0),
+    [cart],
+  );
 
   const tax = subtotal * 0.14;
-
   const total = subtotal + tax - discount;
+  const change = Number(customerPaid || 0) - total;
 
-  // CHANGE
-  const change =
-    Number(customerPaid || 0) - total;
-
-  // PRINT RECEIPT
   const handlePrintReceipt = () => {
-    const receiptWindow =
-      window.open("", "_blank");
-
+    const receiptWindow = window.open("", "_blank");
     receiptWindow.document.write(`
       <html>
         <head>
-          <title>Receipt</title>
-
+          <title>PharAlert Receipt</title>
           <style>
-            body{
-              font-family: Arial;
-              padding:20px;
-            }
-
-            h1{
-              text-align:center;
-            }
-
-            table{
-              width:100%;
-              border-collapse: collapse;
-              margin-top:20px;
-            }
-
-            th, td{
-              border:1px solid #ddd;
-              padding:10px;
-              text-align:left;
-            }
-
-            .total{
-              margin-top:20px;
-              font-size:20px;
-              font-weight:bold;
-              text-align:right;
-            }
-
-            .info{
-              margin-top:10px;
-            }
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { font-family: 'Inter', Arial, sans-serif; padding: 32px; background: #fff; color: #333; }
+            .header { text-align: center; border-bottom: 2px solid #00ab79; padding-bottom: 20px; margin-bottom: 20px; }
+            .header h1 { font-size: 26px; font-weight: 700; color: #00ab79; }
+            .header p { color: #6b7280; font-size: 13px; margin-top: 4px; }
+            .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+            .info-row span:first-child { color: #6b7280; }
+            .info-row span:last-child { font-weight: 600; color: #111; }
+            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            th { background: #f0fdf8; color: #2b6f54; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; padding: 10px 12px; text-align: left; border-bottom: 2px solid #cdfbe4; }
+            td { padding: 12px; border-bottom: 1px solid #f0fdf8; font-size: 14px; }
+            .totals { margin-top: 20px; }
+            .totals .row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; color: #6b7280; }
+            .totals .row.total { font-size: 20px; font-weight: 700; color: #00ab79; border-top: 2px solid #00ab79; margin-top: 10px; padding-top: 12px; }
+            .footer { text-align: center; margin-top: 30px; color: #6b7280; font-size: 12px; }
           </style>
         </head>
-
         <body>
-          <h1>Pharmacy Receipt</h1>
-
-          <div class="info">
-            <strong>Customer:</strong>
-            ${
-              customerName ||
-              "Walk-in Customer"
-            }
+          <div class="header">
+            <h1>PharAlert</h1>
+            <p>Smart Pharmacy Receipt</p>
           </div>
-
-          <div class="info">
-            <strong>Date:</strong>
-            ${new Date().toLocaleString()}
-          </div>
-
+          <div class="info-row"><span>Customer</span><span>${customerName || "Walk-in Customer"}</span></div>
+          <div class="info-row"><span>Date</span><span>${new Date().toLocaleString()}</span></div>
           <table>
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Qty</th>
-                <th>Price</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-
+            <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Discount</th><th>Total</th></tr></thead>
             <tbody>
               ${cart
                 .map(
                   (item) => `
                 <tr>
                   <td>${item.name}</td>
-
                   <td>${item.quantity}</td>
-
-                  <td>$${item.price}</td>
-
-                  <td>
-                    $${(
-                      item.price *
-                        item.quantity -
-                      item.discount
-                    ).toFixed(2)}
-                  </td>
-                </tr>
-              `
+                  <td>$${item.price.toFixed(2)}</td>
+                  <td>-$${item.discount.toFixed(2)}</td>
+                  <td>$${(item.price * item.quantity - item.discount).toFixed(2)}</td>
+                </tr>`,
                 )
                 .join("")}
             </tbody>
           </table>
-
-          <div class="total">
-            Subtotal:
-            $${subtotal.toFixed(2)}
+          <div class="totals">
+            <div class="row"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
+            <div class="row"><span>Tax (14%)</span><span>$${tax.toFixed(2)}</span></div>
+            <div class="row"><span>Discount</span><span>-$${discount.toFixed(2)}</span></div>
+            <div class="row"><span>Paid</span><span>$${Number(customerPaid || 0).toFixed(2)}</span></div>
+            <div class="row total"><span>Total</span><span>$${total.toFixed(2)}</span></div>
+            <div class="row"><span>Change</span><span>$${change > 0 ? change.toFixed(2) : "0.00"}</span></div>
           </div>
-
-          <div class="total">
-            Tax:
-            $${tax.toFixed(2)}
-          </div>
-
-          <div class="total">
-            Discount:
-            -$${discount.toFixed(2)}
-          </div>
-
-          <div class="total">
-            Total:
-            $${total.toFixed(2)}
-          </div>
-
-          <div class="total">
-            Paid:
-            $${customerPaid || 0}
-          </div>
-
-          <div class="total">
-            Change:
-            $
-            ${
-              change > 0
-                ? change.toFixed(2)
-                : "0.00"
-            }
-          </div>
+          <div class="footer">Thank you for choosing PharAlert · Your health, our priority</div>
         </body>
       </html>
     `);
-
     receiptWindow.document.close();
-
     receiptWindow.print();
   };
 
   return (
-    <div className="bg-[#f5f7fb] min-h-screen py-8">
-      <div className="container mx-auto px-4">
-        {/* HEADER */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-800">
-            Pharmacy Cashier
-          </h1>
+    <div
+      className="min-h-screen py-8"
+      style={{ background: "var(--color-bg-subtle)" }}
+    >
+      {/* Subtle background mesh matching landing page */}
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 70% 50% at 80% 10%, var(--color-primary-6) 0%, transparent 60%), radial-gradient(ellipse 50% 60% at 5% 90%, var(--blue-50) 0%, transparent 55%)",
+          zIndex: 0,
+        }}
+      />
 
-          <p className="text-slate-500 mt-2">
-            Manage customer orders and payments
+      <div className="relative z-10 container mx-auto px-4 lg:px-8">
+        {/* ── HEADER ── */}
+        <div className="mb-8">
+          <div
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-4"
+            style={{
+              background:
+                "linear-gradient(135deg, var(--color-primary-12), var(--color-primary-6))",
+              border: "1px solid var(--color-primary-25)",
+              color: "var(--brand-dark)",
+            }}
+          >
+            <span className="relative flex h-2 w-2">
+              <span
+                className="absolute inline-flex h-full w-full rounded-full opacity-60 animate-ping"
+                style={{ background: "var(--brand-primary)" }}
+              />
+              <span
+                className="relative inline-flex rounded-full h-2 w-2"
+                style={{ background: "var(--brand-primary)" }}
+              />
+            </span>
+            Pharmacy Cashier
+          </div>
+
+          <h1
+            className="text-4xl font-bold tracking-tight"
+            style={{ color: "var(--text-heading)" }}
+          >
+            Point of Sale
+          </h1>
+          <p className="mt-1.5" style={{ color: "var(--text-muted)" }}>
+            Manage customer orders and process payments
           </p>
         </div>
 
-        {/* LAYOUT */}
+        {/* ── LAYOUT ── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          {/* LEFT SIDE */}
-          <div className="lg:col-span-8 flex flex-col">
+          {/* ── LEFT PANEL ── */}
+          <div className="lg:col-span-8 flex flex-col gap-4">
             {/* SEARCH */}
-            <div className="bg-white rounded-3xl shadow-md p-5 mb-4">
-              <input
-                type="text"
-                placeholder="Search item..."
-                value={searchTerm}
-                onChange={(e) =>
-                  setSearchTerm(e.target.value)
-                }
-                className="w-full border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-emerald-400"
-              />
-            </div>
-
-            {/* TABLE */}
-            <div className="bg-white rounded-3xl shadow-md p-8 h-full flex flex-col">
-              <table className="w-full">
-                {/* HEADER */}
-                <thead>
-                  <tr className="border-b text-slate-500 text-sm">
-                    <th className="text-left font-semibold pb-5 px-2">
-                      Product
-                    </th>
-
-                    <th className="text-left font-semibold pb-5 px-2">
-                      Price
-                    </th>
-
-                    <th className="text-left font-semibold pb-5 px-2">
-                      Quantity
-                    </th>
-
-                    <th className="text-left font-semibold pb-5 px-2">
-                      Discount
-                    </th>
-
-                    <th className="text-left font-semibold pb-5 px-2">
-                      Total
-                    </th>
-
-                    <th className="pb-5"></th>
-                  </tr>
-                </thead>
-
-                {/* BODY */}
-                <tbody>
-                  {filteredCart.map((item) => (
-                    <tr
-                      key={item.id}
-                      className="border-b hover:bg-slate-50 transition"
-                    >
-                      {/* PRODUCT */}
-                      <td className="py-6 px-2">
-                        <div className="flex items-center gap-4">
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="w-16 h-16 rounded-2xl object-cover border"
-                          />
-
-                          <div>
-                            <h2 className="font-bold text-slate-800">
-                              {item.name}
-                            </h2>
-
-                            <p className="text-sm text-slate-400 mt-1">
-                              SKU: {item.sku}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* PRICE */}
-                      <td className="py-6 px-2 font-medium text-slate-700">
-                        ${item.price.toFixed(2)}
-                      </td>
-
-                      {/* QUANTITY */}
-                      <td className="py-6 px-2">
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={() =>
-                              decreaseQty(item.id)
-                            }
-                            className="w-10 h-10 rounded-xl border hover:bg-slate-100 transition"
-                          >
-                            -
-                          </button>
-
-                          <div className="w-10 text-center font-semibold">
-                            {item.quantity}
-                          </div>
-
-                          <button
-                            onClick={() =>
-                              increaseQty(item.id)
-                            }
-                            className="w-10 h-10 rounded-xl border hover:bg-slate-100 transition"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </td>
-
-                      {/* DISCOUNT */}
-                      <td className="py-6 px-2">
-                        <input
-                          type="number"
-                          value={item.discount}
-                          onChange={(e) =>
-                            updateDiscount(
-                              item.id,
-                              e.target.value
-                            )
-                          }
-                          className="w-24 border border-slate-200 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-400"
-                        />
-                      </td>
-
-                      {/* TOTAL */}
-                      <td className="py-6 px-2 font-bold text-slate-800">
-                        $
-                        {(
-                          item.price *
-                            item.quantity -
-                          item.discount
-                        ).toFixed(2)}
-                      </td>
-
-                      {/* REMOVE */}
-                      <td className="py-6 px-2">
-                        <button
-                          onClick={() =>
-                            removeItem(item.id)
-                          }
-                          className="bg-red-500 hover:bg-red-600 transition text-white px-5 py-2 rounded-xl"
-                        >
-                          Remove
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              {/* ADD ITEM */}
-              <div className="flex flex-col md:flex-row gap-4 mt-8">
+            <div
+              className="rounded-2xl p-4"
+              style={{
+                background: "var(--bg-neutral)",
+                border: "1px solid var(--border-gray)",
+                boxShadow: "0 1px 12px var(--color-shadow-4)",
+              }}
+            >
+              <div className="relative">
+                <svg
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5"
+                  style={{ color: "var(--text-muted)" }}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+                  />
+                </svg>
                 <input
                   type="text"
-                  placeholder="Enter barcode or product name"
-                  value={addItemValue}
-                  onChange={(e) =>
-                    setAddItemValue(e.target.value)
-                  }
-                  onKeyDown={handleKeyDown}
-                  className="flex-1 border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-emerald-400"
+                  placeholder="Search items in cart..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full rounded-xl pl-12 pr-5 py-3.5 outline-none text-sm transition-all"
+                  style={{
+                    background: "var(--bg-secondary)",
+                    border: "1.5px solid var(--border-gray)",
+                    color: "var(--text-main)",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "var(--brand-primary)";
+                    e.target.style.boxShadow =
+                      "0 0 0 3px var(--color-primary-12)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "var(--border-gray)";
+                    e.target.style.boxShadow = "none";
+                  }}
                 />
+              </div>
+            </div>
 
-                <button
-                  onClick={addProduct}
-                  className="bg-emerald-500 hover:bg-emerald-600 transition text-white px-8 py-4 rounded-2xl font-semibold"
+            {/* ITEMS TABLE */}
+            <div
+              className="rounded-2xl flex flex-col flex-1"
+              style={{
+                background: "var(--bg-neutral)",
+                border: "1px solid var(--border-gray)",
+                boxShadow: "0 1px 12px var(--color-shadow-4)",
+              }}
+            >
+              {/* Table header */}
+              <div
+                className="px-6 py-4 rounded-t-2xl"
+                style={{
+                  background:
+                    "linear-gradient(135deg, var(--color-primary-6), var(--color-primary-12))",
+                  borderBottom: "1px solid var(--color-primary-25)",
+                }}
+              >
+                <h2
+                  className="font-semibold text-sm"
+                  style={{ color: "var(--brand-dark)" }}
                 >
-                  Add Item
-                </button>
+                  Cart Items ({filteredCart.length})
+                </h2>
+              </div>
+
+              <div className="overflow-x-auto flex-1">
+                <table className="w-full">
+                  <thead>
+                    <tr
+                      style={{ borderBottom: "1px solid var(--border-gray)" }}
+                    >
+                      {[
+                        "Product",
+                        "Price",
+                        "Quantity",
+                        "Discount",
+                        "Total",
+                        "",
+                      ].map((h) => (
+                        <th
+                          key={h}
+                          className="text-left text-xs font-semibold uppercase tracking-wider px-5 py-4"
+                          style={{ color: "var(--text-muted)" }}
+                        >
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredCart.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="text-center py-16">
+                          <div className="flex flex-col items-center gap-3">
+                            <div
+                              className="w-14 h-14 rounded-2xl flex items-center justify-center"
+                              style={{ background: "var(--color-primary-6)" }}
+                            >
+                              <svg
+                                className="w-7 h-7"
+                                style={{ color: "var(--brand-primary)" }}
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={1.5}
+                                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                                />
+                              </svg>
+                            </div>
+                            <p
+                              className="text-sm font-medium"
+                              style={{ color: "var(--text-muted)" }}
+                            >
+                              Cart is empty
+                            </p>
+                            <p
+                              className="text-xs"
+                              style={{ color: "var(--text-muted)" }}
+                            >
+                              Add a product using the field below
+                            </p>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredCart.map((item) => (
+                        <tr
+                          key={item.id}
+                          className="transition-colors group"
+                          style={{
+                            borderBottom: "1px solid var(--border-gray)",
+                          }}
+                          onMouseEnter={(e) =>
+                            (e.currentTarget.style.background =
+                              "var(--color-primary-6)")
+                          }
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.background = "transparent")
+                          }
+                        >
+                          {/* Product */}
+                          <td className="py-4 px-5">
+                            <div className="flex items-center gap-3">
+                              <div
+                                className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0"
+                                style={{
+                                  border: "1.5px solid var(--color-primary-20)",
+                                }}
+                              >
+                                <img
+                                  src={item.image}
+                                  alt={item.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <div>
+                                <p
+                                  className="font-semibold text-sm"
+                                  style={{ color: "var(--text-heading)" }}
+                                >
+                                  {item.name}
+                                </p>
+                                <p
+                                  className="text-xs mt-0.5"
+                                  style={{ color: "var(--text-muted)" }}
+                                >
+                                  SKU: {item.sku}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Price */}
+                          <td className="py-4 px-5">
+                            <span
+                              className="font-medium text-sm"
+                              style={{ color: "var(--text-main)" }}
+                            >
+                              ${item.price.toFixed(2)}
+                            </span>
+                          </td>
+
+                          {/* Quantity */}
+                          <td className="py-4 px-5">
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => decreaseQty(item.id)}
+                                className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-lg transition-all"
+                                style={{
+                                  border: "1.5px solid var(--border-gray)",
+                                  color: "var(--text-muted)",
+                                  background: "var(--bg-secondary)",
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.borderColor =
+                                    "var(--brand-primary)";
+                                  e.currentTarget.style.color =
+                                    "var(--brand-primary)";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.borderColor =
+                                    "var(--border-gray)";
+                                  e.currentTarget.style.color =
+                                    "var(--text-muted)";
+                                }}
+                              >
+                                −
+                              </button>
+                              <span
+                                className="w-8 text-center font-bold text-sm"
+                                style={{ color: "var(--text-heading)" }}
+                              >
+                                {item.quantity}
+                              </span>
+                              <button
+                                onClick={() => increaseQty(item.id)}
+                                className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-lg transition-all"
+                                style={{
+                                  background: "var(--brand-primary)",
+                                  color: "#fff",
+                                  border: "none",
+                                }}
+                                onMouseEnter={(e) =>
+                                  (e.currentTarget.style.background =
+                                    "var(--brand-dark)")
+                                }
+                                onMouseLeave={(e) =>
+                                  (e.currentTarget.style.background =
+                                    "var(--brand-primary)")
+                                }
+                              >
+                                +
+                              </button>
+                            </div>
+                          </td>
+
+                          {/* Discount */}
+                          <td className="py-4 px-5">
+                            <div className="relative">
+                              <span
+                                className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold"
+                                style={{ color: "var(--text-muted)" }}
+                              >
+                                $
+                              </span>
+                              <input
+                                type="number"
+                                value={item.discount}
+                                onChange={(e) =>
+                                  updateDiscount(item.id, e.target.value)
+                                }
+                                className="w-24 rounded-lg pl-6 pr-3 py-2 text-sm outline-none transition-all"
+                                style={{
+                                  border: "1.5px solid var(--border-gray)",
+                                  background: "var(--bg-secondary)",
+                                  color: "var(--text-main)",
+                                }}
+                                onFocus={(e) => {
+                                  e.target.style.borderColor =
+                                    "var(--brand-primary)";
+                                  e.target.style.boxShadow =
+                                    "0 0 0 3px var(--color-primary-12)";
+                                }}
+                                onBlur={(e) => {
+                                  e.target.style.borderColor =
+                                    "var(--border-gray)";
+                                  e.target.style.boxShadow = "none";
+                                }}
+                              />
+                            </div>
+                          </td>
+
+                          {/* Total */}
+                          <td className="py-4 px-5">
+                            <span
+                              className="font-bold text-sm"
+                              style={{ color: "var(--brand-primary)" }}
+                            >
+                              $
+                              {(
+                                item.price * item.quantity -
+                                item.discount
+                              ).toFixed(2)}
+                            </span>
+                          </td>
+
+                          {/* Remove */}
+                          <td className="py-4 px-5">
+                            <button
+                              onClick={() => removeItem(item.id)}
+                              className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
+                              style={{
+                                color: "#ef4444",
+                                border: "1.5px solid #fecaca",
+                                background: "#fff1f2",
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = "#ef4444";
+                                e.currentTarget.style.color = "#fff";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = "#fff1f2";
+                                e.currentTarget.style.color = "#ef4444";
+                              }}
+                            >
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* ADD ITEM */}
+              <div
+                className="p-5 mt-auto"
+                style={{ borderTop: "1px solid var(--border-gray)" }}
+              >
+                <div className="flex flex-col md:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <svg
+                      className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4"
+                      style={{ color: "var(--text-muted)" }}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                    <input
+                      type="text"
+                      placeholder="Enter barcode or product name…"
+                      value={addItemValue}
+                      onChange={(e) => setAddItemValue(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      className="w-full rounded-xl pl-11 pr-5 py-3.5 text-sm outline-none transition-all"
+                      style={{
+                        border: "1.5px solid var(--border-gray)",
+                        background: "var(--bg-secondary)",
+                        color: "var(--text-main)",
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = "var(--brand-primary)";
+                        e.target.style.boxShadow =
+                          "0 0 0 3px var(--color-primary-12)";
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = "var(--border-gray)";
+                        e.target.style.boxShadow = "none";
+                      }}
+                    />
+                  </div>
+                  <button
+                    onClick={addProduct}
+                    className="px-7 py-3.5 rounded-xl font-semibold text-sm text-white transition-all"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, var(--brand-primary), var(--brand-linear))",
+                      boxShadow: "var(--shadow-button)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.boxShadow =
+                        "var(--shadow-button-hover)";
+                      e.currentTarget.style.transform = "translateY(-1px)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.boxShadow = "var(--shadow-button)";
+                      e.currentTarget.style.transform = "none";
+                    }}
+                  >
+                    Add Item
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* RIGHT SIDE */}
+          {/* ── RIGHT PANEL — SUMMARY ── */}
           <div className="lg:col-span-4">
-            <div className="bg-white rounded-3xl shadow-md p-6 h-full flex flex-col">
-              {/* TITLE */}
-              <h2 className="text-2xl font-bold mb-8 text-slate-800">
-                Summary
-              </h2>
-
-              {/* SUMMARY */}
-              <div className="space-y-5">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500">
-                    Subtotal
-                  </span>
-
-                  <span className="font-semibold text-lg">
-                    ${subtotal.toFixed(2)}
-                  </span>
+            <div
+              className="rounded-2xl p-6 h-full flex flex-col sticky top-8"
+              style={{
+                background: "var(--bg-neutral)",
+                border: "1px solid var(--border-gray)",
+                boxShadow: "0 1px 12px var(--color-shadow-4)",
+              }}
+            >
+              {/* Title */}
+              <div className="flex items-center gap-2 mb-6">
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, var(--brand-primary), var(--brand-linear))",
+                  }}
+                >
+                  <svg
+                    className="w-4 h-4 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 2.5 2 2.5-2 3.5 2z"
+                    />
+                  </svg>
                 </div>
+                <h2
+                  className="text-lg font-bold"
+                  style={{ color: "var(--text-heading)" }}
+                >
+                  Order Summary
+                </h2>
+              </div>
 
+              {/* Breakdown */}
+              <div className="space-y-3 mb-5">
+                {[
+                  {
+                    label: "Subtotal",
+                    value: `$${subtotal.toFixed(2)}`,
+                    muted: true,
+                  },
+                  {
+                    label: "Tax (14%)",
+                    value: `$${tax.toFixed(2)}`,
+                    muted: true,
+                  },
+                  {
+                    label: "Discount",
+                    value: `-$${discount.toFixed(2)}`,
+                    red: true,
+                  },
+                ].map(({ label, value, muted, red }) => (
+                  <div
+                    key={label}
+                    className="flex justify-between items-center"
+                  >
+                    <span
+                      className="text-sm"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      {label}
+                    </span>
+                    <span
+                      className="text-sm font-semibold"
+                      style={{ color: red ? "#ef4444" : "var(--text-main)" }}
+                    >
+                      {value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Total */}
+              <div
+                className="rounded-xl p-4 mb-6"
+                style={{
+                  background:
+                    "linear-gradient(135deg, var(--color-primary-12), var(--color-primary-6))",
+                  border: "1px solid var(--color-primary-25)",
+                }}
+              >
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500">
-                    Tax (14%)
+                  <span
+                    className="font-bold text-base"
+                    style={{ color: "var(--brand-dark)" }}
+                  >
+                    Total Due
                   </span>
-
-                  <span className="font-semibold text-lg">
-                    ${tax.toFixed(2)}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500">
-                    Discount
-                  </span>
-
-                  <span className="font-semibold text-red-500 text-lg">
-                    -${discount.toFixed(2)}
+                  <span
+                    className="text-3xl font-bold"
+                    style={{ color: "var(--brand-primary)" }}
+                  >
+                    ${total.toFixed(2)}
                   </span>
                 </div>
               </div>
 
-              {/* DIVIDER */}
-              <div className="border-t my-8"></div>
-
-              {/* TOTAL */}
-              <div className="flex justify-between items-center mb-8">
-                <span className="text-2xl font-bold">
-                  Total
-                </span>
-
-                <span className="text-4xl font-bold text-emerald-500">
-                  ${total.toFixed(2)}
-                </span>
-              </div>
-
-              {/* CUSTOMER NAME */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-slate-500 mb-2">
+              {/* Customer Name */}
+              <div className="mb-4">
+                <label
+                  className="block text-xs font-semibold mb-1.5 uppercase tracking-wider"
+                  style={{ color: "var(--text-muted)" }}
+                >
                   Customer Name
                 </label>
-
                 <input
                   type="text"
                   value={customerName}
-                  onChange={(e) =>
-                    setCustomerName(
-                      e.target.value
-                    )
-                  }
-                  placeholder="Enter customer name"
-                  className="w-full border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-emerald-400 text-lg"
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  placeholder="Walk-in customer"
+                  className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all"
+                  style={{
+                    border: "1.5px solid var(--border-gray)",
+                    background: "var(--bg-secondary)",
+                    color: "var(--text-main)",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "var(--brand-primary)";
+                    e.target.style.boxShadow =
+                      "0 0 0 3px var(--color-primary-12)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "var(--border-gray)";
+                    e.target.style.boxShadow = "none";
+                  }}
                 />
               </div>
 
-              {/* CUSTOMER PAID */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-slate-500 mb-2">
-                  Customer Paid
+              {/* Customer Paid */}
+              <div className="mb-5">
+                <label
+                  className="block text-xs font-semibold mb-1.5 uppercase tracking-wider"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  Amount Paid
                 </label>
-
-                <input
-                  type="number"
-                  value={customerPaid}
-                  onChange={(e) =>
-                    setCustomerPaid(
-                      e.target.value
-                    )
-                  }
-                  placeholder="Enter paid amount"
-                  className="w-full border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-emerald-400 text-lg"
-                />
+                <div className="relative">
+                  <span
+                    className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-sm"
+                    style={{ color: "var(--brand-primary)" }}
+                  >
+                    $
+                  </span>
+                  <input
+                    type="number"
+                    value={customerPaid}
+                    onChange={(e) => setCustomerPaid(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full rounded-xl pl-9 pr-4 py-3 text-sm outline-none transition-all"
+                    style={{
+                      border: "1.5px solid var(--border-gray)",
+                      background: "var(--bg-secondary)",
+                      color: "var(--text-main)",
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "var(--brand-primary)";
+                      e.target.style.boxShadow =
+                        "0 0 0 3px var(--color-primary-12)";
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "var(--border-gray)";
+                      e.target.style.boxShadow = "none";
+                    }}
+                  />
+                </div>
               </div>
 
-              {/* CHANGE */}
-              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 mb-8">
+              {/* Change */}
+              <div
+                className="rounded-xl p-4 mb-6"
+                style={{
+                  background:
+                    change > 0
+                      ? "linear-gradient(135deg, var(--color-primary-12), var(--color-primary-6))"
+                      : "var(--bg-secondary)",
+                  border: `1px solid ${change > 0 ? "var(--color-primary-25)" : "var(--border-gray)"}`,
+                }}
+              >
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-sm text-slate-500">
+                    <p
+                      className="text-xs font-semibold uppercase tracking-wider"
+                      style={{ color: "var(--text-muted)" }}
+                    >
                       Change
                     </p>
-
-                    <h3 className="text-xl font-bold text-slate-800 mt-1">
-                      Return To Customer
-                    </h3>
+                    <p
+                      className="text-sm mt-0.5 font-medium"
+                      style={{ color: "var(--brand-dark)" }}
+                    >
+                      Return to Customer
+                    </p>
                   </div>
-
-                  <span className="text-4xl font-bold text-emerald-500">
-                    $
-                    {change > 0
-                      ? change.toFixed(2)
-                      : "0.00"}
+                  <span
+                    className="text-2xl font-bold"
+                    style={{
+                      color:
+                        change > 0
+                          ? "var(--brand-primary)"
+                          : "var(--text-muted)",
+                    }}
+                  >
+                    ${change > 0 ? change.toFixed(2) : "0.00"}
                   </span>
                 </div>
               </div>
 
-              {/* ACTION BUTTONS */}
-              <div className="mt-auto space-y-4">
-                {/* CONFIRM */}
-                <button className="bg-emerald-500 hover:bg-emerald-600 transition text-white py-4 rounded-2xl w-full font-semibold text-lg">
-                  Confirm Order
+              {/* Actions */}
+              <div className="mt-auto space-y-3">
+                <button
+                  className="w-full py-3.5 rounded-xl font-semibold text-sm text-white transition-all"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, var(--brand-primary), var(--brand-linear))",
+                    boxShadow: "var(--shadow-button)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow =
+                      "var(--shadow-button-hover)";
+                    e.currentTarget.style.transform = "translateY(-1px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = "var(--shadow-button)";
+                    e.currentTarget.style.transform = "none";
+                  }}
+                >
+                  ✓ Confirm Order
                 </button>
 
-                {/* PRINT */}
                 <button
-                  onClick={
-                    handlePrintReceipt
-                  }
-                  className="border border-slate-300 hover:bg-slate-100 transition text-slate-700 py-4 rounded-2xl w-full font-semibold text-lg"
+                  onClick={handlePrintReceipt}
+                  className="w-full py-3.5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2"
+                  style={{
+                    border: "1.5px solid var(--border-gray)",
+                    background: "var(--bg-neutral)",
+                    color: "var(--text-main)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "var(--brand-primary)";
+                    e.currentTarget.style.color = "var(--brand-primary)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "var(--border-gray)";
+                    e.currentTarget.style.color = "var(--text-main)";
+                  }}
                 >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                    />
+                  </svg>
                   Print Receipt
                 </button>
               </div>
