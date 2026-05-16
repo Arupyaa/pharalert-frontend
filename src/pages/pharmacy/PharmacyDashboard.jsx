@@ -15,6 +15,15 @@ import DashboardNavBar from "../../components/layout/dashboardnavbar/DashboardNa
 import { useState } from "react";
 import { useIsMobile } from "../../hooks/useIsMobile.js";
 
+// table
+import { useEffect, useMemo } from "react";
+import DataTable from "../../components/General/tables/DataTable.jsx";
+import { fetchTableData } from "../../api/tableApi.js";
+import { useTableStore } from "../../store/tableStore.js";
+
+
+
+
 const dashboardItems = [
   { name: "Dashboard", path: "/pharmacy/dashboard", icon: DashboardIcon },
   { name: "Inventory", path: "/pharmacy/inventory", icon: PillIcon },
@@ -24,6 +33,66 @@ const dashboardItems = [
 ];
 
 export default function PharmacyDashboard() {
+//table states and functions 
+const { data, total, page, limit, loading, error, setData, setTotal, setPage, setLoading, setError,} = useTableStore();
+const columns = useMemo(
+  () => [
+    {
+      accessorKey: "id",
+      header: "ID",
+    },
+    {
+      accessorKey: "pharmacyId",
+      header: "Pharmacy ID",
+    },
+    {
+      accessorKey: "customerName",
+      header: "Customer Name",
+    },
+    {
+      accessorKey: "totalPrice",
+      header: "Total Price",
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Created At",
+    },
+    {
+      accessorKey: "items",
+      header: "Items",
+    },
+  ], [] );
+const loadData = async () => {
+  try {
+    setLoading(true);
+
+    const response = await fetchTableData({
+      endpoint: "http://localhost:8080/pharmacy/0545a012-2c83-478e-ad2c-e1cbcda8a1ce/receipts",
+      page : 10,
+      limit: 25,
+    });
+
+    /*
+      Expected Backend Response:
+      
+      {
+        data: [],
+        total: 100
+      }
+    */
+
+    setData(response.data);
+    setTotal(response.recordsCount);
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  loadData();
+}, [page]);
   //custom hook to check if window is mobile size or not
   const isMobile = useIsMobile();
   const [overlay, setOverlay] = useState(false);
@@ -52,6 +121,30 @@ export default function PharmacyDashboard() {
         <DashboardNavBar />
         <PDashboardMain />
       </div>
+      <div className="min-h-screen bg-black p-10">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl font-bold text-white mb-8">
+            Users Table
+          </h1>
+
+          {error && (
+            <div className="mb-4 text-red-500">
+              {error}
+            </div>
+          )}
+
+          <DataTable
+            columns={columns}
+            data={data}
+            total={total}
+            page={page}
+            limit={limit}
+            loading={loading}
+            onPageChange={setPage}
+          />
+        </div>
+      </div>
+
 
       {/* for testing purposes for the avatar store */}
       {/* <input type="text" onChange={(e)=>{changeAvatarName(e.target.value)}}/>
