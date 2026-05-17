@@ -16,10 +16,8 @@ import { useState } from "react";
 import { useIsMobile } from "../../hooks/useIsMobile.js";
 
 // table
-import { useEffect, useMemo } from "react";
-import DataTable from "../../components/General/tables/DataTable.jsx";
-import { fetchTableData } from "../../api/tableApi.js";
-import { useTableStore } from "../../store/tableStore.js";
+import UsersPage from "../../routes/users.jsx";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 
 
@@ -34,43 +32,58 @@ const dashboardItems = [
 
 export default function PharmacyDashboard() {
 //table states and functions 
-const { data, total, page, limit, loading, error, setData, setTotal, setPage, setLoading, setError,} = useTableStore();
+const queryClient = new QueryClient();
+
+/* const { data, total, page, limit, loading, error, setData, setTotal, setPage, setLoading, setError,} = useTableStore();
 const columns = useMemo(
   () => [
     {
-      accessorKey: "id",
+      accessorKey: "orderNo",
       header: "ID",
-    },
-    {
-      accessorKey: "pharmacyId",
-      header: "Pharmacy ID",
     },
     {
       accessorKey: "customerName",
       header: "Customer Name",
     },
     {
-      accessorKey: "totalPrice",
-      header: "Total Price",
+      accessorKey: "date",
+      header: "Date",
     },
     {
-      accessorKey: "createdAt",
-      header: "Created At",
+      accessorKey: "itemAmount",
+      header: "Item Amount",
     },
     {
-      accessorKey: "items",
-      header: "Items",
+      accessorKey: "subtotal",
+      header: "Subtotal",
     },
+    {
+      accessorKey: "discount",
+      header: "Discount",
+    },
+    {
+      accessorKey: `tax`,
+      header: "Tax",
+    },
+    {
+      accessorKey: "total",
+      header: "Total",
+    },
+    
   ], [] );
 const loadData = async () => {
   try {
     setLoading(true);
 
-    const response = await fetchTableData({
-      endpoint: "http://localhost:8080/pharmacy/0545a012-2c83-478e-ad2c-e1cbcda8a1ce/receipts",
-      page : 10,
-      limit: 25,
-    });
+   const response = await fetchTableData({
+  endpoint: "http://localhost:8080/pharmacy/purchases",
+  page: 10,
+  limit: 25,
+  headers: {
+    "Authorization": `Bearer ${yourTokenVariable}`,
+    "Content-Type": "application/json"
+  }
+});
 
     /*
       Expected Backend Response:
@@ -79,7 +92,7 @@ const loadData = async () => {
         data: [],
         total: 100
       }
-    */
+    
 
     setData(response.data);
     setTotal(response.recordsCount);
@@ -92,8 +105,9 @@ const loadData = async () => {
 
 useEffect(() => {
   loadData();
-}, [page]);
-  //custom hook to check if window is mobile size or not
+}, [page]);  */
+  
+//custom hook to check if window is mobile size or not
   const isMobile = useIsMobile();
   const [overlay, setOverlay] = useState(false);
   //set sidebar initially as closed if you open page on mobile otherwise start it as opened
@@ -101,7 +115,8 @@ useEffect(() => {
   // const {changeAvatarName,changeAvatarImage} = useAvatarStore(); //for testing purposes for the avatar store
   return (
     <>
-      {/* overlay */}
+    <QueryClientProvider client={queryClient}>
+     {/* overlay */}
       <Overlay
         isVisible={overlay}
         onClose={() => {
@@ -121,34 +136,15 @@ useEffect(() => {
         <DashboardNavBar />
         <PDashboardMain />
       </div>
-      <div className="min-h-screen bg-black p-10">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold text-white mb-8">
-            Users Table
-          </h1>
-
-          {error && (
-            <div className="mb-4 text-red-500">
-              {error}
-            </div>
-          )}
-
-          <DataTable
-            columns={columns}
-            data={data}
-            total={total}
-            page={page}
-            limit={limit}
-            loading={loading}
-            onPageChange={setPage}
-          />
-        </div>
-      </div>
+      
+      <UsersPage/>
 
 
       {/* for testing purposes for the avatar store */}
       {/* <input type="text" onChange={(e)=>{changeAvatarName(e.target.value)}}/>
             <button onClick={()=>{changeAvatarImage(avatarImage)}}>change image</button>  */}
+  </QueryClientProvider>
+     
     </>
   );
 }

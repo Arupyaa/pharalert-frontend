@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
+    "@tanstack/react-query": "^5.100.10",
+    "@tanstack/react-router": "^1.170.1",
     "@tanstack/react-table": "^8.21.3",
     "flowbite": "^4.0.1",
     "geolib": "^3.3.14",
