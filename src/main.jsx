@@ -14,10 +14,12 @@ import Cashier from "./pages/pharmacy/Cashier";
 import Login from "./components/auth/Login";
 import Signup from "./components/auth/Signup";
 import ApiTest from "./pages/testing/ApiTest";
+import Master from "./pages/pharmacy/PharmacyMaster";
+import Sales from "./pages/pharmacy/Sales";
 
 const routes = createBrowserRouter([
   { path: "/", element: <LandingPage /> },
-  {path:"/testingApi/:pid/receipt/:rid",element:<ApiTest/>},
+  { path: "/testingApi/:pid/receipt/:rid", element: <ApiTest /> },
   {
     path: "/",
     element: <MasterGrid />,
@@ -28,8 +30,15 @@ const routes = createBrowserRouter([
         path: "/pharmacy",
         element: <Navigate to="/pharmacy/dashboard" replace />,
       },
-      { path: "/pharmacy/dashboard", element: <PharmacyDashboard /> },
-      { path: "/pharmacy/cashier", element: <Cashier /> },
+      {
+        path: "/pharmacy",
+        element: <Master />,
+        children: [
+          { path: "/pharmacy/dashboard", element: <PharmacyDashboard /> },
+          { path: "/pharmacy/cashier", element: <Cashier /> },
+          {path: "/pharmacy/sales", element: <Sales/>},
+        ],
+      },
       { path: "/login", element: <Login /> },
       { path: "signup", element: <Signup /> },
     ],
