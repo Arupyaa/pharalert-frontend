@@ -134,10 +134,10 @@ useEffect(() => {
       />
       <div className="flex flex-col w-full h-screen">
         <DashboardNavBar />
-        <PDashboardMain />
+        <UsersPage />
       </div>
       
-      <UsersPage/>
+      
 
 
       {/* for testing purposes for the avatar store */}

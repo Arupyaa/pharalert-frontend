@@ -9,11 +9,11 @@ const DataTable = ({
   data,
   pagination,
   page,
-  limit,
   sorting,
   setSorting,
   onPageChange,
   loading,
+  expandedRow,
 }) => {
 
   const totalPages =
@@ -34,170 +34,513 @@ const DataTable = ({
 
     onSortingChange: setSorting,
 
-    getCoreRowModel: getCoreRowModel(),
+    getCoreRowModel:
+      getCoreRowModel(),
   });
 
+  /* SMART PAGINATION */
+
+  const generatePagination =
+    () => {
+
+      const pages = [];
+
+      const start =
+        Math.max(1, page - 2);
+
+      const end =
+        Math.min(
+          totalPages,
+          page + 2
+        );
+
+      if (start > 1) {
+        pages.push(1);
+
+        if (start > 2) {
+          pages.push("...");
+        }
+      }
+
+      for (
+        let i = start;
+        i <= end;
+        i++
+      ) {
+        pages.push(i);
+      }
+
+      if (end < totalPages) {
+
+        if (end < totalPages - 1) {
+          pages.push("...");
+        }
+
+        pages.push(totalPages);
+      }
+
+      return pages;
+    };
+
   return (
-    <div>
+    <div className="w-full">
 
       {/* TABLE */}
 
-      <div className="overflow-hidden rounded-2xl border border-zinc-800">
+      <div
+        className="
+          overflow-hidden
+          rounded-3xl
+          border
+          border-border-primary
+          bg-neutral-main
+          shadow-card
+        "
+      >
 
-        <table className="w-full">
+        <div
+          className="
+            max-h-[700px]
+            overflow-auto
+          "
+        >
 
-          <thead className="bg-zinc-900">
+          <table className="w-full">
 
-            {table
-              .getHeaderGroups()
-              .map((headerGroup) => (
+            {/* STICKY HEADER */}
 
-                <tr key={headerGroup.id}>
+            <thead
+              className="
+                sticky
+                top-0
+                z-10
+                bg-neutral-secondary
+                border-b
+                border-border-primary
+              "
+            >
 
-                  {headerGroup.headers.map(
-                    (header) => (
-
-                      <th
-                        key={header.id}
-                        onClick={header.column.getToggleSortingHandler()}
-                        className="cursor-pointer px-6 py-4 text-left text-white border-b border-zinc-800"
-                      >
-
-                        <div className="flex items-center gap-2">
-
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-
-                          {{
-                            asc: "↑",
-                            desc: "↓",
-                          }[
-                            header.column.getIsSorted()
-                          ] ?? null}
-
-                        </div>
-
-                      </th>
-                    )
-                  )}
-
-                </tr>
-              ))}
-
-          </thead>
-
-          <tbody className="bg-zinc-950">
-
-            {loading ? (
-
-              <tr>
-                <td
-                  colSpan={columns.length}
-                  className="py-10 text-center text-zinc-400"
-                >
-                  Loading...
-                </td>
-              </tr>
-
-            ) : data.length ? (
-
-              table
-                .getRowModel()
-                .rows.map((row) => (
+              {table
+                .getHeaderGroups()
+                .map((headerGroup) => (
 
                   <tr
-                    key={row.id}
-                    className="border-b border-zinc-800 hover:bg-zinc-900 transition"
+                    key={headerGroup.id}
                   >
 
-                    {row
-                      .getVisibleCells()
-                      .map((cell) => (
+                    {headerGroup.headers.map(
+                      (header) => (
 
-                        <td
-                          key={cell.id}
-                          className="px-6 py-4 text-zinc-200"
+                        <th
+                          key={header.id}
+                          onClick={header.column.getToggleSortingHandler()}
+                          className="
+                            px-6
+                            py-4
+                            text-left
+                            text-sm
+                            font-semibold
+                            text-heading
+                            cursor-pointer
+                            whitespace-nowrap
+                          "
                         >
 
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
+                          <div className="flex items-center gap-2">
 
-                        </td>
-                      ))}
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+
+                            <span className="text-brand-primary">
+                              {{
+                                asc: "↑",
+                                desc: "↓",
+                              }[
+                                header.column.getIsSorted()
+                              ] ?? ""}
+                            </span>
+
+                          </div>
+
+                        </th>
+                      )
+                    )}
 
                   </tr>
-                ))
+                ))}
 
-            ) : (
+            </thead>
 
-              <tr>
-                <td
-                  colSpan={columns.length}
-                  className="py-10 text-center text-zinc-500"
-                >
-                  No Data Found
-                </td>
-              </tr>
+            {/* BODY */}
 
-            )}
+            <tbody>
 
-          </tbody>
+              {loading ? (
 
-        </table>
+                [...Array(8)].map(
+                  (_, index) => (
+
+                    <tr
+                      key={index}
+                      className="
+                        border-b
+                        border-border-primary
+                      "
+                    >
+
+                      {columns.map(
+                        (_, i) => (
+
+                          <td
+                            key={i}
+                            className="px-6 py-5"
+                          >
+
+                            <div
+                              className="
+                                h-4
+                                rounded-lg
+                                bg-neutral-secondary
+                                animate-pulse
+                              "
+                            />
+
+                          </td>
+                        )
+                      )}
+
+                    </tr>
+                  )
+                )
+
+              ) : (
+
+                table
+                  .getRowModel()
+                  .rows.map((row) => (
+
+                    <>
+                      {/* MAIN ROW */}
+
+                      <tr
+                        key={row.id}
+                        className="
+                          border-b
+                          border-border-primary
+                          hover:bg-primary-6
+                          transition
+                        "
+                      >
+
+                        {row
+                          .getVisibleCells()
+                          .map((cell) => (
+
+                            <td
+                              key={cell.id}
+                              className="
+                                px-6
+                                py-5
+                                text-sm
+                                text-paragraph
+                                whitespace-nowrap
+                              "
+                            >
+
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                              )}
+
+                            </td>
+                          ))}
+
+                      </tr>
+
+                      {/* EXPANDED ROW */}
+
+                      {expandedRow ===
+                        row.id && (
+
+                        <tr>
+
+                          <td
+                            colSpan={
+                              columns.length
+                            }
+                            className="
+                              bg-primary-6
+                              p-6
+                            "
+                          >
+
+                            <div>
+
+                              <h3
+                                className="
+                                  font-semibold
+                                  text-heading
+                                  mb-4
+                                "
+                              >
+                                Products
+                              </h3>
+
+                              <div className="overflow-x-auto">
+
+                                <table className="w-full">
+
+                                  <thead>
+
+                                    <tr
+                                      className="
+                                        border-b
+                                        border-border-primary
+                                      "
+                                    >
+
+                                      <th className="py-3 text-left text-muted text-sm">
+                                        Medication ID
+                                      </th>
+
+                                      <th className="py-3 text-left text-muted text-sm">
+                                        Quantity
+                                      </th>
+
+                                      <th className="py-3 text-left text-muted text-sm">
+                                        Unit Price
+                                      </th>
+
+                                      <th className="py-3 text-left text-muted text-sm">
+                                        Discount
+                                      </th>
+
+                                      <th className="py-3 text-left text-muted text-sm">
+                                        Total
+                                      </th>
+
+                                    </tr>
+
+                                  </thead>
+
+                                  <tbody>
+
+                                    {row.original.items.map(
+                                      (
+                                        item
+                                      ) => (
+
+                                        <tr
+                                          key={
+                                            item.id
+                                          }
+                                          className="
+                                            border-b
+                                            border-border-primary
+                                          "
+                                        >
+
+                                          <td className="py-3 text-sm text-paragraph">
+                                            {
+                                              item.medicationId
+                                            }
+                                          </td>
+
+                                          <td className="py-3 text-sm text-paragraph">
+                                            {Number(
+                                              item.quantity
+                                            ).toFixed(
+                                              3
+                                            )}
+                                          </td>
+
+                                          <td className="py-3 text-sm text-paragraph">
+                                            {Number(
+                                              item.unitPrice
+                                            ).toFixed(
+                                              3
+                                            )}
+                                          </td>
+
+                                          <td className="py-3 text-sm text-paragraph">
+                                            {Number(
+                                              item.medicationDiscount
+                                            ).toFixed(
+                                              3
+                                            )}
+                                          </td>
+
+                                          <td className="py-3 text-sm text-paragraph">
+                                            {Number(
+                                              item.totalPrice
+                                            ).toFixed(
+                                              3
+                                            )}
+                                          </td>
+
+                                        </tr>
+                                      )
+                                    )}
+
+                                  </tbody>
+
+                                </table>
+
+                              </div>
+
+                            </div>
+
+                          </td>
+
+                        </tr>
+                      )}
+
+                    </>
+                  ))
+
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
 
       </div>
 
       {/* PAGINATION */}
 
-      <div className="flex items-center justify-between mt-5">
+      <div
+        className="
+          mt-6
+          flex
+          flex-col
+          gap-4
+          md:flex-row
+          md:items-center
+          md:justify-between
+        "
+      >
 
-        <button
-          disabled={page === 1}
-          onClick={() => onPageChange(page - 1)}
-          className="px-4 py-2 bg-zinc-800 text-white rounded-xl disabled:opacity-50"
-        >
-          Prev
-        </button>
+        <div className="text-muted text-sm">
 
-        <div className="text-zinc-300">
+          Showing page
 
-          <span>
-            Page {pagination?.page}
+          <span className="mx-1 font-semibold text-heading">
+            {pagination?.page}
           </span>
 
-          <span className="mx-2">
-            /
-          </span>
+          of
 
-          <span>
+          <span className="mx-1 font-semibold text-heading">
             {pagination?.totalPages}
           </span>
 
-          <span className="mx-4">
-            |
-          </span>
+          • Total Records
 
-          <span>
-            Total Records:
-            {" "}
-            {pagination?.totalRecords}
+          <span className="ml-1 font-semibold text-heading">
+            {
+              pagination?.totalRecords
+            }
           </span>
 
         </div>
 
-        <button
-          disabled={page >= totalPages}
-          onClick={() => onPageChange(page + 1)}
-          className="px-4 py-2 bg-zinc-800 text-white rounded-xl disabled:opacity-50"
-        >
-          Next
-        </button>
+        {/* SMART PAGINATION */}
+
+        <div className="flex items-center gap-2 flex-wrap">
+
+          <button
+            disabled={page === 1}
+            onClick={() =>
+              onPageChange(page - 1)
+            }
+            className="
+              px-4
+              py-2
+              rounded-xl
+              border
+              border-border-primary
+              bg-neutral-main
+              text-heading
+            "
+          >
+            Prev
+          </button>
+
+          {generatePagination().map(
+            (item, index) => (
+
+              <button
+                key={index}
+                disabled={
+                  item === "..."
+                }
+                onClick={() =>
+                  typeof item ===
+                    "number" &&
+                  onPageChange(item)
+                }
+                className={`
+                  min-w-[42px]
+                  h-[42px]
+                  rounded-xl
+                  border
+                  text-sm
+                  font-medium
+
+                  ${
+                    item === page
+                      ? `
+                        bg-brand-primary
+                        border-brand-primary
+                        text-white
+                      `
+                      : `
+                        bg-neutral-main
+                        border-border-primary
+                        text-heading
+                      `
+                  }
+
+                  ${
+                    item === "..."
+                      ? "cursor-default"
+                      : ""
+                  }
+                `}
+              >
+                {item}
+              </button>
+            )
+          )}
+
+          <button
+            disabled={
+              page >= totalPages
+            }
+            onClick={() =>
+              onPageChange(page + 1)
+            }
+            className="
+              px-4
+              py-2
+              rounded-xl
+              border
+              border-border-primary
+              bg-neutral-main
+              text-heading
+            "
+          >
+            Next
+          </button>
+
+        </div>
 
       </div>
+
     </div>
   );
 };
