@@ -15,6 +15,14 @@ import DashboardNavBar from "../../components/layout/dashboardnavbar/DashboardNa
 import { useState } from "react";
 import { useIsMobile } from "../../hooks/useIsMobile.js";
 
+// table
+import UsersPage from "../../routes/users.jsx";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import ReusableTable from "../../components/General/tables/ReusableTable.jsx";
+
+
+
+
 const dashboardItems = [
   { name: "Dashboard", path: "/pharmacy/dashboard", icon: DashboardIcon },
   { name: "Inventory", path: "/pharmacy/inventory", icon: PillIcon },
@@ -24,7 +32,87 @@ const dashboardItems = [
 ];
 
 export default function PharmacyDashboard() {
-  //custom hook to check if window is mobile size or not
+//table states and functions 
+const queryClient = new QueryClient();
+const columns = [
+    
+  ];
+
+
+/* const { data, total, page, limit, loading, error, setData, setTotal, setPage, setLoading, setError,} = useTableStore();
+const columns = useMemo(
+  () => [
+    {
+      accessorKey: "orderNo",
+      header: "ID",
+    },
+    {
+      accessorKey: "customerName",
+      header: "Customer Name",
+    },
+    {
+      accessorKey: "date",
+      header: "Date",
+    },
+    {
+      accessorKey: "itemAmount",
+      header: "Item Amount",
+    },
+    {
+      accessorKey: "subtotal",
+      header: "Subtotal",
+    },
+    {
+      accessorKey: "discount",
+      header: "Discount",
+    },
+    {
+      accessorKey: `tax`,
+      header: "Tax",
+    },
+    {
+      accessorKey: "total",
+      header: "Total",
+    },
+    
+  ], [] );
+const loadData = async () => {
+  try {
+    setLoading(true);
+
+   const response = await fetchTableData({
+  endpoint: "http://localhost:8080/pharmacy/purchases",
+  page: 10,
+  limit: 25,
+  headers: {
+    "Authorization": `Bearer ${yourTokenVariable}`,
+    "Content-Type": "application/json"
+  }
+});
+
+    /*
+      Expected Backend Response:
+      
+      {
+        data: [],
+        total: 100
+      }
+    
+
+    setData(response.data);
+    setTotal(response.recordsCount);
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  loadData();
+}, [page]);  */
+  
+//custom hook to check if window is mobile size or not
   const isMobile = useIsMobile();
   const [overlay, setOverlay] = useState(false);
   //set sidebar initially as closed if you open page on mobile otherwise start it as opened
@@ -32,7 +120,8 @@ export default function PharmacyDashboard() {
   // const {changeAvatarName,changeAvatarImage} = useAvatarStore(); //for testing purposes for the avatar store
   return (
     <>
-      {/* overlay */}
+    <QueryClientProvider client={queryClient}>
+     {/* overlay */}
       <Overlay
         isVisible={overlay}
         onClose={() => {
@@ -50,12 +139,36 @@ export default function PharmacyDashboard() {
       />
       <div className="flex flex-col w-full h-screen">
         <DashboardNavBar />
-        <PDashboardMain />
+    
+
+ 
+     <div
+      className="
+        min-h-screen
+        bg-neutral-secondary
+        p-6
+      "
+    >
+
+      <ReusableTable
+        endpoint="http://localhost:8080/pharmacy/inventory"
+        
+      />
+
+    </div>
+ 
+
+
       </div>
+      
+      
+
 
       {/* for testing purposes for the avatar store */}
       {/* <input type="text" onChange={(e)=>{changeAvatarName(e.target.value)}}/>
             <button onClick={()=>{changeAvatarImage(avatarImage)}}>change image</button>  */}
+  </QueryClientProvider>
+     
     </>
   );
 }
