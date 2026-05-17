@@ -1,4 +1,7 @@
 import {
+  getExpandedRowModel,
+} from "@tanstack/react-table"; 
+import {
   flexRender,
   getCoreRowModel,
   useReactTable,
@@ -35,7 +38,10 @@ const DataTable = ({
     onSortingChange: setSorting,
 
     getCoreRowModel:
-      getCoreRowModel(),
+  getCoreRowModel(),
+
+getExpandedRowModel:
+  getExpandedRowModel(),
   });
 
   /* SMART PAGINATION */
@@ -218,187 +224,235 @@ const DataTable = ({
               ) : (
 
                 table
-                  .getRowModel()
-                  .rows.map((row) => (
+  .getRowModel()
+  .rows.map((row) => (
 
-                    <>
-                      {/* MAIN ROW */}
+    <>
+      {/* MAIN ROW */}
 
-                      <tr
-                        key={row.id}
-                        className="
-                          border-b
-                          border-border-primary
-                          hover:bg-primary-6
-                          transition
-                        "
-                      >
+      <tr
+        key={row.id}
+        className="
+          border-b
+          border-border-primary
+          hover:bg-primary-6
+          transition
+        "
+      >
 
-                        {row
-                          .getVisibleCells()
-                          .map((cell) => (
+        {row
+          .getVisibleCells()
+          .map((cell) => (
 
-                            <td
-                              key={cell.id}
-                              className="
-                                px-6
-                                py-5
-                                text-sm
-                                text-paragraph
-                                whitespace-nowrap
-                              "
-                            >
+            <td
+              key={cell.id}
+              className="
+                px-6
+                py-5
+                text-sm
+                text-paragraph
+                whitespace-nowrap
+              "
+            >
 
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
-                              )}
+              {flexRender(
+                cell.column.columnDef.cell,
+                cell.getContext()
+              )}
 
-                            </td>
-                          ))}
+            </td>
+          ))}
 
-                      </tr>
+      </tr>
 
-                      {/* EXPANDED ROW */}
+      {/* EXPANDED ROW */}
 
-                      {expandedRow ===
-                        row.id && (
+      {row.getIsExpanded() && (
 
-                        <tr>
+        <tr>
 
-                          <td
-                            colSpan={
-                              columns.length
-                            }
+          <td
+            colSpan={
+              columns.length
+            }
+            className="
+              bg-primary-6
+              p-6
+            "
+          >
+
+            {/* LOOP ARRAYS */}
+
+            {Object.entries(
+              row.original
+            ).map(
+              ([key, value]) => {
+
+                if (
+                  !Array.isArray(
+                    value
+                  )
+                ) {
+                  return null;
+                }
+
+                /* EMPTY ARRAY */
+
+                if (
+                  !value.length
+                ) {
+
+                  return (
+                    <div
+                      key={key}
+                    >
+
+                      No Data
+
+                    </div>
+                  );
+                }
+
+                const nestedColumns =
+                  Object.keys(
+                    value[0]
+                  );
+
+                return (
+
+                  <div
+                    key={key}
+                    className="mb-8"
+                  >
+
+                    <h3
+                      className="
+                        text-lg
+                        font-semibold
+                        text-heading
+                        mb-4
+                      "
+                    >
+
+                      {key}
+
+                    </h3>
+
+                    <div className="overflow-x-auto">
+
+                      <table className="w-full">
+
+                        <thead>
+
+                          <tr
                             className="
-                              bg-primary-6
-                              p-6
+                              border-b
+                              border-border-primary
                             "
                           >
 
-                            <div>
+                            {nestedColumns.map(
+                              (
+                                column
+                              ) => (
 
-                              <h3
+                                <th
+                                  key={
+                                    column
+                                  }
+                                  className="
+                                    py-3
+                                    text-left
+                                    text-sm
+                                    text-muted
+                                  "
+                                >
+
+                                  {column}
+
+                                </th>
+                              )
+                            )}
+
+                          </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                          {value.map(
+                            (
+                              item,
+                              index
+                            ) => (
+
+                              <tr
+                                key={
+                                  index
+                                }
                                 className="
-                                  font-semibold
-                                  text-heading
-                                  mb-4
+                                  border-b
+                                  border-border-primary
                                 "
                               >
-                                Products
-                              </h3>
 
-                              <div className="overflow-x-auto">
+                                {nestedColumns.map(
+                                  (
+                                    column
+                                  ) => (
 
-                                <table className="w-full">
-
-                                  <thead>
-
-                                    <tr
+                                    <td
+                                      key={
+                                        column
+                                      }
                                       className="
-                                        border-b
-                                        border-border-primary
+                                        py-3
+                                        text-sm
+                                        text-paragraph
                                       "
                                     >
 
-                                      <th className="py-3 text-left text-muted text-sm">
-                                        Medication ID
-                                      </th>
+                                      {typeof item[
+                                        column
+                                      ] ===
+                                      "number"
 
-                                      <th className="py-3 text-left text-muted text-sm">
-                                        Quantity
-                                      </th>
+                                        ? item[
+                                            column
+                                          ].toFixed(
+                                            3
+                                          )
 
-                                      <th className="py-3 text-left text-muted text-sm">
-                                        Unit Price
-                                      </th>
+                                        : item[
+                                            column
+                                          ]}
 
-                                      <th className="py-3 text-left text-muted text-sm">
-                                        Discount
-                                      </th>
+                                    </td>
+                                  )
+                                )}
 
-                                      <th className="py-3 text-left text-muted text-sm">
-                                        Total
-                                      </th>
+                              </tr>
+                            )
+                          )}
 
-                                    </tr>
+                        </tbody>
 
-                                  </thead>
+                      </table>
 
-                                  <tbody>
+                    </div>
 
-                                    {row.original.items.map(
-                                      (
-                                        item
-                                      ) => (
+                  </div>
+                );
+              }
+            )}
 
-                                        <tr
-                                          key={
-                                            item.id
-                                          }
-                                          className="
-                                            border-b
-                                            border-border-primary
-                                          "
-                                        >
+          </td>
 
-                                          <td className="py-3 text-sm text-paragraph">
-                                            {
-                                              item.medicationId
-                                            }
-                                          </td>
+        </tr>
+      )}
 
-                                          <td className="py-3 text-sm text-paragraph">
-                                            {Number(
-                                              item.quantity
-                                            ).toFixed(
-                                              3
-                                            )}
-                                          </td>
-
-                                          <td className="py-3 text-sm text-paragraph">
-                                            {Number(
-                                              item.unitPrice
-                                            ).toFixed(
-                                              3
-                                            )}
-                                          </td>
-
-                                          <td className="py-3 text-sm text-paragraph">
-                                            {Number(
-                                              item.medicationDiscount
-                                            ).toFixed(
-                                              3
-                                            )}
-                                          </td>
-
-                                          <td className="py-3 text-sm text-paragraph">
-                                            {Number(
-                                              item.totalPrice
-                                            ).toFixed(
-                                              3
-                                            )}
-                                          </td>
-
-                                        </tr>
-                                      )
-                                    )}
-
-                                  </tbody>
-
-                                </table>
-
-                              </div>
-
-                            </div>
-
-                          </td>
-
-                        </tr>
-                      )}
-
-                    </>
-                  ))
+    </>
+  ))
 
               )}
 

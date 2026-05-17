@@ -18,6 +18,7 @@ import { useIsMobile } from "../../hooks/useIsMobile.js";
 // table
 import UsersPage from "../../routes/users.jsx";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import ReusableTable from "../../components/General/tables/ReusableTable.jsx";
 
 
 
@@ -33,6 +34,10 @@ const dashboardItems = [
 export default function PharmacyDashboard() {
 //table states and functions 
 const queryClient = new QueryClient();
+const columns = [
+    
+  ];
+
 
 /* const { data, total, page, limit, loading, error, setData, setTotal, setPage, setLoading, setError,} = useTableStore();
 const columns = useMemo(
@@ -134,7 +139,26 @@ useEffect(() => {
       />
       <div className="flex flex-col w-full h-screen">
         <DashboardNavBar />
-        <UsersPage />
+    
+
+ 
+     <div
+      className="
+        min-h-screen
+        bg-neutral-secondary
+        p-6
+      "
+    >
+
+      <ReusableTable
+        endpoint="http://localhost:8080/pharmacy/inventory"
+        
+      />
+
+    </div>
+ 
+
+
       </div>
       
       

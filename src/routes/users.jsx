@@ -11,9 +11,9 @@ import {
   useDebounce,
 } from "use-debounce";
 
-import DataTable from "../components/General/tables/DataTable.jsx";
+// import DataTable from "../components/General/tables/DataTable.jsx";
 
-import { fetchUsers } from "../api/tableApi";
+// import { fetchUsers } from "../api/tableApi";
 
 const UsersPage = () => {
 
