@@ -16,6 +16,9 @@ import Signup from "./components/auth/Signup";
 import ApiTest from "./pages/testing/ApiTest";
 import Master from "./pages/pharmacy/PharmacyMaster";
 import Sales from "./pages/pharmacy/Sales";
+import Inventory from "./pages/pharmacy/Inventory";
+import Receipt from "./pages/pharmacy/Receipt";
+import Setting from "./pages/pharmacy/Setting";
 
 const routes = createBrowserRouter([
   { path: "/", element: <LandingPage /> },
@@ -37,6 +40,9 @@ const routes = createBrowserRouter([
           { path: "/pharmacy/dashboard", element: <PharmacyDashboard /> },
           { path: "/pharmacy/cashier", element: <Cashier /> },
           {path: "/pharmacy/sales", element: <Sales/>},
+          {path: "/pharmacy/inventory", element: <Inventory/>},
+          {path: "/pharmacy/receipts", element: <Receipt/>},
+          {path: "/pharmacy/settings", element: <Setting/>},
         ],
       },
       { path: "/login", element: <Login /> },
