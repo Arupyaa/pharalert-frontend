@@ -1,4 +1,5 @@
-import React from 'react'
+import React from "react";
+import { ChevronDownIcon } from "../../../assets/svg/icons";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -8,7 +9,7 @@ function CustomSelect({
   onChange,
   placeholder,
   id,
-  className = ""
+  className = "",
 }) {
   return (
     <div className="relative w-full">
@@ -31,7 +32,7 @@ function CustomSelect({
           focus:border-accent
           transition-all
           `,
-          className
+          className,
         )}
       >
         <option value="">{placeholder}</option>
@@ -44,15 +45,7 @@ function CustomSelect({
       </select>
 
       <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-        <svg
-          className="w-4 h-4 text-gray-500"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-        >
-          <path d="M19 9l-7 7-7-7" />
-        </svg>
+        <ChevronDownIcon className="w-4 h-4 text-gray-500" />
       </div>
     </div>
   );
@@ -67,7 +60,7 @@ export default function SelectMenu() {
     { label: "France", value: "FR" },
     { label: "Egypt", value: "EGY" },
     { label: "Oman", value: "OMA" },
-    { label: "Germany", value: "DE" }
+    { label: "Germany", value: "DE" },
   ];
 
   return (
@@ -78,12 +71,10 @@ export default function SelectMenu() {
         value={country}
         placeholder="Choose a country"
         onChange={(e) => setCountry(e.target.value)}
-        // className="border-red-400 focus:ring-primary-500" 
+        // className="border-red-400 focus:ring-primary-500"
       />
 
-      <p className="mt-3 text-sm text-gray-600">
-        Selected: {country}
-      </p>
+      <p className="mt-3 text-sm text-gray-600">Selected: {country}</p>
     </div>
   );
 }

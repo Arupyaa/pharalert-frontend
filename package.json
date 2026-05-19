@@ -16,6 +16,7 @@
     "@tanstack/react-router": "^1.170.1",
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.13.24",
+    "axios": "^1.16.1",
     "flowbite": "^4.0.1",
     "geolib": "^3.3.14",
     "lucide-react": "^1.14.0",
@@ -28,8 +29,8 @@
     "resolvers": "^1.0.0",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.2",
-    "zod": "^4.4.3",
     "use-debounce": "^10.1.1",
+    "zod": "^4.4.3",
     "zustand": "^5.0.12"
   },
   "devDependencies": {
