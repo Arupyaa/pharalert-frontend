@@ -1,10 +1,10 @@
 import axios from "axios";
 import { useAuthStore } from "../store/useAuthStore";
 
-// Axios base instance
-// Shared API configuration for all requests
+const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:8080";
+
 const api = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -99,7 +99,7 @@ api.interceptors.response.use(
     try {
       // Request a new access token
       const { data } = await axios.post(
-        "http://localhost:8080/auth/refresh",
+        `${BASE_URL}/auth/refresh`,
         { refreshToken },
         {
           headers: {

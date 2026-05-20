@@ -2,42 +2,17 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import AvatarWithName from "../../General/avatar/AvatarWithName";
-import { useAuthStore } from "../../../store/useAuthStore";
-import api from "../../../api/api";
+import { handleLogout as logoutUser } from "../../../utils/logout";
 
 export default function DashboardNavBar({ propClassName = "" }) {
-  // Get logout action and refresh token from auth store
-  const { logout, refreshToken } = useAuthStore();
-
-  // React Router navigation
   const navigate = useNavigate();
 
-  // Loading state while logout request is processing
   const [loading, setLoading] = useState(false);
 
-  // Handle user logout process
   async function handleLogout() {
     setLoading(true);
-
-    try {
-      // Send refresh token to backend to invalidate session
-      await api.post("/auth/logout", {
-        refreshToken,
-      });
-    } catch (error) {
-      // Continue local logout even if API request fails
-      console.error("Logout request failed:", error);
-    } finally {
-      // Clear local auth data
-      logout();
-
-      // Redirect user to login page
-      navigate("/login", {
-        replace: true,
-      });
-
-      setLoading(false);
-    }
+    await logoutUser(navigate);
+    setLoading(false);
   }
 
   return (

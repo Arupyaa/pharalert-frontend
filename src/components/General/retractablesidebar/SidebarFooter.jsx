@@ -4,46 +4,20 @@ import { useNavigate } from "react-router-dom";
 import Avatar from "../avatar/Avatar.jsx";
 import AvatarWithName from "../avatar/AvatarWithName.jsx";
 
-import api from "../../../api/api.js";
 import { useAvatarStore } from "../../../store/UseAvatarStore.js";
-import { useAuthStore } from "../../../store/useAuthStore.js";
+import { handleLogout as logoutUser } from "../../../utils/logout.js";
 
 export default function SidebarFooter({ collapsed }) {
-  // Get current avatar data from store
   const { avatar } = useAvatarStore();
 
-  // Get auth actions and refresh token
-  const { logout, refreshToken } = useAuthStore();
-
-  // React Router navigation
   const navigate = useNavigate();
 
-  // Loading state while logout request is processing
   const [loading, setLoading] = useState(false);
 
-  // Handle logout process
   async function handleLogout() {
     setLoading(true);
-
-    try {
-      // Notify backend to revoke refresh token
-      await api.post("/auth/logout", {
-        refreshToken,
-      });
-    } catch (error) {
-      // Continue local logout even if request fails
-      console.error("Logout request failed:", error);
-    } finally {
-      // Clear local authentication data
-      logout();
-
-      // Redirect user to login page
-      navigate("/login", {
-        replace: true,
-      });
-
-      setLoading(false);
-    }
+    await logoutUser(navigate);
+    setLoading(false);
   }
 
   return (
