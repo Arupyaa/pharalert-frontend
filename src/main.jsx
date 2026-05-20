@@ -18,10 +18,6 @@ import Login from "./components/auth/Login";
 import Signup from "./components/auth/Signup";
 import ApiTest from "./pages/testing/ApiTest";
 import Master from "./pages/pharmacy/PharmacyMaster";
-import Sales from "./pages/pharmacy/Sales";
-import Inventory from "./pages/pharmacy/Inventory";
-import Receipt from "./pages/pharmacy/Receipt";
-import Setting from "./pages/pharmacy/Setting";
 
 // Dashboards
 import PharmacyDashboard from "./pages/pharmacy/PharmacyDashboard";
