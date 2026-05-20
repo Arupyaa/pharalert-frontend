@@ -1,15 +1,12 @@
 import { create } from "zustand";
 
-// Keys stored in localStorage
+// localStorage keys
 const TOKEN_KEY = "accessToken";
 const REFRESH_KEY = "refreshToken";
 const ROLE_KEY = "role";
 const ACCOUNT_TYPE_KEY = "accountType";
 
-/**
- * Reads auth state from localStorage on app boot.
- * Returns null for tokens/role if nothing is stored.
- */
+// Load persisted auth data on application startup
 function loadAuthFromStorage() {
   return {
     accessToken: localStorage.getItem(TOKEN_KEY),
@@ -20,36 +17,41 @@ function loadAuthFromStorage() {
 }
 
 export const useAuthStore = create((set) => ({
-  //State
+  // Initial auth state
   ...loadAuthFromStorage(),
 
-  //Actions 
-
-  /**
-   * Called after a successful login.
-   * Persists tokens + role to localStorage and updates the store.
-   */
+  // Store authentication data after login
   setAuth: ({ accessToken, refreshToken, role, accountType }) => {
+    // Persist auth data
     localStorage.setItem(TOKEN_KEY, accessToken);
+
     localStorage.setItem(REFRESH_KEY, refreshToken);
+
     localStorage.setItem(ROLE_KEY, role);
+
     localStorage.setItem(ACCOUNT_TYPE_KEY, accountType ?? "");
 
-    set({ accessToken, refreshToken, role, accountType: accountType ?? "" });
+    // Update Zustand state
+    set({
+      accessToken,
+      refreshToken,
+      role,
+      accountType: accountType ?? "",
+    });
   },
 
-  /**
-   * Called on logout OR when the refresh token is expired.
-   * Clears all auth state and removes every auth key from localStorage.
-   */
+  // Clear authentication data and reset state
   logout: () => {
-    // 1. Clear auth tokens
+    // Remove persisted data
     localStorage.removeItem(TOKEN_KEY);
+
     localStorage.removeItem(REFRESH_KEY);
+
     localStorage.removeItem(ROLE_KEY);
+
     localStorage.removeItem(ACCOUNT_TYPE_KEY);
 
-    // 2. Reset store to unauthenticated state
+    // Reset auth state
     set({
       accessToken: null,
       refreshToken: null,
@@ -58,15 +60,17 @@ export const useAuthStore = create((set) => ({
     });
   },
 
-  /**
-   * Called by the api interceptor when the access token is silently refreshed.
-   */
+  // Update access token after refresh
   updateAccessToken: (accessToken) => {
     localStorage.setItem(TOKEN_KEY, accessToken);
-    set({ accessToken });
+
+    set({
+      accessToken,
+    });
   },
 }));
 
-//  Selector helpers 
+// Auth selector helpers
 export const selectIsAuthenticated = (state) => Boolean(state.accessToken);
+
 export const selectRole = (state) => state.role;

@@ -1,97 +1,67 @@
-// import { StrictMode } from "react";
-// import { createRoot } from "react-dom/client";
-// import MasterGrid from "./pages/master/MasterGrid";
-// import {
-//   createBrowserRouter,
-//   Navigate,
-//   RouterProvider,
-// } from "react-router-dom";
-// import "./index.css";
-// import "flowbite";
-
-// // Pages
-// import LandingPage from "./pages/LandingPage";
-// import PharmacyDashboard from "./pages/pharmacy/PharmacyDashboard";
-// import CompanyDashboard from "./pages/company/CompanyDashboard";
-// import UserDashboard from "./pages/user/UserDashboard";
-// import Cashier from "./pages/pharmacy/Cashier";
-// import Login from "./components/auth/Login";
-// import Signup from "./components/auth/Signup";
-// import ApiTest from "./pages/testing/ApiTest";
-
-// const routes = createBrowserRouter([
-//   { path: "/", element: <LandingPage /> },
-//   { path: "/testingApi/:pid/receipt/:rid", element: <ApiTest /> },
-//   {
-//     path: "/",
-//     element: <MasterGrid />,
-//     children: [
-//       // ── Auth ──────────────────────────────────────────────────
-//       { path: "/login", element: <Login /> },
-//       { path: "/signup", element: <Signup /> },
-
-//       // ── Pharmacy ──────────────────────────────────────────────
-//       {
-//         path: "/pharmacy",
-//         element: <Navigate to="/pharmacy/dashboard" replace />,
-//       },
-//       { path: "/pharmacy/dashboard", element: <PharmacyDashboard /> },
-//       { path: "/pharmacy/cashier", element: <Cashier /> },
-
-//       // ── Company ───────────────────────────────────────────────
-//       {
-//         path: "/company",
-//         element: <Navigate to="/company/dashboard" replace />,
-//       },
-//       { path: "/company/dashboard", element: <CompanyDashboard /> },
-
-//       // ── User ──────────────────────────────────────────────────
-//       { path: "/user", element: <Navigate to="/user/dashboard" replace /> },
-//       { path: "/user/dashboard", element: <UserDashboard /> },
-//     ],
-//   },
-// ]);
-
-// createRoot(document.getElementById("root")).render(
-//   <StrictMode>
-//     <RouterProvider router={routes} />
-//   </StrictMode>,
-// );
-
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import MasterGrid from "./pages/master/MasterGrid";
+
 import {
   createBrowserRouter,
   Navigate,
   RouterProvider,
 } from "react-router-dom";
+
 import "./index.css";
 import "flowbite";
 
-// Pages
+import MasterGrid from "./pages/master/MasterGrid";
+
+// Public pages
 import LandingPage from "./pages/LandingPage";
+import Login from "./components/auth/Login";
+import Signup from "./components/auth/Signup";
+import ApiTest from "./pages/testing/ApiTest";
+
+// Dashboards
 import PharmacyDashboard from "./pages/pharmacy/PharmacyDashboard";
 import CompanyDashboard from "./pages/company/CompanyDashboard";
 import UserDashboard from "./pages/user/UserDashboard";
 import Cashier from "./pages/pharmacy/Cashier";
-import Login from "./components/auth/Login";
-import Signup from "./components/auth/Signup";
-import ApiTest from "./pages/testing/ApiTest";
+
+// Route protection layer
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
+// Application routing configuration
 const routes = createBrowserRouter([
-  { path: "/", element: <LandingPage /> },
-  { path: "/testingApi/:pid/receipt/:rid", element: <ApiTest /> },
+  // Public landing page (no layout wrapper)
+  {
+    path: "/",
+    element: <LandingPage />,
+  },
+
+  // API testing route (development/debugging only)
+  {
+    path: "/testingApi/:pid/receipt/:rid",
+    element: <ApiTest />,
+  },
+
+  // Main app layout wrapper
   {
     path: "/",
     element: <MasterGrid />,
-    children: [
-      // ── Auth (public) ──────────────────────────────────────────
-      { path: "/login", element: <Login /> },
-      { path: "/signup", element: <Signup /> },
 
-      // ── Pharmacy (protected) ──────────────────────────────────
+    children: [
+   
+      // Public authentication routes
+   
+      {
+        path: "/login",
+        element: <Login />,
+      },
+      {
+        path: "/signup",
+        element: <Signup />,
+      },
+
+  
+      // Pharmacy routes (protected)
+    
       {
         element: <ProtectedRoute allowedRoles={["pharmacy"]} />,
         children: [
@@ -99,12 +69,20 @@ const routes = createBrowserRouter([
             path: "/pharmacy",
             element: <Navigate to="/pharmacy/dashboard" replace />,
           },
-          { path: "/pharmacy/dashboard", element: <PharmacyDashboard /> },
-          { path: "/pharmacy/cashier", element: <Cashier /> },
+          {
+            path: "/pharmacy/dashboard",
+            element: <PharmacyDashboard />,
+          },
+          {
+            path: "/pharmacy/cashier",
+            element: <Cashier />,
+          },
         ],
       },
 
-      // ── Company (protected) ───────────────────────────────────
+  
+      // Company routes (protected)
+ 
       {
         element: <ProtectedRoute allowedRoles={["company"]} />,
         children: [
@@ -112,11 +90,15 @@ const routes = createBrowserRouter([
             path: "/company",
             element: <Navigate to="/company/dashboard" replace />,
           },
-          { path: "/company/dashboard", element: <CompanyDashboard /> },
+          {
+            path: "/company/dashboard",
+            element: <CompanyDashboard />,
+          },
         ],
       },
 
-      // ── User (protected) ──────────────────────────────────────
+      // User routes (protected)
+   
       {
         element: <ProtectedRoute allowedRoles={["user"]} />,
         children: [
@@ -124,13 +106,17 @@ const routes = createBrowserRouter([
             path: "/user",
             element: <Navigate to="/user/dashboard" replace />,
           },
-          { path: "/user/dashboard", element: <UserDashboard /> },
+          {
+            path: "/user/dashboard",
+            element: <UserDashboard />,
+          },
         ],
       },
     ],
   },
 ]);
 
+// App bootstrap
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <RouterProvider router={routes} />
