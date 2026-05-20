@@ -9,27 +9,34 @@ import DashboardIcon from "../../assets/svg/DashboardIcon.jsx";
 import SettingsIcon from "../../assets/svg/SettingsIcon.jsx";
 import PillIcon from "../../assets/svg/PillIcon.jsx";
 import SalesIcon from "../../assets/svg/SalesIcon.jsx";
-import CashierIcon from "../../assets/svg/CashierIcon.jsx";
-import { useAvatarStore } from "../../store/UseAvatarStore.js";
-import avatarImage from "../../assets/avatar.avif";
+// import { useAvatarStore } from "../../store/UseAvatarStore.js";
+// import avatarImage from "../../assets/avatar.avif";
 import DashboardNavBar from "../../components/layout/dashboardnavbar/DashboardNavBar.jsx";
 import { useState } from "react";
 import { useIsMobile } from "../../hooks/useIsMobile.js";
-import DashboardAnalytics from "../../components/General/dashboardcard/DashboardAnalytics.jsx";
+
+// table
+import UsersPage from "../../routes/users.jsx";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import ReusableTable from "../../components/General/tables/ReusableTable.jsx";
 
 
 
 
-const dashboardItems = [
-  { name: "Dashboard", path: "/pharmacy/dashboard", icon: DashboardIcon },
-  { name: "Cashier", path: "/pharmacy/cashier", icon: CashierIcon },
-  { name: "Inventory", path: "/pharmacy/inventory", icon: PillIcon },
-  { name: "Sales", path: "/pharmacy/sales", icon: SalesIcon },
-  { name: "Receipts", path: "/pharmacy/receipts", icon: ReceiptIcon },
-  { name: "Settings", path: "/pharmacy/settings", icon: SettingsIcon },
-];
+// const dashboardItems = [
+//   { name: "Dashboard", path: "/pharmacy/dashboard", icon: DashboardIcon },
+//   { name: "Inventory", path: "/pharmacy/inventory", icon: PillIcon },
+//   { name: "Sales", path: "/pharmacy/sales", icon: SalesIcon },
+//   { name: "Receipts", path: "/pharmacy/receipts", icon: ReceiptIcon },
+//   { name: "Settings", path: "/pharmacy/settings", icon: SettingsIcon },
+// ];
 
 export default function PharmacyDashboard() {
+//table states and functions 
+const queryClient = new QueryClient();
+
+
+  
 //custom hook to check if window is mobile size or not
   const isMobile = useIsMobile();
   const [overlay, setOverlay] = useState(false);
@@ -38,6 +45,7 @@ export default function PharmacyDashboard() {
   // const {changeAvatarName,changeAvatarImage} = useAvatarStore(); //for testing purposes for the avatar store
   return (
     <>
+    <QueryClientProvider client={queryClient}>
      {/* overlay */}
       {/* <Overlay
         isVisible={overlay}
@@ -55,8 +63,10 @@ export default function PharmacyDashboard() {
         collapsed={collapsed}
       /> */}
       <div className="flex flex-col w-full h-screen">
-        <DashboardNavBar />
+        {/* <DashboardNavBar /> */}
+    
 
+ 
      <div
       className="
         min-h-screen
@@ -65,16 +75,25 @@ export default function PharmacyDashboard() {
       "
     >
 
-      <DashboardAnalytics />
+      <ReusableTable
+        endpoint="http://localhost:8080/pharmacy/inventory"
+        
+      />
 
     </div>
+ 
+
 
       </div>
+      
+      
+
 
       {/* for testing purposes for the avatar store */}
       {/* <input type="text" onChange={(e)=>{changeAvatarName(e.target.value)}}/>
             <button onClick={()=>{changeAvatarImage(avatarImage)}}>change image</button>  */}
-
+  </QueryClientProvider>
+     
     </>
   );
 }
