@@ -20,6 +20,10 @@ import ApiTest from "./pages/testing/ApiTest";
 
 // Dashboards
 import PharmacyDashboard from "./pages/pharmacy/PharmacyDashboard";
+import Inventory from "./pages/pharmacy/Inventory";
+import Sales from "./pages/pharmacy/Sales";
+import Receipts from "./pages/pharmacy/Receipts";
+import Settings from "./pages/pharmacy/Settings";
 import CompanyDashboard from "./pages/company/CompanyDashboard";
 import UserDashboard from "./pages/user/UserDashboard";
 import Cashier from "./pages/pharmacy/Cashier";
@@ -76,6 +80,22 @@ const routes = createBrowserRouter([
           {
             path: "/pharmacy/cashier",
             element: <Cashier />,
+          },
+          {
+            path: "/pharmacy/inventory",
+            element: <Inventory />,
+          },
+          {
+            path: "/pharmacy/sales",
+            element: <Sales />,
+          },
+          {
+            path: "/pharmacy/receipts",
+            element: <Receipts />,
+          },
+          {
+            path: "/pharmacy/settings",
+            element: <Settings />,
           },
         ],
       },
