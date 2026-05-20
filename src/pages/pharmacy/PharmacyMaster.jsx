@@ -10,6 +10,7 @@ import DashboardIcon from "../../assets/svg/DashboardIcon.jsx";
 import SettingsIcon from "../../assets/svg/SettingsIcon.jsx";
 import PillIcon from "../../assets/svg/PillIcon.jsx";
 import SalesIcon from "../../assets/svg/SalesIcon.jsx";
+import CashierIcon from "../../assets/svg/CashierIcon.jsx";
 // import { useAvatarStore } from "../../store/UseAvatarStore.js";
 // import avatarImage from "../../assets/avatar.avif";
 import DashboardNavBar from "../../components/layout/dashboardnavbar/DashboardNavBar.jsx";
@@ -23,7 +24,7 @@ const dashboardItems = [
   { name: "Inventory", path: "/pharmacy/inventory", icon: PillIcon },
   { name: "Sales", path: "/pharmacy/sales", icon: SalesIcon },
   { name: "Receipts", path: "/pharmacy/receipts", icon: ReceiptIcon },
-  { name: "Cashier", path: "/pharmacy/cashier", icon: SettingsIcon },
+  { name: "Cashier", path: "/pharmacy/cashier", icon: CashierIcon },
   { name: "Settings", path: "/pharmacy/settings", icon: SettingsIcon },
 ];
 

@@ -17,7 +17,7 @@ import LandingPage from "./pages/LandingPage";
 import Login from "./components/auth/Login";
 import Signup from "./components/auth/Signup";
 import ApiTest from "./pages/testing/ApiTest";
-import Master from "./pages/pharmacy/PharmacyMaster";
+import PharmacyMaster from "./pages/pharmacy/PharmacyMaster";
 
 // Dashboards
 import PharmacyDashboard from "./pages/pharmacy/PharmacyDashboard";
@@ -52,9 +52,9 @@ const routes = createBrowserRouter([
     element: <MasterGrid />,
 
     children: [
-   
+
       // Public authentication routes
-   
+
       {
         path: "/login",
         element: <Login />,
@@ -64,46 +64,51 @@ const routes = createBrowserRouter([
         element: <Signup />,
       },
 
-  
+
       // Pharmacy routes (protected)
-    
+
       {
         element: <ProtectedRoute allowedRoles={["pharmacy"]} />,
         children: [
           {
-            path: "/pharmacy",
-            element: <Navigate to="/pharmacy/dashboard" replace />,
-          },
-          {
-            path: "/pharmacy/dashboard",
-            element: <PharmacyDashboard />,
-          },
-          {
-            path: "/pharmacy/cashier",
-            element: <Cashier />,
-          },
-          {
-            path: "/pharmacy/inventory",
-            element: <Inventory />,
-          },
-          {
-            path: "/pharmacy/sales",
-            element: <Sales />,
-          },
-          {
-            path: "/pharmacy/receipts",
-            element: <Receipts />,
-          },
-          {
-            path: "/pharmacy/settings",
-            element: <Settings />,
+            element: <PharmacyMaster />,
+            children: [
+              {
+                path: "/pharmacy",
+                element: <Navigate to="/pharmacy/dashboard" replace />,
+              },
+              {
+                path: "/pharmacy/dashboard",
+                element: <PharmacyDashboard />,
+              },
+              {
+                path: "/pharmacy/cashier",
+                element: <Cashier />,
+              },
+              {
+                path: "/pharmacy/inventory",
+                element: <Inventory />,
+              },
+              {
+                path: "/pharmacy/sales",
+                element: <Sales />,
+              },
+              {
+                path: "/pharmacy/receipts",
+                element: <Receipts />,
+              },
+              {
+                path: "/pharmacy/settings",
+                element: <Settings />,
+              },
+            ],
           },
         ],
       },
 
-  
+
       // Company routes (protected)
- 
+
       {
         element: <ProtectedRoute allowedRoles={["company"]} />,
         children: [
@@ -119,7 +124,7 @@ const routes = createBrowserRouter([
       },
 
       // User routes (protected)
-   
+
       {
         element: <ProtectedRoute allowedRoles={["user"]} />,
         children: [
