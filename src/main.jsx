@@ -52,7 +52,6 @@ const routes = createBrowserRouter([
     element: <MasterGrid />,
 
     children: [
-
       // Public authentication routes
 
       {
@@ -63,7 +62,6 @@ const routes = createBrowserRouter([
         path: "/signup",
         element: <Signup />,
       },
-
 
       // Pharmacy routes (protected)
 
@@ -105,7 +103,6 @@ const routes = createBrowserRouter([
           },
         ],
       },
-
 
       // Company routes (protected)
 

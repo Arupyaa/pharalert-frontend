@@ -5,7 +5,7 @@ export default function DbCardHeader({ children, propClassName = "" }) {
   return (
     <div
       className={twMerge(
-        "text-lg  tracking-tight text-muted leading-8 flex flex-col",
+        "text-base sm:text-lg tracking-tight text-muted leading-7 sm:leading-8 flex flex-col min-w-0 break-words w-full whitespace-normal",
         propClassName,
       )}
     >
@@ -13,3 +13,4 @@ export default function DbCardHeader({ children, propClassName = "" }) {
     </div>
   );
 }
+

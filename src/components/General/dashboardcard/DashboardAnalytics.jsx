@@ -69,10 +69,14 @@ export default function DashboardAnalytics() {
   ];
 
   return (
-    <div>
-      <div className="flex justify-end items-center gap-4 mb-6">
-        <div className="flex items-center gap-2">
-          <label htmlFor="from-date" className="text-sm text-paragraph">
+    <div className="w-full min-w-0 pl-16 sm:pl-0">
+      {/* Date filter row — stacks on xs/mobile, aligns on larger screens */}
+      <div className="flex flex-col min-[480px]:flex-row justify-end items-stretch min-[480px]:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <div className="flex items-center gap-2 min-w-0 w-full min-[480px]:w-auto">
+          <label
+            htmlFor="from-date"
+            className="text-sm text-paragraph shrink-0 w-10 min-[480px]:w-auto"
+          >
             From
           </label>
           <input
@@ -80,11 +84,14 @@ export default function DashboardAnalytics() {
             type="date"
             value={fromDate}
             onChange={(e) => setFromDate(e.target.value)}
-            className="border border-border-primary rounded-lg px-3 py-1.5 text-sm bg-neutral-main"
+            className="border border-border-primary rounded-lg px-2 sm:px-3 py-1.5 text-sm bg-neutral-main min-w-0 flex-1 min-[480px]:flex-initial w-full min-[480px]:w-auto"
           />
         </div>
-        <div className="flex items-center gap-2">
-          <label htmlFor="to-date" className="text-sm text-paragraph">
+        <div className="flex items-center gap-2 min-w-0 w-full min-[480px]:w-auto">
+          <label
+            htmlFor="to-date"
+            className="text-sm text-paragraph shrink-0 w-10 min-[480px]:w-auto"
+          >
             To
           </label>
           <input
@@ -92,7 +99,7 @@ export default function DashboardAnalytics() {
             type="date"
             value={toDate}
             onChange={(e) => setToDate(e.target.value)}
-            className="border border-border-primary rounded-lg px-3 py-1.5 text-sm bg-neutral-main"
+            className="border border-border-primary rounded-lg px-2 sm:px-3 py-1.5 text-sm bg-neutral-main min-w-0 flex-1 min-[480px]:flex-initial w-full min-[480px]:w-auto"
           />
         </div>
       </div>
@@ -100,13 +107,15 @@ export default function DashboardAnalytics() {
       {loading ? (
         <div className="text-center text-paragraph py-12">Loading...</div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {cards.map((card) => (
             <DbCard key={card.title}>
-              <DbCardHeader propClassName="text-sm font-medium text-muted">
+              <DbCardHeader propClassName="text-xs sm:text-sm font-medium text-muted">
                 {card.title}
               </DbCardHeader>
-              <h2 className="text-3xl font-bold text-heading">{card.value}</h2>
+              <h2 className="text-xl min-[480px]:text-2xl sm:text-3xl font-bold text-heading break-words min-w-0 mt-1">
+                {card.value}
+              </h2>
             </DbCard>
           ))}
         </div>
@@ -114,3 +123,4 @@ export default function DashboardAnalytics() {
     </div>
   );
 }
+
