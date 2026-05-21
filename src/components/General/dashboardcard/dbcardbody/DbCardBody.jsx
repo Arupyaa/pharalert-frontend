@@ -1,13 +1,5 @@
 import { twMerge } from "tailwind-merge";
 
-/*
-should only be used for 1 sectioned dashboard, use DbBodySection for 2-4 sections array prop
-content is an array prop with label, value, className for both to modify its existing tailwind classes
-col is a boolean prop when false it displays it horizontally, true displays it vertically
-orderReverse is a boolean prop when true reverse the order of the elements to display value before the label
-divClassName is a special prop to optionally change the container div styling to adjust stuff like gap
-*/
-
 export default function DbCardBody({
   content = {},
   col = false,
@@ -15,19 +7,19 @@ export default function DbCardBody({
   divClassName = "",
 }) {
   return (
-    <div className="w-full">
+    <div className="w-full min-w-0">
       {/* Stats section */}
       <div
         className={twMerge(
-          "flex justify-center items-start gap-x-6 gap-y-4",
-          col && "flex-col",
+          "flex flex-col gap-2 w-full",
+          !col ? "sm:flex-row sm:justify-between sm:items-center" : "items-center",
           divClassName,
         )}
       >
         {content.label && (
           <h2
             className={twMerge(
-              "text-3xl font-bold text-center text-heading",
+              "text-xl sm:text-2xl md:text-3xl font-bold text-center sm:text-left text-heading break-words min-w-0",
               orderReverse ? "order-2" : "order-1",
               content.labelClassName,
             )}
@@ -39,7 +31,7 @@ export default function DbCardBody({
         {content.value && (
           <p
             className={twMerge(
-              "text-3xl text-center text-paragraph",
+              "text-lg sm:text-xl md:text-2xl text-center sm:text-right text-paragraph break-words min-w-0",
               orderReverse ? "order-1" : "order-2",
               content.valueClassName,
             )}
@@ -49,7 +41,8 @@ export default function DbCardBody({
         )}
       </div>
       {/* Divider */}
-      <div className="border-t border-border-primary mt-5"></div>
+      <div className="border-t border-border-primary mt-4 sm:mt-5"></div>
     </div>
   );
 }
+
