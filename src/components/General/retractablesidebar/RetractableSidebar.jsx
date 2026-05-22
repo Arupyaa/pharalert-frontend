@@ -29,11 +29,10 @@ export default function RetractableSidebar({
     <aside
       // stop propagation to overlay so it doesn't close it when clicking on sidebar
       onClick={(e) => e.stopPropagation()}
-      className={`h-screen bg-neutral-main shadow-md absolute top-0 left-0 sm:static
+      className={`h-screen bg-neutral-main shadow-md
         flex flex-col overflow-hidden z-100
         transition-all duration-300 ease-in-out shrink-0 
 
-        //changes width based on state
         ${collapsed ? "w-16" : "w-52 sm:w-60 lg:w-56"}`}
     >
       {/* Logo Section */}

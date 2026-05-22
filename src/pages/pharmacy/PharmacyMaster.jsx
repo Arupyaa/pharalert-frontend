@@ -51,11 +51,11 @@ export default function PharmacyMaster() {
         setCollapsed={setCollapsed}
         collapsed={collapsed}
       />
-      <div className="flex flex-col w-full h-screen">
+      <div className="flex flex-col flex-1 min-w-0 h-screen overflow-hidden">
         <DashboardNavBar />
-        {/* <PDashboardMain> */}
+        <PDashboardMain>
             <Outlet/>
-        {/* </PDashboardMain> */}
+        </PDashboardMain>
       </div>
     </>
   );
