@@ -53,9 +53,9 @@ export default function PharmacyMaster() {
       />
       <div className="flex flex-col w-full h-screen">
         <DashboardNavBar />
-        {/* <PDashboardMain> */}
+        <PDashboardMain>
             <Outlet/>
-        {/* </PDashboardMain> */}
+        </PDashboardMain>
       </div>
     </>
   );
