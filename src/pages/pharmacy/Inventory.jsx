@@ -62,7 +62,7 @@ export default function Inventory() {
     fetchData();
   }, [page])
 
-  return (<div className="bg-neutral-secondary p-6">
+  return (<div className="bg-neutral-secondary p-6 min-h-screen">
     <Table
       headers={headers}
       records={records}
