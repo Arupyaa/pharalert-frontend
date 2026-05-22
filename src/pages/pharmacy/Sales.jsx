@@ -22,7 +22,7 @@ export default function Sales() {
         }
       }
     );
-    const excludedKeys = ["medicationId"];
+    const excludedKeys = [];
 
     const { _, rec } = formatTableData(response.data.data, excludedKeys);
     //update pagination
