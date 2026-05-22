@@ -45,10 +45,10 @@ export default function Inventory() {
           if (value == "in_stock") {
             color = "rounded-full text-neutral-800 p-2 bg-green-300"
           }
-          else if ("low_stock") {
+          else if (value == "low_stock") {
             color = "rounded-full text-neutral-800 p-2 bg-yellow-300"
           }
-          else if ("out_of_stock") {
+          else if (value == "out_of_stock") {
             color = "rounded-full text-neutral-800 p-2 bg-red-300"
           }
           return <span className={color}>{value}</span>;
