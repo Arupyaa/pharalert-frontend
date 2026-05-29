@@ -1,3 +1,4 @@
+
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
@@ -6,6 +7,8 @@ import {
   Navigate,
   RouterProvider,
 } from "react-router-dom";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import "./index.css";
 import "flowbite";
@@ -18,6 +21,9 @@ import Login from "./components/auth/Login";
 import Signup from "./components/auth/Signup";
 import ApiTest from "./pages/testing/ApiTest";
 import PharmacyMaster from "./pages/pharmacy/PharmacyMaster";
+import AdminMaster from "./pages/admin/AdminMaster";
+import AdminAccounts from "./pages/admin/AdminAccounts";
+import AdminLogin from "./pages/admin/AdminLogin";
 
 // Dashboards
 import PharmacyDashboard from "./pages/pharmacy/PharmacyDashboard";
@@ -31,6 +37,16 @@ import Cashier from "./pages/pharmacy/Cashier";
 
 // Route protection layer
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+
+// React Query client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 // Application routing configuration
 const routes = createBrowserRouter([
@@ -53,7 +69,6 @@ const routes = createBrowserRouter([
 
     children: [
       // Public authentication routes
-
       {
         path: "/login",
         element: <Login />,
@@ -64,7 +79,6 @@ const routes = createBrowserRouter([
       },
 
       // Pharmacy routes (protected)
-
       {
         element: <ProtectedRoute allowedRoles={["pharmacy"]} />,
         children: [
@@ -105,7 +119,6 @@ const routes = createBrowserRouter([
       },
 
       // Company routes (protected)
-
       {
         element: <ProtectedRoute allowedRoles={["company"]} />,
         children: [
@@ -121,7 +134,6 @@ const routes = createBrowserRouter([
       },
 
       // User routes (protected)
-
       {
         element: <ProtectedRoute allowedRoles={["user"]} />,
         children: [
@@ -135,6 +147,28 @@ const routes = createBrowserRouter([
           },
         ],
       },
+
+      // Admin login (public — separate from main login)
+      {
+        path: "/admin",
+        element: <AdminLogin />,
+      },
+
+      // Admin dashboard routes (protected)
+      {
+        element: <ProtectedRoute allowedRoles={["admin"]} />,
+        children: [
+          {
+            element: <AdminMaster />,
+            children: [
+              {
+                path: "/admin/accounts",
+                element: <AdminAccounts />,
+              },
+            ],
+          },
+        ],
+      },
     ],
   },
 ]);
@@ -142,6 +176,8 @@ const routes = createBrowserRouter([
 // App bootstrap
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <RouterProvider router={routes} />
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={routes} />
+    </QueryClientProvider>
   </StrictMode>,
 );
