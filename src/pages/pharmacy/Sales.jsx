@@ -1,3 +1,7 @@
+
+
+
+
 import { useEffect, useState, useCallback, useMemo } from "react";
 import api from "../../api/api";
 import TablePagination from "../../components/General/Pagination/TablePagination";
@@ -9,25 +13,34 @@ import { twMerge } from "tailwind-merge";
 function getDefaultDates() {
   const today = new Date();
   const from = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split("T")[0];
-  return { from, to: today.toISOString().split("T")[0] };
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  return { from, to: tomorrow.toISOString().split("T")[0] };
 }
 
 function fmtCurrency(v) {
   return v == null ? "—" : `${Number(v).toLocaleString("en-EG")} EGP`;
 }
 
+function getTomorrowStr() {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return tomorrow.toISOString().split("T")[0];
+}
+
 function getDateRangeFromTab(tab) {
   const today = new Date();
-  const toStr = today.toISOString().split("T")[0];
-  if (tab === "today") return { from: toStr, to: toStr };
+  const todayStr    = today.toISOString().split("T")[0];
+  const tomorrowStr = getTomorrowStr();
+  if (tab === "today") return { from: todayStr, to: tomorrowStr };
   if (tab === "week") {
     const monday = new Date(today);
     monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
-    return { from: monday.toISOString().split("T")[0], to: toStr };
+    return { from: monday.toISOString().split("T")[0], to: tomorrowStr };
   }
   if (tab === "month") {
     const first = new Date(today.getFullYear(), today.getMonth(), 1);
-    return { from: first.toISOString().split("T")[0], to: toStr };
+    return { from: first.toISOString().split("T")[0], to: tomorrowStr };
   }
   return null;
 }
@@ -353,8 +366,8 @@ export default function Sales() {
                   className="w-full px-3 py-2 bg-neutral-main border border-border-primary text-heading text-sm rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all cursor-pointer" />
               </div>
               <div className="flex flex-col gap-1 min-w-[140px]">
-                <label className="text-xs font-medium text-muted">To</label>
-                <input type="date" value={toDate} min={fromDate} max={new Date().toISOString().split("T")[0]}
+                <label className="text-xs font-medium text-muted">To <span className="text-muted opacity-60">(exclusive — pick the day after your last day)</span></label>
+                <input type="date" value={toDate} min={fromDate}
                   onChange={(e) => handleToDateChange(e.target.value)}
                   style={{ colorScheme: "light" }}
                   className="w-full px-3 py-2 bg-neutral-main border border-border-primary text-heading text-sm rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all cursor-pointer" />
