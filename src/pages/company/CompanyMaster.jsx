@@ -16,7 +16,7 @@ import { Outlet } from "react-router-dom";
 const sidebarItems = [
   { name: "Dashboard", path: "/company/dashboard", icon: DashboardIcon },
   { name: "Tables",    path: "/company/tables/medications", icon: TablesIcon },
-  { name: "Charts",    path: "/company/charts",   icon: ChartsIcon   },
+  { name: "Charts",    path: "/company/charts/regions", icon: ChartsIcon },
   { name: "Settings",  path: "/company/settings", icon: SettingsIcon  },
 ];
 
