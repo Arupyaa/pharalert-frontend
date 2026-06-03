@@ -32,6 +32,11 @@ import Sales from "./pages/pharmacy/Sales";
 import Receipts from "./pages/pharmacy/Receipts";
 import Settings from "./pages/pharmacy/Settings";
 import CompanyDashboard from "./pages/company/CompanyDashboard";
+import CompanyMaster from "./pages/company/CompanyMaster";
+import MedicationTable from "./pages/company/MedicationTable";
+import PharmaciesTable from "./pages/company/PharmaciesTable";
+import CompanyCharts from "./pages/company/CompanyCharts";
+import CompanySettings from "./pages/company/CompanySettings";
 import UserDashboard from "./pages/user/UserDashboard";
 import Cashier from "./pages/pharmacy/Cashier";
 
@@ -123,12 +128,33 @@ const routes = createBrowserRouter([
         element: <ProtectedRoute allowedRoles={["company"]} />,
         children: [
           {
-            path: "/company",
-            element: <Navigate to="/company/dashboard" replace />,
-          },
-          {
-            path: "/company/dashboard",
-            element: <CompanyDashboard />,
+            element: <CompanyMaster />,
+            children: [
+              {
+                path: "/company",
+                element: <Navigate to="/company/dashboard" replace />,
+              },
+              {
+                path: "/company/dashboard",
+                element: <CompanyDashboard />,
+              },
+              {
+                path: "/company/tables/medications",
+                element: <MedicationTable />,
+              },
+              {
+                path: "/company/tables/pharmacies",
+                element: <PharmaciesTable />,
+              },
+              {
+                path: "/company/charts",
+                element: <CompanyCharts />,
+              },
+              {
+                path: "/company/settings",
+                element: <CompanySettings />,
+              },
+            ],
           },
         ],
       },

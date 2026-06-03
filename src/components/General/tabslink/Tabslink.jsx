@@ -1,12 +1,12 @@
 import { NavLink } from "react-router-dom";
 
-const tabs = [
+const defaultTabs = [
   { name: "Regions", path: "/regions" },
   { name: "Medications", path: "/medications" },
   { name: "Pharmacies", path: "/pharmacies" },
 ];
 
-export default function TabsLinks() {
+export default function TabsLinks({ tabs = defaultTabs }) {
   return (
     <div className="flex justify-start">
       <div className="inline-flex bg-gray-100 p-1 rounded-full shadow-inner border border-gray-200">
