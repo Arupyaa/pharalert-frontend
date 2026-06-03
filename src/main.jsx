@@ -35,6 +35,7 @@ import CompanyDashboard from "./pages/company/CompanyDashboard";
 import CompanyMaster from "./pages/company/CompanyMaster";
 import MedicationTable from "./pages/company/MedicationTable";
 import PharmaciesTable from "./pages/company/PharmaciesTable";
+import PharmacyDetail from "./pages/company/PharmacyDetail";
 import CompanyCharts from "./pages/company/CompanyCharts";
 import CompanySettings from "./pages/company/CompanySettings";
 import UserDashboard from "./pages/user/UserDashboard";
@@ -145,6 +146,10 @@ const routes = createBrowserRouter([
               {
                 path: "/company/tables/pharmacies",
                 element: <PharmaciesTable />,
+              },
+              {
+                path: "/company/tables/pharmacies/:pharmacyName",
+                element: <PharmacyDetail />,
               },
               {
                 path: "/company/charts",
