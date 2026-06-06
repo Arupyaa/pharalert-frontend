@@ -69,7 +69,7 @@ export default function SimpleBarChart({
         </span>
       </div>
 
-      <div className="flex-1">
+      <div className="h-[350px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={data}

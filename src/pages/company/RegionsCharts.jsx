@@ -4,13 +4,12 @@ import SimpleBarChart from "../../components/General/charts/SimpleBarChart.jsx";
 import { useAuthStore } from "../../store/useAuthStore";
 
 export default function RegionsCharts() {
-  const [medicationId, setMedicationId] = useState("1");
+  const [medicationId, setMedicationId] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [data, setData] = useState([]);
   const [medications, setMedications] = useState([]);
   const [loading, setLoading] = useState(false);
-  const hasMounted = useRef(false);
 
   const fetchChart = useCallback(async () => {
     setLoading(true);
@@ -20,6 +19,8 @@ export default function RegionsCharts() {
       if (toDate) params.to = toDate;
 
       const { data: res } = await api.get("/company/analytics/regions/charts", { params });
+      console.log("FULL RESPONSE:", res);
+      console.log("RESPONSE DATA:", res?.data);
       setData(res?.data ?? []);
     } catch {
       setData([]);
@@ -29,24 +30,19 @@ export default function RegionsCharts() {
   }, [medicationId, fromDate, toDate]);
 
   useEffect(() => {
-    fetchChart();
-  }, []);
+    if (!medicationId) return;
 
-  useEffect(() => {
-    if (!hasMounted.current) {
-      hasMounted.current = true;
-      return;
-    }
     fetchChart();
-  }, [medicationId, fromDate, toDate]);
+  }, [fetchChart, medicationId, fromDate, toDate]);
 
   useEffect(() => {
     const token = useAuthStore.getState().accessToken;
     let companyId = "";
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
-      companyId = payload.companyId ?? "";
-    } catch {}
+      companyId = payload.id ?? "";
+      console.log(`companyId is ${companyId}`)
+    } catch { }
 
     api.get("/medications", { params: { companyId } })
       .then((res) => {
@@ -55,8 +51,11 @@ export default function RegionsCharts() {
           label: m.brandName,
         }));
         setMedications(meds);
-      })
-      .catch(() => {});
+
+        if (meds.length > 0) {
+          setMedicationId(meds[0].value);
+        }})
+      .catch(() => { });
   }, []);
 
   const barKeys = data.length > 0
