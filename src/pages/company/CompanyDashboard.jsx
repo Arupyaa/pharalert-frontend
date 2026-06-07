@@ -1,78 +1,553 @@
-import { useState } from "react";
-import RetractableSidebar from "../../components/General/retractablesidebar/RetractableSidebar.jsx";
-import Overlay from "../../components/General/overLay/Overlay.jsx";
-import DashboardNavBar from "../../components/layout/dashboardnavbar/DashboardNavBar.jsx";
-import logoName from "../../assets/images/logo_name v1.1.svg";
-import DashboardIcon from "../../assets/svg/DashboardIcon.jsx";
-import SettingsIcon from "../../assets/svg/SettingsIcon.jsx";
-import SalesIcon from "../../assets/svg/SalesIcon.jsx";
-import PillIcon from "../../assets/svg/PillIcon.jsx";
-import { useIsMobile } from "../../hooks/useIsMobile.js";
+import { useState, useEffect, useCallback } from "react";
+import api from "../../api/api.js";
+import { useAuthStore } from "../../store/useAuthStore.js";
+import CompanyDashboardAnalytics from "../../components/General/dashboardcard/CompanyDashboardAnalytics/CompanyDashboardAnalytics.jsx";
+import DemandChart from "../../components/General/charts/DemandChart/DemandChart.jsx";
 
-const sidebarItems = [
-  { name: "Dashboard", path: "/company/dashboard",  icon: DashboardIcon },
-  { name: "Products",  path: "/company/products",   icon: PillIcon      },
-  { name: "Orders",    path: "/company/orders",     icon: SalesIcon     },
-  { name: "Settings",  path: "/company/settings",   icon: SettingsIcon  },
-];
+/* helpers */
+function getDefaultDates() {
+  const to = new Date();
+  const from = new Date();
+  from.setMonth(from.getMonth() - 6);
+  return {
+    from: from.toISOString().split("T")[0],
+    to: to.toISOString().split("T")[0],
+  };
+}
+
+const inputStyle = {
+  borderRadius: 10,
+  padding: "7px 12px",
+  fontSize: 13,
+  outline: "none",
+  border: "1px solid var(--border-gray)",
+  background: "var(--bg-neutral)",
+  color: "var(--text-main)",
+  transition: "border-color 0.15s",
+};
+
+const labelStyle = {
+  display: "block",
+  fontSize: 11,
+  fontWeight: 600,
+  textTransform: "uppercase",
+  letterSpacing: "0.06em",
+  color: "var(--text-muted)",
+  marginBottom: 4,
+};
 
 export default function CompanyDashboard() {
-  const isMobile = useIsMobile();
-  const [overlay,   setOverlay]   = useState(false);
-  const [collapsed, setCollapsed] = useState(isMobile ? true : false);
+  const defaults = getDefaultDates();
+  const [fromDate, setFromDate] = useState(defaults.from);
+  const [toDate, setToDate] = useState(defaults.to);
+
+  const [medications, setMedications] = useState([]);
+  const [medicationId, setMedicationId] = useState("");
+  const [medLoading, setMedLoading] = useState(true);
+
+  useEffect(() => {
+    const token = useAuthStore.getState().accessToken;
+    let companyId = "";
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      companyId = payload.id ?? "";
+    } catch {}
+
+    setMedLoading(true);
+    api
+      .get("/medications", { params: { companyId } })
+      .then((res) => {
+        const meds = (res.data?.data ?? []).map((m) => ({
+          value: m.id,
+          label: m.brandName ?? m.name ?? "Unknown",
+        }));
+        setMedications(meds);
+        if (meds.length > 0) setMedicationId(meds[0].value);
+      })
+      .catch(() => {})
+      .finally(() => setMedLoading(false));
+  }, []);
 
   return (
-    <>
-      <Overlay isVisible={overlay} onClose={() => { setOverlay(false); setCollapsed(true); }} />
-      <RetractableSidebar
-        sidebarLogo={logoName}
-        sidebarItems={sidebarItems}
-        setOverlay={setOverlay}
-        setCollapsed={setCollapsed}
-        collapsed={collapsed}
-      />
-      <div className="flex flex-col w-full h-screen">
-        <DashboardNavBar />
-        <div className="flex-1 p-6 min-h-screen" style={{ background: "var(--color-bg-subtle)" }}>
+    <div
+      className="bg-neutral-secondary min-h-screen p-4 sm:p-6"
+      style={{ display: "flex", flexDirection: "column", gap: 20 }}
+    >
+      {/* Page Header */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 12,
+        }}
+      >
+        <div>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "4px 12px",
+              borderRadius: 99,
+              fontSize: 11,
+              fontWeight: 600,
+              marginBottom: 6,
+              background:
+                "linear-gradient(135deg, var(--color-primary-12), var(--color-primary-6))",
+              border: "1px solid var(--color-primary-25)",
+              color: "var(--brand-dark)",
+            }}
+          >
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: "var(--brand-primary)",
+                display: "inline-block",
+              }}
+            />
+            Overview
+          </div>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: 22,
+              fontWeight: 800,
+              color: "var(--text-heading)",
+              letterSpacing: "-0.3px",
+            }}
+          >
+            Distribution Dashboard
+          </h1>
+          <p
+            style={{
+              margin: "3px 0 0",
+              fontSize: 13,
+              color: "var(--text-muted)",
+            }}
+          >
+            Monitor medication inventory and demand across all regions
+          </p>
+        </div>
 
-          {/* Header */}
-          <div className="mb-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-4"
-              style={{ background: "linear-gradient(135deg, var(--color-primary-12), var(--color-primary-6))", border: "1px solid var(--color-primary-25)", color: "var(--brand-dark)" }}>
-              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "var(--brand-primary)" }} />
-              Company Portal
+        {/* Filters row */}
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "flex-end",
+            gap: 10,
+            background: "var(--bg-neutral)",
+            border: "1px solid var(--border-gray)",
+            borderRadius: 14,
+            padding: "12px 16px",
+            boxShadow: "0 1px 6px var(--color-shadow-4)",
+          }}
+        >
+          {/* Medication */}
+          <div>
+            <label style={labelStyle}>Medication</label>
+            <div style={{ position: "relative" }}>
+              <select
+                value={medicationId}
+                onChange={(e) => setMedicationId(e.target.value)}
+                disabled={medLoading}
+                style={{
+                  ...inputStyle,
+                  appearance: "none",
+                  paddingRight: 28,
+                  minWidth: 160,
+                  cursor: medLoading ? "not-allowed" : "pointer",
+                  opacity: medLoading ? 0.6 : 1,
+                }}
+              >
+                {medLoading ? (
+                  <option>Loading...</option>
+                ) : medications.length === 0 ? (
+                  <option value="">No medications</option>
+                ) : (
+                  medications.map((m) => (
+                    <option key={m.value} value={m.value}>
+                      {m.label}
+                    </option>
+                  ))
+                )}
+              </select>
+              <svg
+                style={{
+                  position: "absolute",
+                  right: 8,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  pointerEvents: "none",
+                }}
+                width="14"
+                height="14"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="var(--text-muted)"
+                strokeWidth={2.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
             </div>
-            <h1 className="text-3xl font-bold" style={{ color: "var(--text-heading)" }}>Company Dashboard</h1>
-            <p className="mt-1 text-sm" style={{ color: "var(--text-muted)" }}>Manage your products and orders</p>
           </div>
 
-          {/* Stat cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[
-              { label: "Total Products",  value: "—", icon: "📦" },
-              { label: "Pending Orders",  value: "—", icon: "🛒" },
-              { label: "Active Branches", value: "—", icon: "🏪" },
-            ].map((s) => (
-              <div key={s.label} className="rounded-2xl p-5"
-                style={{ background: "var(--bg-neutral)", border: "1px solid var(--border-gray)", boxShadow: "0 1px 12px var(--color-shadow-4)" }}>
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-2xl">{s.icon}</span>
-                  <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>{s.label}</span>
-                </div>
-                <p className="text-3xl font-bold" style={{ color: "var(--brand-primary)" }}>{s.value}</p>
-              </div>
-            ))}
+          <div
+            style={{
+              width: 1,
+              height: 36,
+              background: "var(--border-gray)",
+              alignSelf: "flex-end",
+              marginBottom: 1,
+            }}
+          />
+
+          {/* From */}
+          <div>
+            <label style={labelStyle}>From</label>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              style={inputStyle}
+            />
           </div>
 
-          {/* Placeholder */}
-          <div className="mt-8 rounded-2xl p-10 flex flex-col items-center justify-center text-center"
-            style={{ background: "var(--bg-neutral)", border: "1px dashed var(--color-primary-25)" }}>
-            <span className="text-4xl mb-3">🏗️</span>
-            <p className="font-semibold" style={{ color: "var(--text-heading)" }}>Company features coming soon</p>
-            <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>Connect your API endpoints to populate this dashboard</p>
+          {/* To */}
+          <div>
+            <label style={labelStyle}>To</label>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              style={inputStyle}
+            />
           </div>
+
+          {(fromDate || toDate) && (
+            <button
+              onClick={() => {
+                setFromDate("");
+                setToDate("");
+              }}
+              style={{
+                alignSelf: "flex-end",
+                padding: "7px 12px",
+                borderRadius: 10,
+                border: "1px solid var(--border-gray)",
+                background: "transparent",
+                color: "var(--text-muted)",
+                fontSize: 12,
+                cursor: "pointer",
+                fontWeight: 500,
+              }}
+            >
+              Clear
+            </button>
+          )}
         </div>
       </div>
-    </>
+
+      {/* KPI Cards */}
+      <CompanyDashboardAnalytics
+        medicationId={medicationId}
+        fromDate={fromDate}
+        toDate={toDate}
+      />
+
+      {/* Demand Chart */}
+      <DemandChart
+        medicationId={medicationId}
+        fromDate={fromDate}
+        toDate={toDate}
+      />
+
+      {/* Top Regions in Shortage */}
+      <TopRegionsCard
+        medicationId={medicationId}
+        fromDate={fromDate}
+        toDate={toDate}
+      />
+    </div>
+  );
+}
+
+function TopRegionsCard({ medicationId, fromDate, toDate }) {
+  const [regions, setRegions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = {};
+      if (medicationId) params.medicationId = medicationId;
+      if (fromDate) params.from = fromDate;
+      if (toDate) params.to = toDate;
+      const res = await api.get("/company/analytics/summary", { params });
+      setRegions(res.data?.data?.regionsInShortage ?? []);
+    } catch {
+      setRegions([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [medicationId, fromDate, toDate]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const maxCount = regions[0]?.pharmaciesInShortage ?? 1;
+
+  return (
+    <div
+      style={{
+        background: "var(--bg-neutral)",
+        border: "1px solid var(--border-gray)",
+        borderRadius: 20,
+        boxShadow: "0 1px 12px var(--color-shadow-4)",
+        padding: "20px",
+      }}
+    >
+      {/* Header */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          marginBottom: 16,
+        }}
+      >
+        <div
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 10,
+            background: "rgba(231,76,60,0.10)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="#e74c3c"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+          </svg>
+        </div>
+        <div>
+          <h2
+            style={{
+              margin: 0,
+              fontSize: 14,
+              fontWeight: 700,
+              color: "var(--text-heading)",
+            }}
+          >
+            Top Regions in Shortage
+          </h2>
+          <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)" }}>
+            Sorted by number of pharmacies in shortage
+          </p>
+        </div>
+      </div>
+
+      <div
+        style={{
+          height: 1,
+          background: "var(--border-gray)",
+          margin: "0 0 16px",
+        }}
+      />
+
+      {loading ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {[...Array(4)].map((_, i) => (
+            <div
+              key={i}
+              style={{
+                height: 44,
+                borderRadius: 10,
+                background: "var(--bg-secondary)",
+                animation: "pulse 1.5s ease-in-out infinite",
+              }}
+            />
+          ))}
+          <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }`}</style>
+        </div>
+      ) : regions.length === 0 ? (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            padding: "24px 0",
+            gap: 8,
+          }}
+        >
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 14,
+              background: "var(--color-primary-6)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <svg
+              width="22"
+              height="22"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="var(--brand-primary)"
+              strokeWidth={1.8}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <p
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: "var(--brand-primary)",
+              margin: 0,
+            }}
+          >
+            No regions in shortage
+          </p>
+          <p style={{ fontSize: 12, color: "var(--text-muted)", margin: 0 }}>
+            All regions are well-stocked
+          </p>
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {regions.map((region, idx) => {
+            const pct = Math.round(
+              (region.pharmaciesInShortage / maxCount) * 100,
+            );
+            const isCritical = idx < 2;
+            const rankColor = isCritical ? "#e74c3c" : "var(--brand-primary)";
+            const rankBg = isCritical
+              ? "rgba(231,76,60,0.10)"
+              : "var(--color-primary-12)";
+            return (
+              <div
+                key={region.region}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: "10px 12px",
+                  borderRadius: 10,
+                  background:
+                    idx === 0 ? "rgba(231,76,60,0.04)" : "transparent",
+                  border:
+                    idx === 0
+                      ? "1px solid rgba(231,76,60,0.12)"
+                      : "1px solid transparent",
+                  transition: "background 0.15s",
+                }}
+              >
+                <span
+                  style={{
+                    width: 26,
+                    height: 26,
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    flexShrink: 0,
+                    background: rankBg,
+                    color: rankColor,
+                  }}
+                >
+                  {idx + 1}
+                </span>
+                <span
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: "var(--text-heading)",
+                    flex: 1,
+                    minWidth: 0,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {region.region}
+                </span>
+                <div
+                  style={{
+                    flex: 1,
+                    height: 6,
+                    borderRadius: 99,
+                    background: "var(--border-gray)",
+                    maxWidth: 140,
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: `${pct}%`,
+                      height: "100%",
+                      borderRadius: 99,
+                      background: isCritical
+                        ? "linear-gradient(90deg, #e74c3c, #c0392b)"
+                        : "linear-gradient(90deg, var(--brand-primary), var(--brand-linear))",
+                      transition: "width 0.5s ease",
+                    }}
+                  />
+                </div>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    padding: "3px 10px",
+                    borderRadius: 20,
+                    background: rankBg,
+                    color: rankColor,
+                    flexShrink: 0,
+                    border: `1px solid ${isCritical ? "rgba(231,76,60,0.18)" : "rgba(0,171,121,0.18)"}`,
+                  }}
+                >
+                  {region.pharmaciesInShortage} pharmacies
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }

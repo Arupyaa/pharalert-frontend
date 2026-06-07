@@ -32,6 +32,15 @@ import Sales from "./pages/pharmacy/Sales";
 import Receipts from "./pages/pharmacy/Receipts";
 import Settings from "./pages/pharmacy/Settings";
 import CompanyDashboard from "./pages/company/CompanyDashboard";
+import CompanyMaster from "./pages/company/CompanyMaster";
+import MedicationTable from "./pages/company/MedicationTable";
+import PharmaciesTable from "./pages/company/PharmaciesTable";
+import PharmacyDetail from "./pages/company/PharmacyDetail";
+import CompanyChartsMaster from "./pages/company/CompanyChartsMaster";
+import RegionsCharts from "./pages/company/RegionsCharts";
+import MedicationsCharts from "./pages/company/MedicationsCharts";
+import PharmaciesCharts from "./pages/company/PharmaciesCharts";
+import CompanySettings from "./pages/company/CompanySettings";
 import UserDashboard from "./pages/user/UserDashboard";
 import Cashier from "./pages/pharmacy/Cashier";
 
@@ -123,12 +132,55 @@ const routes = createBrowserRouter([
         element: <ProtectedRoute allowedRoles={["company"]} />,
         children: [
           {
-            path: "/company",
-            element: <Navigate to="/company/dashboard" replace />,
-          },
-          {
-            path: "/company/dashboard",
-            element: <CompanyDashboard />,
+            element: <CompanyMaster />,
+            children: [
+              {
+                path: "/company",
+                element: <Navigate to="/company/dashboard" replace />,
+              },
+              {
+                path: "/company/dashboard",
+                element: <CompanyDashboard />,
+              },
+              {
+                path: "/company/tables/medications",
+                element: <MedicationTable />,
+              },
+              {
+                path: "/company/tables/pharmacies",
+                element: <PharmaciesTable />,
+              },
+              {
+                path: "/company/tables/pharmacies/:pharmacyName",
+                element: <PharmacyDetail />,
+              },
+              {
+                path: "/company/charts",
+                element: <CompanyChartsMaster />,
+                children: [
+                  {
+                    path: "/company/charts",
+                    element: <Navigate to="/company/charts/regions" replace />,
+                  },
+                  {
+                    path: "/company/charts/regions",
+                    element: <RegionsCharts />,
+                  },
+                  {
+                    path: "/company/charts/medications",
+                    element: <MedicationsCharts />,
+                  },
+                  {
+                    path: "/company/charts/pharmacies",
+                    element: <PharmaciesCharts />,
+                  },
+                ],
+              },
+              {
+                path: "/company/settings",
+                element: <CompanySettings />,
+              },
+            ],
           },
         ],
       },

@@ -1,3 +1,4 @@
+
 import {
   BarChart,
   Bar,
@@ -9,14 +10,22 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const BRAND_COLORS = ["#00ab79", "#0053b5", "#00c98a", "#2b6f54"];
+const BRAND_COLORS = [
+  "#00ab79",
+  "#0053b5",
+  "#00c98a",
+  "#2b6f54",
+  "#f39c12",
+  "#e74c3c",
+];
 
 export default function SimpleBarChart({
   data,
   xKey = "name",
   bars = [],
   colors = BRAND_COLORS,
-  title = "Sales & Users",
+  title = "Chart",
+  subtitle = null,
 }) {
   return (
     <div
@@ -28,52 +37,62 @@ export default function SimpleBarChart({
       }}
     >
       {/* Header */}
-      <div className="flex justify-between items-center mb-5">
+      <div className="flex justify-between items-start mb-5 flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center"
+            className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0"
             style={{
               background: "linear-gradient(135deg, var(--accent), #0068d9)",
             }}
           >
             <svg
-              className="w-3.5 h-3.5 text-white"
+              className="w-4 h-4"
               fill="none"
               viewBox="0 0 24 24"
-              stroke="currentColor"
+              stroke="white"
+              strokeWidth={2}
             >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
                 d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
               />
             </svg>
           </div>
-          <h2
-            className="text-sm font-semibold"
-            style={{ color: "var(--text-heading)" }}
-          >
-            {title}
-          </h2>
+          <div>
+            <h2
+              className="text-sm font-bold m-0"
+              style={{ color: "var(--text-heading)" }}
+            >
+              {title}
+            </h2>
+            {subtitle && (
+              <p className="text-xs m-0" style={{ color: "var(--text-muted)" }}>
+                {subtitle}
+              </p>
+            )}
+          </div>
         </div>
-        <span
-          className="text-xs font-medium rounded-full px-3 py-1"
-          style={{
-            background: "rgba(0,83,181,0.07)",
-            border: "1px solid rgba(0,83,181,0.18)",
-            color: "var(--accent)",
-          }}
-        >
-          Last 3 months
-        </span>
+        {bars.length > 0 && (
+          <span
+            className="text-xs font-semibold rounded-full px-3 py-1 shrink-0"
+            style={{
+              background: "rgba(0,83,181,0.07)",
+              border: "1px solid rgba(0,83,181,0.18)",
+              color: "var(--accent)",
+            }}
+          >
+            {bars.length} {bars.length === 1 ? "metric" : "metrics"}
+          </span>
+        )}
       </div>
 
-      <div className="flex-1">
+      <div className="h-[350px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={data}
-            margin={{ top: 4, right: 8, left: -20, bottom: 0 }}
+            margin={{ top: 4, right: 12, left: -20, bottom: 0 }}
+            barCategoryGap="35%"
           >
             <CartesianGrid
               stroke="var(--border-gray)"
@@ -82,14 +101,15 @@ export default function SimpleBarChart({
             />
             <XAxis
               dataKey={xKey}
-              tick={{ fontSize: 11, fill: "#9ca3af" }}
+              tick={{ fontSize: 11, fill: "var(--text-muted)" }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
-              tick={{ fontSize: 11, fill: "#9ca3af" }}
+              tick={{ fontSize: 11, fill: "var(--text-muted)" }}
               axisLine={false}
               tickLine={false}
+              width={40}
             />
             <Tooltip
               contentStyle={{
@@ -116,7 +136,7 @@ export default function SimpleBarChart({
                 dataKey={key}
                 fill={colors[index % colors.length]}
                 radius={[6, 6, 0, 0]}
-                barSize={22}
+                maxBarSize={28}
                 isAnimationActive
               />
             ))}
