@@ -18,7 +18,10 @@ export default function PharmaciesCharts() {
       if (fromDate) params.from = fromDate;
       if (toDate) params.to = toDate;
 
-      const { data: res } = await api.get("/company/analytics/pharmacies/charts", { params });
+      const { data: res } = await api.get(
+        "/company/analytics/pharmacies/charts",
+        { params },
+      );
       setData(res?.data ?? []);
     } catch {
       setData([]);
@@ -40,7 +43,8 @@ export default function PharmaciesCharts() {
   }, [regionId, fromDate, toDate]);
 
   useEffect(() => {
-    api.get("/regions")
+    api
+      .get("/regions")
       .then((res) => {
         const regs = (res.data?.data ?? []).map((r) => ({
           value: r.id,
@@ -51,41 +55,58 @@ export default function PharmaciesCharts() {
       .catch(() => {});
   }, []);
 
-  const barKeys = data.length > 0
-    ? Object.keys(data[0]).filter((k) => k !== "pharmacy")
-    : [];
+  const barKeys =
+    data.length > 0 ? Object.keys(data[0]).filter((k) => k !== "pharmacy") : [];
 
   return (
-    <div>
+    <div className="bg-neutral-secondary min-h-screen p-4 sm:p-6">
       <div className="mb-5">
-        <h1 className="text-xl sm:text-2xl font-bold text-heading tracking-tight">Pharmacies Charts</h1>
-        <p className="text-muted text-sm mt-0.5">Pharmacy inventory distribution by medication</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-heading tracking-tight">
+          Pharmacies Charts
+        </h1>
+        <p className="text-muted text-sm mt-0.5">
+          Pharmacy inventory distribution by medication
+        </p>
       </div>
 
       <div className="bg-neutral-main rounded-2xl border border-border-primary shadow-sm p-4 mb-4">
         <div className="flex flex-wrap items-end gap-3">
           {regions.length > 0 && (
             <div className="flex-1 min-w-[140px] max-w-[200px]">
-              <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">Region</label>
-              <select value={regionId} onChange={(e) => setRegionId(e.target.value)}
+              <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">
+                Region
+              </label>
+              <select
+                value={regionId}
+                onChange={(e) => setRegionId(e.target.value)}
                 className="w-full appearance-none px-3 py-2 bg-neutral-main border border-border-primary text-paragraph text-sm rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all cursor-pointer"
               >
                 {regions.map((r) => (
-                  <option key={r.value} value={r.value}>{r.label}</option>
+                  <option key={r.value} value={r.value}>
+                    {r.label}
+                  </option>
                 ))}
               </select>
             </div>
           )}
           <div>
-            <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">From</label>
-            <input type="date" value={fromDate}
+            <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">
+              From
+            </label>
+            <input
+              type="date"
+              value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
               className="rounded-xl px-3 py-2 text-sm outline-none border border-border-primary bg-neutral-main text-paragraph"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">To</label>
-            <input type="date" value={toDate}
+            <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">
+              To
+            </label>
+            <input
+              type="date"
+              value={toDate}
               onChange={(e) => setToDate(e.target.value)}
               className="rounded-xl px-3 py-2 text-sm outline-none border border-border-primary bg-neutral-main text-paragraph"
             />
@@ -107,6 +128,7 @@ export default function PharmaciesCharts() {
           xKey="pharmacy"
           bars={barKeys}
           title="Pharmacy Inventory by Medication"
+          subtitle="Per-pharmacy stock breakdown"
         />
       )}
     </div>

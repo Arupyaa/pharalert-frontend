@@ -4,7 +4,7 @@ import { useAuthStore } from "../../store/useAuthStore.js";
 import CompanyDashboardAnalytics from "../../components/General/dashboardcard/CompanyDashboardAnalytics/CompanyDashboardAnalytics.jsx";
 import DemandChart from "../../components/General/charts/DemandChart/DemandChart.jsx";
 
-/* helpers  */
+/* helpers */
 function getDefaultDates() {
   const to = new Date();
   const from = new Date();
@@ -14,7 +14,7 @@ function getDefaultDates() {
     to: to.toISOString().split("T")[0],
   };
 }
-/* shared input style  */
+
 const inputStyle = {
   borderRadius: 10,
   padding: "7px 12px",
@@ -36,7 +36,6 @@ const labelStyle = {
   marginBottom: 4,
 };
 
-/*  main page  */
 export default function CompanyDashboard() {
   const defaults = getDefaultDates();
   const [fromDate, setFromDate] = useState(defaults.from);
@@ -70,7 +69,10 @@ export default function CompanyDashboard() {
   }, []);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+    <div
+      className="bg-neutral-secondary min-h-screen p-4 sm:p-6"
+      style={{ display: "flex", flexDirection: "column", gap: 20 }}
+    >
       {/* Page Header */}
       <div
         style={{
@@ -82,6 +84,33 @@ export default function CompanyDashboard() {
         }}
       >
         <div>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "4px 12px",
+              borderRadius: 99,
+              fontSize: 11,
+              fontWeight: 600,
+              marginBottom: 6,
+              background:
+                "linear-gradient(135deg, var(--color-primary-12), var(--color-primary-6))",
+              border: "1px solid var(--color-primary-25)",
+              color: "var(--brand-dark)",
+            }}
+          >
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: "var(--brand-primary)",
+                display: "inline-block",
+              }}
+            />
+            Overview
+          </div>
           <h1
             style={{
               margin: 0,
@@ -104,7 +133,7 @@ export default function CompanyDashboard() {
           </p>
         </div>
 
-        {/* ── Filters row ── */}
+        {/* Filters row */}
         <div
           style={{
             display: "flex",
@@ -171,7 +200,6 @@ export default function CompanyDashboard() {
             </div>
           </div>
 
-          {/* Divider */}
           <div
             style={{
               width: 1,
@@ -204,7 +232,6 @@ export default function CompanyDashboard() {
             />
           </div>
 
-          {/* Clear */}
           {(fromDate || toDate) && (
             <button
               onClick={() => {
@@ -229,7 +256,7 @@ export default function CompanyDashboard() {
         </div>
       </div>
 
-      {/* KPI Cards  */}
+      {/* KPI Cards */}
       <CompanyDashboardAnalytics
         medicationId={medicationId}
         fromDate={fromDate}
@@ -243,7 +270,7 @@ export default function CompanyDashboard() {
         toDate={toDate}
       />
 
-      {/*Top Regions in Shortage*/}
+      {/* Top Regions in Shortage */}
       <TopRegionsCard
         medicationId={medicationId}
         fromDate={fromDate}
@@ -253,7 +280,6 @@ export default function CompanyDashboard() {
   );
 }
 
-/*Sub-component: Top Regions in Shortage  */
 function TopRegionsCard({ medicationId, fromDate, toDate }) {
   const [regions, setRegions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -450,7 +476,6 @@ function TopRegionsCard({ medicationId, fromDate, toDate }) {
                   transition: "background 0.15s",
                 }}
               >
-                {/* Rank badge */}
                 <span
                   style={{
                     width: 26,
@@ -468,8 +493,6 @@ function TopRegionsCard({ medicationId, fromDate, toDate }) {
                 >
                   {idx + 1}
                 </span>
-
-                {/* Region name */}
                 <span
                   style={{
                     fontSize: 13,
@@ -484,8 +507,6 @@ function TopRegionsCard({ medicationId, fromDate, toDate }) {
                 >
                   {region.region}
                 </span>
-
-                {/* Progress bar */}
                 <div
                   style={{
                     flex: 1,
@@ -494,7 +515,6 @@ function TopRegionsCard({ medicationId, fromDate, toDate }) {
                     background: "var(--border-gray)",
                     maxWidth: 140,
                     overflow: "hidden",
-                    display: "none",
                   }}
                 >
                   <div
@@ -509,9 +529,6 @@ function TopRegionsCard({ medicationId, fromDate, toDate }) {
                     }}
                   />
                 </div>
-                <style>{`.region-bar { display: block !important; } @media (min-width: 640px) { .region-bar { display: block !important; } }`}</style>
-
-                {/* Count badge */}
                 <span
                   style={{
                     fontSize: 11,

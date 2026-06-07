@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import api from "../../api/api";
 import SimpleBarChart from "../../components/General/charts/SimpleBarChart.jsx";
 import { useAuthStore } from "../../store/useAuthStore";
@@ -18,7 +18,9 @@ export default function RegionsCharts() {
       if (fromDate) params.from = fromDate;
       if (toDate) params.to = toDate;
 
-      const { data: res } = await api.get("/company/analytics/regions/charts", { params });
+      const { data: res } = await api.get("/company/analytics/regions/charts", {
+        params,
+      });
       console.log("FULL RESPONSE:", res);
       console.log("RESPONSE DATA:", res?.data);
       setData(res?.data ?? []);
@@ -41,10 +43,11 @@ export default function RegionsCharts() {
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
       companyId = payload.id ?? "";
-      console.log(`companyId is ${companyId}`)
-    } catch { }
+      console.log(`companyId is ${companyId}`);
+    } catch {}
 
-    api.get("/medications", { params: { companyId } })
+    api
+      .get("/medications", { params: { companyId } })
       .then((res) => {
         const meds = (res.data?.data ?? []).map((m) => ({
           value: m.id,
@@ -54,45 +57,63 @@ export default function RegionsCharts() {
 
         if (meds.length > 0) {
           setMedicationId(meds[0].value);
-        }})
-      .catch(() => { });
+        }
+      })
+      .catch(() => {});
   }, []);
 
-  const barKeys = data.length > 0
-    ? Object.keys(data[0]).filter((k) => k !== "region")
-    : [];
+  const barKeys =
+    data.length > 0 ? Object.keys(data[0]).filter((k) => k !== "region") : [];
 
   return (
-    <div>
+    <div className="bg-neutral-secondary min-h-screen p-4 sm:p-6">
       <div className="mb-5">
-        <h1 className="text-xl sm:text-2xl font-bold text-heading tracking-tight">Regions Charts</h1>
-        <p className="text-muted text-sm mt-0.5">Stock overview across regions</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-heading tracking-tight">
+          Regions Charts
+        </h1>
+        <p className="text-muted text-sm mt-0.5">
+          Stock overview across regions
+        </p>
       </div>
 
       <div className="bg-neutral-main rounded-2xl border border-border-primary shadow-sm p-4 mb-4">
         <div className="flex flex-wrap items-end gap-3">
           {medications.length > 0 && (
             <div className="flex-1 min-w-[140px] max-w-[200px]">
-              <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">Medication</label>
-              <select value={medicationId} onChange={(e) => setMedicationId(e.target.value)}
+              <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">
+                Medication
+              </label>
+              <select
+                value={medicationId}
+                onChange={(e) => setMedicationId(e.target.value)}
                 className="w-full appearance-none px-3 py-2 bg-neutral-main border border-border-primary text-paragraph text-sm rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all cursor-pointer"
               >
                 {medications.map((m) => (
-                  <option key={m.value} value={m.value}>{m.label}</option>
+                  <option key={m.value} value={m.value}>
+                    {m.label}
+                  </option>
                 ))}
               </select>
             </div>
           )}
           <div>
-            <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">From</label>
-            <input type="date" value={fromDate}
+            <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">
+              From
+            </label>
+            <input
+              type="date"
+              value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
               className="rounded-xl px-3 py-2 text-sm outline-none border border-border-primary bg-neutral-main text-paragraph"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">To</label>
-            <input type="date" value={toDate}
+            <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">
+              To
+            </label>
+            <input
+              type="date"
+              value={toDate}
               onChange={(e) => setToDate(e.target.value)}
               className="rounded-xl px-3 py-2 text-sm outline-none border border-border-primary bg-neutral-main text-paragraph"
             />
@@ -114,6 +135,7 @@ export default function RegionsCharts() {
           xKey="region"
           bars={barKeys}
           title="Region Stock Overview"
+          subtitle="Stock levels across all regions"
         />
       )}
     </div>

@@ -1,5 +1,3 @@
-
-
 import {
   LineChart,
   XAxis,
@@ -11,10 +9,22 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Brand palette pulled from CSS variables at runtime
-const BRAND_COLORS = ["#00ab79", "#0053b5", "#00c98a", "#2b6f54"];
+const BRAND_COLORS = [
+  "#00ab79",
+  "#0053b5",
+  "#00c98a",
+  "#2b6f54",
+  "#f39c12",
+  "#e74c3c",
+];
 
-export default function LineChartExample({ data, xKey = "name", lines = [] }) {
+export default function LineChartExample({
+  data,
+  xKey = "name",
+  lines = [],
+  title = "Trends",
+  subtitle = null,
+}) {
   return (
     <div
       className="w-full h-full min-h-[360px] rounded-2xl p-5 flex flex-col"
@@ -25,53 +35,62 @@ export default function LineChartExample({ data, xKey = "name", lines = [] }) {
       }}
     >
       {/* Header */}
-      <div className="flex justify-between items-center mb-5">
+      <div className="flex justify-between items-start mb-5 flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center"
+            className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0"
             style={{
               background:
                 "linear-gradient(135deg, var(--brand-primary), var(--brand-linear))",
             }}
           >
             <svg
-              className="w-3.5 h-3.5 text-white"
+              className="w-4 h-4 text-white"
               fill="none"
               viewBox="0 0 24 24"
-              stroke="currentColor"
+              stroke="white"
+              strokeWidth={2}
             >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
                 d="M7 12l3-3 3 3 4-4"
               />
             </svg>
           </div>
-          <h2
-            className="text-sm font-semibold"
-            style={{ color: "var(--text-heading)" }}
-          >
-            Page Views
-          </h2>
+          <div>
+            <h2
+              className="text-sm font-bold m-0"
+              style={{ color: "var(--text-heading)" }}
+            >
+              {title}
+            </h2>
+            {subtitle && (
+              <p className="text-xs m-0" style={{ color: "var(--text-muted)" }}>
+                {subtitle}
+              </p>
+            )}
+          </div>
         </div>
-        <span
-          className="text-xs font-medium rounded-full px-3 py-1"
-          style={{
-            background: "var(--color-primary-6)",
-            border: "1px solid var(--color-primary-20)",
-            color: "var(--brand-dark)",
-          }}
-        >
-          Last 7 days
-        </span>
+        {lines.length > 0 && (
+          <span
+            className="text-xs font-semibold rounded-full px-3 py-1 shrink-0"
+            style={{
+              background: "var(--color-primary-6)",
+              border: "1px solid var(--color-primary-20)",
+              color: "var(--brand-dark)",
+            }}
+          >
+            {lines.length} {lines.length === 1 ? "series" : "series"}
+          </span>
+        )}
       </div>
 
       <div className="h-[350px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={data}
-            margin={{ top: 4, right: 8, left: -20, bottom: 0 }}
+            margin={{ top: 4, right: 12, left: -20, bottom: 0 }}
           >
             <CartesianGrid
               strokeDasharray="3 3"
@@ -80,14 +99,15 @@ export default function LineChartExample({ data, xKey = "name", lines = [] }) {
             />
             <XAxis
               dataKey={xKey}
-              tick={{ fontSize: 11, fill: "#9ca3af" }}
+              tick={{ fontSize: 11, fill: "var(--text-muted)" }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
-              tick={{ fontSize: 11, fill: "#9ca3af" }}
+              tick={{ fontSize: 11, fill: "var(--text-muted)" }}
               axisLine={false}
               tickLine={false}
+              width={40}
             />
             <Tooltip
               contentStyle={{
@@ -98,6 +118,7 @@ export default function LineChartExample({ data, xKey = "name", lines = [] }) {
                 background: "var(--bg-neutral)",
               }}
               labelStyle={{ color: "var(--text-heading)", fontWeight: 600 }}
+              cursor={{ stroke: "var(--border-gray)", strokeWidth: 1 }}
             />
             <Legend
               iconType="plainline"

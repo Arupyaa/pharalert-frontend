@@ -10,7 +10,7 @@ import { twMerge } from "tailwind-merge";
 
 const tabs = [
   { name: "Medications", path: "/company/tables/medications" },
-  { name: "Pharmacies",  path: "/company/tables/pharmacies" },
+  { name: "Pharmacies", path: "/company/tables/pharmacies" },
 ];
 
 const STATUS_OPTIONS = [
@@ -42,9 +42,11 @@ function PharmacySearchBar({ value, onChange, placeholder }) {
 
   return (
     <div className="relative w-full sm:max-w-xs lg:max-w-sm">
-      <div className={twMerge(
-        "flex items-center gap-2 bg-neutral-main border border-border-primary rounded-xl px-3 py-2 shadow-sm transition-all duration-200 focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary",
-      )}>
+      <div
+        className={twMerge(
+          "flex items-center gap-2 bg-neutral-main border border-border-primary rounded-xl px-3 py-2 shadow-sm transition-all duration-200 focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary",
+        )}
+      >
         <FaSearch className="text-muted shrink-0 text-sm" />
         <input
           type="text"
@@ -69,14 +71,27 @@ function EmptyState({ hasFilters }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
       <div className="w-16 h-16 rounded-2xl bg-neutral-tertiary flex items-center justify-center mb-4 border border-border-primary">
-        <svg className="w-8 h-8 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+        <svg
+          className="w-8 h-8 text-muted"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+          />
         </svg>
       </div>
-      <p className="text-heading font-semibold text-base mb-1">No pharmacies found</p>
+      <p className="text-heading font-semibold text-base mb-1">
+        No pharmacies found
+      </p>
       <p className="text-muted text-sm">
-        {hasFilters ? "Try adjusting your filters or search query." : "No pharmacy data available."}
+        {hasFilters
+          ? "Try adjusting your filters or search query."
+          : "No pharmacy data available."}
       </p>
     </div>
   );
@@ -89,8 +104,10 @@ function SkeletonRows({ cols = 7, rows = 8 }) {
         <tr key={ri} className="border-b border-border-primary">
           {Array.from({ length: cols }).map((_, ci) => (
             <td key={ci} className="px-4 py-4">
-              <div className="h-4 rounded-lg bg-neutral-tertiary animate-pulse"
-                style={{ width: `${55 + ((ci * 17) % 40)}%` }} />
+              <div
+                className="h-4 rounded-lg bg-neutral-tertiary animate-pulse"
+                style={{ width: `${55 + ((ci * 17) % 40)}%` }}
+              />
             </td>
           ))}
         </tr>
@@ -99,16 +116,28 @@ function SkeletonRows({ cols = 7, rows = 8 }) {
   );
 }
 
-const STYLES = {
-  active: "bg-emerald-50 text-emerald-700 border border-emerald-200",
-  inactive: "bg-gray-100 text-gray-500 border border-gray-200",
-};
-
 function StatusBadge({ status }) {
-  const style = STYLES[status] || STYLES.inactive;
+  const isActive = status === "active";
+  const badgeStyle = isActive
+    ? {
+        background: "var(--color-primary-12)",
+        color: "var(--brand-dark)",
+        border: "1px solid var(--color-primary-22)",
+      }
+    : {
+        background: "var(--bg-tertiary)",
+        color: "var(--text-muted)",
+        border: "1px solid var(--border-gray)",
+      };
+  const dotStyle = isActive
+    ? { background: "var(--brand-primary)" }
+    : { background: "var(--text-muted)" };
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${style}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${status === "active" ? "bg-emerald-500" : "bg-gray-400"}`} />
+    <span
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+      style={badgeStyle}
+    >
+      <span className="w-1.5 h-1.5 rounded-full" style={dotStyle} />
       {status ? status.charAt(0).toUpperCase() + status.slice(1) : "Unknown"}
     </span>
   );
@@ -116,7 +145,11 @@ function StatusBadge({ status }) {
 
 function MedicationsTable({ medications }) {
   if (!medications || !medications.length) {
-    return <p className="text-sm text-muted py-4 text-center">No medication data available.</p>;
+    return (
+      <p className="text-sm text-muted py-4 text-center">
+        No medication data available.
+      </p>
+    );
   }
 
   const medHeaders = [
@@ -129,11 +162,35 @@ function MedicationsTable({ medications }) {
       render: (value) => {
         const isStocked = value === "stocked";
         return (
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-            isStocked ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-amber-50 text-amber-700 border border-amber-200"
-          }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${isStocked ? "bg-emerald-500" : "bg-amber-400"}`} />
-            {value ? value.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "Unknown"}
+          <span
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+            style={
+              isStocked
+                ? {
+                    background: "var(--color-primary-12)",
+                    color: "var(--brand-dark)",
+                    border: "1px solid var(--color-primary-22)",
+                  }
+                : {
+                    background: "rgba(243,156,18,0.10)",
+                    color: "#b7770d",
+                    border: "1px solid rgba(243,156,18,0.25)",
+                  }
+            }
+          >
+            <span
+              className="w-1.5 h-1.5 rounded-full"
+              style={
+                isStocked
+                  ? { background: "var(--brand-primary)" }
+                  : { background: "#f39c12" }
+              }
+            />
+            {value
+              ? value
+                  .replace(/_/g, " ")
+                  .replace(/\b\w/g, (c) => c.toUpperCase())
+              : "Unknown"}
           </span>
         );
       },
@@ -150,7 +207,10 @@ function MedicationsTable({ medications }) {
         <thead>
           <tr className="border-b border-border-primary bg-neutral-tertiary">
             {medHeaders.map((h) => (
-              <th key={h.key} className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted whitespace-nowrap">
+              <th
+                key={h.key}
+                className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted whitespace-nowrap"
+              >
                 {h.label}
               </th>
             ))}
@@ -158,11 +218,17 @@ function MedicationsTable({ medications }) {
         </thead>
         <tbody>
           {medications.map((med, idx) => (
-            <tr key={idx} className="border-b border-border-primary bg-neutral-main hover:bg-neutral-secondary transition-colors">
+            <tr
+              key={idx}
+              className="border-b border-border-primary bg-neutral-main hover:bg-neutral-secondary transition-colors"
+            >
               {medHeaders.map((h) => {
                 const value = h.render ? h.render(med[h.key]) : med[h.key];
                 return (
-                  <td key={h.key} className="px-4 py-2.5 text-paragraph whitespace-nowrap">
+                  <td
+                    key={h.key}
+                    className="px-4 py-2.5 text-paragraph whitespace-nowrap"
+                  >
                     {value ?? "—"}
                   </td>
                 );
@@ -191,17 +257,28 @@ export default function PharmaciesTable() {
     { key: "pharmacyName", label: "Pharmacy Name" },
     { key: "region", label: "Region" },
     { key: "address", label: "Address" },
-    { key: "accountStatus", label: "Status", render: (value) => <StatusBadge status={value} /> },
+    {
+      key: "accountStatus",
+      label: "Status",
+      render: (value) => <StatusBadge status={value} />,
+    },
     { key: "noOfMedsInShortage", label: "Shortage" },
     { key: "noOfMedsInCritical", label: "Critical" },
     { key: "noOfMedsStocked", label: "Stocked" },
     {
       key: "lastUpdated",
       label: "Last Updated",
-      render: (value) => value ? new Date(value).toLocaleString("en-GB", {
-        day: "2-digit", month: "2-digit", year: "numeric",
-        hour: "2-digit", minute: "2-digit", hour12: true,
-      }) : "—",
+      render: (value) =>
+        value
+          ? new Date(value).toLocaleString("en-GB", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+            })
+          : "—",
     },
     {
       key: "actions",
@@ -238,7 +315,9 @@ export default function PharmaciesTable() {
       if (fromDate) params.from = fromDate;
       if (toDate) params.to = toDate;
 
-      const response = await api.get("/company/analytics/pharmacies/table", { params });
+      const response = await api.get("/company/analytics/pharmacies/table", {
+        params,
+      });
 
       const data = response.data?.data ?? [];
       const recordsCount = response.data?.recordsCount ?? 0;
@@ -259,7 +338,8 @@ export default function PharmaciesTable() {
   }, [fetchPharmacies]);
 
   useEffect(() => {
-    api.get("/categories")
+    api
+      .get("/categories")
       .then((res) => {
         const cats = (res.data?.data ?? []).map((c) => ({
           value: c.id,
@@ -271,7 +351,8 @@ export default function PharmaciesTable() {
   }, []);
 
   useEffect(() => {
-    api.get("/regions")
+    api
+      .get("/regions")
       .then((res) => {
         const regs = (res.data?.data ?? []).map((r) => ({
           value: r.id,
@@ -282,16 +363,39 @@ export default function PharmaciesTable() {
       .catch(() => {});
   }, []);
 
-  const handleSearchChange = (val) => { setSearch(val); setPage(1); };
-  const handleStatusChange = (e) => { setStatus(e.target.value); setPage(1); };
-  const handleCategoryChange = (e) => { setCategoryId(e.target.value); setPage(1); };
-  const handleRegionChange = (e) => { setRegionId(e.target.value); setPage(1); };
+  const handleSearchChange = (val) => {
+    setSearch(val);
+    setPage(1);
+  };
+  const handleStatusChange = (e) => {
+    setStatus(e.target.value);
+    setPage(1);
+  };
+  const handleCategoryChange = (e) => {
+    setCategoryId(e.target.value);
+    setPage(1);
+  };
+  const handleRegionChange = (e) => {
+    setRegionId(e.target.value);
+    setPage(1);
+  };
 
-  const hasActiveFilters = !!(search || status || categoryId || regionId || fromDate || toDate);
+  const hasActiveFilters = !!(
+    search ||
+    status ||
+    categoryId ||
+    regionId ||
+    fromDate ||
+    toDate
+  );
 
   const handleClearFilters = () => {
-    setSearch(""); setStatus(""); setCategoryId(""); setRegionId("");
-    setFromDate(""); setToDate("");
+    setSearch("");
+    setStatus("");
+    setCategoryId("");
+    setRegionId("");
+    setFromDate("");
+    setToDate("");
     setPage(1);
   };
 
@@ -305,8 +409,12 @@ export default function PharmaciesTable() {
 
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-heading tracking-tight">Pharmacies</h1>
-          <p className="text-muted text-sm mt-0.5">View pharmacy analytics and performance</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-heading tracking-tight">
+            Pharmacies
+          </h1>
+          <p className="text-muted text-sm mt-0.5">
+            View pharmacy analytics and performance
+          </p>
         </div>
         {!loading && total > 0 && (
           <div className="shrink-0 flex items-center gap-1.5 bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-xs font-semibold px-3 py-1.5 rounded-full">
@@ -319,57 +427,89 @@ export default function PharmaciesTable() {
       <div className="bg-neutral-main rounded-2xl border border-border-primary shadow-sm p-4 mb-4">
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <div className="w-full sm:w-auto sm:flex-1 sm:min-w-[200px] sm:max-w-xs">
-            <PharmacySearchBar value={search} onChange={handleSearchChange} placeholder="Search by pharmacy name..." />
+            <PharmacySearchBar
+              value={search}
+              onChange={handleSearchChange}
+              placeholder="Search by pharmacy name..."
+            />
           </div>
           <div className="w-full xs:w-auto flex-1 min-w-[120px] max-w-[160px]">
-            <select value={status} onChange={handleStatusChange}
+            <select
+              value={status}
+              onChange={handleStatusChange}
               className="w-full appearance-none px-3 py-2 bg-neutral-main border border-border-primary text-paragraph text-sm rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all cursor-pointer"
             >
               {STATUS_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
               ))}
             </select>
           </div>
           {categories.length > 0 && (
             <div className="w-full xs:w-auto flex-1 min-w-[140px] max-w-[180px]">
-              <select value={categoryId} onChange={handleCategoryChange}
+              <select
+                value={categoryId}
+                onChange={handleCategoryChange}
                 className="w-full appearance-none px-3 py-2 bg-neutral-main border border-border-primary text-paragraph text-sm rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all cursor-pointer"
               >
                 <option value="">All Categories</option>
                 {categories.map((cat) => (
-                  <option key={cat.value} value={cat.value}>{cat.label}</option>
+                  <option key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </option>
                 ))}
               </select>
             </div>
           )}
           {regions.length > 0 && (
             <div className="w-full xs:w-auto flex-1 min-w-[120px] max-w-[160px]">
-              <select value={regionId} onChange={handleRegionChange}
+              <select
+                value={regionId}
+                onChange={handleRegionChange}
                 className="w-full appearance-none px-3 py-2 bg-neutral-main border border-border-primary text-paragraph text-sm rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all cursor-pointer"
               >
                 <option value="">All Regions</option>
                 {regions.map((r) => (
-                  <option key={r.value} value={r.value}>{r.label}</option>
+                  <option key={r.value} value={r.value}>
+                    {r.label}
+                  </option>
                 ))}
               </select>
             </div>
           )}
           <div>
-            <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">From</label>
-            <input type="date" value={fromDate}
-              onChange={(e) => { setFromDate(e.target.value); setPage(1); }}
+            <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">
+              From
+            </label>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => {
+                setFromDate(e.target.value);
+                setPage(1);
+              }}
               className="rounded-xl px-3 py-2 text-sm outline-none border border-border-primary bg-neutral-main text-paragraph"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">To</label>
-            <input type="date" value={toDate}
-              onChange={(e) => { setToDate(e.target.value); setPage(1); }}
+            <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">
+              To
+            </label>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => {
+                setToDate(e.target.value);
+                setPage(1);
+              }}
               className="rounded-xl px-3 py-2 text-sm outline-none border border-border-primary bg-neutral-main text-paragraph"
             />
           </div>
           {hasActiveFilters && (
-            <button type="button" onClick={handleClearFilters}
+            <button
+              type="button"
+              onClick={handleClearFilters}
               className="flex items-center gap-1.5 text-sm text-muted hover:text-heading border border-border-primary rounded-xl px-3 py-2 bg-neutral-main transition-all hover:bg-neutral-secondary whitespace-nowrap"
             >
               <IoMdCloseCircle size={15} /> Clear
@@ -379,9 +519,21 @@ export default function PharmaciesTable() {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 mb-4 flex items-center gap-2">
+        <div
+          className="text-sm rounded-xl px-4 py-3 mb-4 flex items-center gap-2"
+          style={{
+            background: "rgba(231,76,60,0.08)",
+            border: "1px solid rgba(231,76,60,0.20)",
+            color: "#e74c3c",
+          }}
+        >
           <span className="flex-1">{error}</span>
-          <button className="underline text-red-600 hover:text-red-800 text-xs shrink-0" onClick={fetchPharmacies}>Retry</button>
+          <button
+            className="underline text-red-600 hover:text-red-800 text-xs shrink-0"
+            onClick={fetchPharmacies}
+          >
+            Retry
+          </button>
         </div>
       )}
 
@@ -391,13 +543,18 @@ export default function PharmaciesTable() {
             <thead>
               <tr className="border-b border-border-primary">
                 {headers.map((h) => (
-                  <th key={h.key} className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted bg-neutral-tertiary whitespace-nowrap">
+                  <th
+                    key={h.key}
+                    className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted bg-neutral-tertiary whitespace-nowrap"
+                  >
                     {h.label || " "}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody><SkeletonRows cols={skeletonCols} rows={8} /></tbody>
+            <tbody>
+              <SkeletonRows cols={skeletonCols} rows={8} />
+            </tbody>
           </table>
         </div>
       ) : records.length === 0 ? (
@@ -408,13 +565,17 @@ export default function PharmaciesTable() {
         <Table
           headers={headers}
           records={records}
-          renderExpandedRow={(record) => <MedicationsTable medications={record.medications} />}
+          renderExpandedRow={(record) => (
+            <MedicationsTable medications={record.medications} />
+          )}
         />
       )}
 
       {!loading && records.length > 0 && (
         <TablePagination
-          limit={limit} page={page} total={total}
+          limit={limit}
+          page={page}
+          total={total}
           onNext={() => setPage((p) => (p * limit < total ? p + 1 : p))}
           onPrevious={() => setPage((p) => Math.max(1, p - 1))}
         />

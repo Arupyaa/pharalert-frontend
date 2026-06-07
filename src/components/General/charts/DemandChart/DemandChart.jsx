@@ -43,7 +43,6 @@ function formatDate(dateStr) {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-// API treats "to" as exclusive, so add 1 day to include the selected date
 function toExclusive(dateStr) {
   if (!dateStr) return undefined;
   const d = new Date(dateStr);
@@ -166,6 +165,10 @@ const CustomLegend = ({ payload }) => (
   </div>
 );
 
+const BAR_WIDTH = 8;
+const GROUP_GAP = 20;
+const MIN_CHART_WIDTH = 700;
+
 export default function DemandChart({
   medicationId,
   regionId,
@@ -177,7 +180,6 @@ export default function DemandChart({
   const [error, setError] = useState(null);
 
   const fetchChartData = useCallback(async () => {
-    // Wait until medicationId is ready
     if (!medicationId) return;
 
     setLoading(true);
@@ -186,7 +188,6 @@ export default function DemandChart({
       const params = { medicationId };
       if (regionId) params.regionId = regionId;
       if (fromDate) params.from = fromDate;
-      // Add 1 day because API "to" is exclusive
       const toSend = toExclusive(toDate);
       if (toSend) params.to = toSend;
 
@@ -207,11 +208,163 @@ export default function DemandChart({
     fetchChartData();
   }, [fetchChartData]);
 
-  // Summary totals badges
   const totals = SERIES_CONFIG.map((s) => ({
     ...s,
     total: data.reduce((acc, d) => acc + (d[s.key] ?? 0), 0),
   }));
+
+  // Calculate dynamic chart width for scroll — each group needs space for 4 bars + gaps
+  const dynamicWidth = Math.max(
+    MIN_CHART_WIDTH,
+    data.length * (SERIES_CONFIG.length * BAR_WIDTH + GROUP_GAP + 20),
+  );
+
+  const chartContent = () => {
+    if (!medicationId)
+      return (
+        <EmptyState
+          icon="chart"
+          message="Select a medication to view demand chart"
+        />
+      );
+    if (loading)
+      return (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100%",
+          }}
+        >
+          <div
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: "50%",
+              border: "2.5px solid var(--border-gray)",
+              borderTopColor: "var(--brand-primary)",
+              animation: "demandSpin 0.8s linear infinite",
+            }}
+          />
+          <style>{`@keyframes demandSpin { to { transform: rotate(360deg); } }`}</style>
+        </div>
+      );
+    if (error)
+      return (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100%",
+            gap: 8,
+          }}
+        >
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 12,
+              background: "rgba(231,76,60,0.10)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <svg
+              width="20"
+              height="20"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="#e74c3c"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+          </div>
+          <p style={{ fontSize: 13, color: "#e74c3c", margin: 0 }}>{error}</p>
+        </div>
+      );
+    if (data.length === 0)
+      return (
+        <EmptyState
+          icon="inbox"
+          message="No data available for the selected period"
+        />
+      );
+
+    return (
+      <div
+        style={{
+          width: "100%",
+          overflowX: "auto",
+          overflowY: "hidden",
+          paddingBottom: 4,
+        }}
+      >
+        <div style={{ minWidth: dynamicWidth, height: 300 }}>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart
+              data={data}
+              margin={{ top: 4, right: 12, left: -16, bottom: 0 }}
+              barCategoryGap="30%"
+              barGap={2}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="var(--border-gray)"
+                vertical={false}
+              />
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 11, fill: "var(--text-muted)" }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fontSize: 11, fill: "var(--text-muted)" }}
+                axisLine={false}
+                tickLine={false}
+                width={40}
+              />
+              <Tooltip
+                content={<CustomTooltip />}
+                cursor={{ fill: "var(--color-primary-6)", rx: 4 }}
+              />
+              <Legend content={<CustomLegend />} />
+              {SERIES_CONFIG.map((s) => (
+                <Bar
+                  key={s.key}
+                  dataKey={s.key}
+                  fill={s.color}
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={BAR_WIDTH}
+                />
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        {data.length > 20 && (
+          <p
+            style={{
+              textAlign: "center",
+              fontSize: 11,
+              color: "var(--text-muted)",
+              marginTop: 4,
+            }}
+          >
+            ← Scroll to see all {data.length} data points →
+          </p>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div
@@ -280,7 +433,7 @@ export default function DemandChart({
           </div>
         </div>
 
-        {/* Summary badges — only when we have data */}
+        {/* Summary badges */}
         {data.length > 0 && (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {totals.map((s) => (
@@ -291,7 +444,7 @@ export default function DemandChart({
                   alignItems: "center",
                   gap: 5,
                   background: s.bg,
-                  border: `1px solid ${s.color}22`,
+                  border: `1px solid ${s.color}33`,
                   borderRadius: 20,
                   padding: "3px 10px",
                 }}
@@ -324,191 +477,73 @@ export default function DemandChart({
       />
 
       {/* Chart body */}
-      <div style={{ width: "100%", height: 300 }}>
-        {!medicationId ? (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "100%",
-              gap: 8,
-            }}
-          >
-            <div
-              style={{
-                width: 52,
-                height: 52,
-                borderRadius: 14,
-                background: "var(--color-primary-6)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <svg
-                width="24"
-                height="24"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="var(--brand-primary)"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-            </div>
-            <p style={{ fontSize: 13, color: "var(--text-muted)", margin: 0 }}>
-              Select a medication to view demand chart
-            </p>
-          </div>
-        ) : loading ? (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "100%",
-            }}
-          >
-            <div
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: "50%",
-                border: "2.5px solid var(--border-gray)",
-                borderTopColor: "var(--brand-primary)",
-                animation: "demandSpin 0.8s linear infinite",
-              }}
-            />
-            <style>{`@keyframes demandSpin { to { transform: rotate(360deg); } }`}</style>
-          </div>
-        ) : error ? (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "100%",
-              gap: 8,
-            }}
-          >
-            <div
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: 12,
-                background: "rgba(231,76,60,0.10)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <svg
-                width="20"
-                height="20"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="#e74c3c"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
-            </div>
-            <p style={{ fontSize: 13, color: "#e74c3c", margin: 0 }}>{error}</p>
-          </div>
-        ) : data.length === 0 ? (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "100%",
-              gap: 8,
-            }}
-          >
-            <div
-              style={{
-                width: 52,
-                height: 52,
-                borderRadius: 14,
-                background: "var(--color-primary-6)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <svg
-                width="24"
-                height="24"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="var(--brand-primary)"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                />
-              </svg>
-            </div>
-            <p style={{ fontSize: 13, color: "var(--text-muted)", margin: 0 }}>
-              No data available for the selected period
-            </p>
-          </div>
-        ) : (
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart
-              data={data}
-              margin={{ top: 4, right: 8, left: -16, bottom: 0 }}
-              barCategoryGap="28%"
-            >
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="var(--border-gray)"
-                vertical={false}
-              />
-              <XAxis
-                dataKey="date"
-                tick={{ fontSize: 11, fill: "var(--text-muted)" }}
-                axisLine={false}
-                tickLine={false}
-                interval="preserveStartEnd"
-              />
-              <YAxis
-                tick={{ fontSize: 11, fill: "var(--text-muted)" }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <Tooltip
-                content={<CustomTooltip />}
-                cursor={{ fill: "var(--color-primary-6)" }}
-              />
-              <Legend content={<CustomLegend />} />
-              {SERIES_CONFIG.map((s) => (
-                <Bar
-                  key={s.key}
-                  dataKey={s.key}
-                  fill={s.color}
-                  radius={[4, 4, 0, 0]}
-                  maxBarSize={12}
-                />
-              ))}
-            </BarChart>
-          </ResponsiveContainer>
-        )}
+      <div style={{ width: "100%", minHeight: 300 }}>{chartContent()}</div>
+    </div>
+  );
+}
+
+function EmptyState({ icon, message }) {
+  const icons = {
+    chart: (
+      <svg
+        width="24"
+        height="24"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="var(--brand-primary)"
+        strokeWidth={1.5}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        />
+      </svg>
+    ),
+    inbox: (
+      <svg
+        width="24"
+        height="24"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="var(--brand-primary)"
+        strokeWidth={1.5}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+        />
+      </svg>
+    ),
+  };
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        height: 300,
+        gap: 8,
+      }}
+    >
+      <div
+        style={{
+          width: 52,
+          height: 52,
+          borderRadius: 14,
+          background: "var(--color-primary-6)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {icons[icon]}
       </div>
+      <p style={{ fontSize: 13, color: "var(--text-muted)", margin: 0 }}>
+        {message}
+      </p>
     </div>
   );
 }
