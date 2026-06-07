@@ -36,6 +36,7 @@ import UserMaster from "./pages/user/UserMaster";
 import UserDashboard from "./pages/user/UserDashboard";
 import UserSearchMedicine from "./pages/user/UserSearchMedicine";
 import UserReservations from "./pages/user/UserReservations";
+import UserPharmacyDetails from "./pages/user/UserPharmacyDetails";
 import Cashier from "./pages/pharmacy/Cashier";
 
 // Route protection layer
@@ -158,6 +159,10 @@ const routes = createBrowserRouter([
               {
                 path: "/user/reservations",
                 element: <UserReservations />,
+              },
+              {
+                path: "/user/pharmacy/:id",
+                element: <UserPharmacyDetails />,
               },
             ],
           },

@@ -256,6 +256,7 @@ export default function UserSearchMedicine() {
           {pharmacies.map((pharmacy) => (
             <PharmacyCard
               key={pharmacy.pharmacyId}
+              pharmacyId={pharmacy.pharmacyId}
               name={pharmacy.name}
               address={pharmacy.address}
               image={pharmacyPlaceholder}
