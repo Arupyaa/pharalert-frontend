@@ -14,7 +14,7 @@ import {
 } from "recharts";
 import api from "../../api/api";
 
-// ─── Helpers ───────────────────────────────────────────────────────────────
+//Helpers 
 function getDefaultDates() {
   const to = new Date();
   const from = new Date();
@@ -36,7 +36,7 @@ function formatShortDate(dateStr) {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-// ─── Skeleton ───────────────────────────────────────────────────────────────
+// Skeleton
 function Skeleton({ className = "" }) {
   return (
     <div
@@ -45,7 +45,7 @@ function Skeleton({ className = "" }) {
   );
 }
 
-// ─── Metric Card ────────────────────────────────────────────────────────────
+//  Metric Card 
 function MetricCard({
   icon,
   label,
@@ -84,7 +84,7 @@ function MetricCard({
   );
 }
 
-// ─── Custom Tooltip ─────────────────────────────────────────────────────────
+// Custom Tooltip 
 function RevenueTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
   return (
@@ -105,9 +105,9 @@ function RevenueTooltip({ active, payload, label }) {
   );
 }
 
-// ─── Top Meds Tooltip ────────────────────────────────────────────────────────
+//  Top Meds Tooltip 
 
-// ─── Stock Status Badge ──────────────────────────────────────────────────────
+// Stock Status Badge 
 const STOCK_STYLE = {
   in_stock: {
     bg: "bg-emerald-50",
@@ -141,7 +141,7 @@ function StockBadge({ status }) {
   );
 }
 
-// ─── Section Header ──────────────────────────────────────────────────────────
+// Section Header 
 function SectionHeader({ icon, title, subtitle }) {
   return (
     <div className="flex items-center gap-3 mb-4">
@@ -162,7 +162,7 @@ function SectionHeader({ icon, title, subtitle }) {
   );
 }
 
-// ─── Main Dashboard ──────────────────────────────────────────────────────────
+// Main Dashboard 
 export default function PharmacyDashboard() {
   const defaults = getDefaultDates();
   const [fromDate, setFromDate] = useState(defaults.from);
@@ -179,7 +179,7 @@ export default function PharmacyDashboard() {
   const [loadingCharts, setLoadingCharts] = useState(true);
   const [loadingTables, setLoadingTables] = useState(true);
 
-  // ── Fetch summary + sales performance ───────────────────────────────────
+  // Fetch summary + sales performance 
   const fetchSummaryAndCharts = useCallback(async () => {
     setLoadingSummary(true);
     setLoadingCharts(true);
@@ -203,7 +203,7 @@ export default function PharmacyDashboard() {
     }
   }, [fromDate, toDate]);
 
-  // ── Fetch tables (independent of date filter) ────────────────────────────
+  //Fetch tables (independent of date filter) 
   const fetchTables = useCallback(async () => {
     setLoadingTables(true);
     try {
@@ -233,7 +233,7 @@ export default function PharmacyDashboard() {
     fetchTables();
   }, [fetchTables]);
 
-  // ── Derived chart data ────────────────────────────────────────────────────
+  // Derived chart data 
   const revenueChartData = (salesPerf?.chartData ?? []).map((d) => ({
     date: formatShortDate(d.date),
     revenue: Math.round(d.revenue),
@@ -252,7 +252,7 @@ export default function PharmacyDashboard() {
       sales: m.salesCount,
     }));
 
-  // ── Icons ─────────────────────────────────────────────────────────────────
+  // ── Icons
   const icons = {
     customers: (
       <svg
