@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { MapPin, Navigation } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getDistance } from "geolib";
@@ -12,6 +12,7 @@ export default function PharmacyCard({
   latitude,
   longitude,
   pharmacyId,
+  onCardClick,
 }) {
   const [distance, setDistance] = useState(0);
   const navigate = useNavigate();
@@ -35,9 +36,17 @@ export default function PharmacyCard({
     );
   }, [latitude, longitude]);
 
+  const handleClick = useCallback(() => {
+    if (onCardClick) {
+      onCardClick();
+    } else if (pharmacyId) {
+      navigate(`/user/pharmacy/${pharmacyId}`);
+    }
+  }, [onCardClick, pharmacyId, navigate]);
+
   return (
     <div
-      onClick={() => pharmacyId && navigate(`/user/pharmacy/${pharmacyId}`)}
+      onClick={handleClick}
       className="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-lg border border-gray-200 cursor-pointer transition-transform duration-200 hover:shadow-xl hover:-translate-y-0.5"
     >
       <div className="relative h-44 w-full">

@@ -1,22 +1,16 @@
-import { useState, useEffect, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useMemo } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   ArrowLeft,
   MapPin,
   Navigation,
   Clock,
-  Phone,
-  MessageCircle,
   Search,
-  Loader,
   Package,
   AlertCircle,
   ChevronDown,
   ChevronUp,
-  DollarSign,
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import api from "../../api/api";
 import Badge from "../../components/General/badge/Badge";
 
 const STATUS_OPTIONS = [
@@ -28,44 +22,40 @@ const STATUS_OPTIONS = [
 export default function UserPharmacyDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const pharmacy = location.state?.pharmacy;
+
   const [searchQuery, setSearchQuery] = useState("");
   const [stockFilter, setStockFilter] = useState("all");
   const [expandedMeds, setExpandedMeds] = useState(new Set());
-  const [distance, setDistance] = useState(null);
 
-  const {
-    data: pharmacy,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["pharmacy-detail", id],
-    queryFn: () =>
-      api.get(`/user/pharmacy-detail/${id}`).then((res) => res.data.data),
-    enabled: Boolean(id),
-  });
-
-  useEffect(() => {
-    if (!pharmacy?.latitude || !pharmacy?.longitude) return;
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const R = 6371;
-        const dLat = ((pos.coords.latitude - pharmacy.latitude) * Math.PI) / 180;
-        const dLon = ((pos.coords.longitude - pharmacy.longitude) * Math.PI) / 180;
-        const a =
-          Math.sin(dLat / 2) ** 2 +
-          Math.cos((pharmacy.latitude * Math.PI) / 180) *
-            Math.cos((pos.coords.latitude * Math.PI) / 180) *
-            Math.sin(dLon / 2) ** 2;
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        setDistance(Math.round(R * c * 100) / 100);
-      },
-      () => {}
+  if (!pharmacy) {
+    return (
+      <div className="p-6" style={{ background: "var(--color-bg-subtle)", minHeight: "100%" }}>
+        <button
+          onClick={() => navigate("/user/search-medicine")}
+          className="inline-flex items-center gap-2 text-sm font-medium mb-6 hover:opacity-70 transition"
+          style={{ color: "var(--brand-primary)" }}
+        >
+          <ArrowLeft size={16} /> Back to search
+        </button>
+        <div className="rounded-2xl p-12 flex flex-col items-center justify-center text-center" style={{ background: "var(--bg-neutral)", border: "1px dashed var(--color-primary-25)" }}>
+          <AlertCircle size={40} className="mb-3" style={{ color: "var(--text-muted)" }} />
+          <p className="font-semibold" style={{ color: "var(--text-heading)" }}>Pharmacy not found</p>
+          <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>Search for medicines and select a pharmacy from the results</p>
+        </div>
+      </div>
     );
-  }, [pharmacy?.latitude, pharmacy?.longitude]);
+  }
+
+  const isOpen = pharmacy.currentStatus === "open";
+  const medications = pharmacy.medications || [];
+  const totalMeds = medications.length;
+  const inStockCount = medications.filter((m) => m.stock >= 10).length;
+  const lowStockCount = medications.filter((m) => m.stock > 0 && m.stock < 10).length;
 
   const filteredMeds = useMemo(() => {
-    if (!pharmacy?.medications) return [];
-    return pharmacy.medications.filter((med) => {
+    return medications.filter((med) => {
       const matchesSearch =
         !searchQuery ||
         med.brandName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -76,7 +66,7 @@ export default function UserPharmacyDetails() {
         (stockFilter === "low_stock" && med.stock > 0 && med.stock < 10);
       return matchesSearch && matchesStock;
     });
-  }, [pharmacy?.medications, searchQuery, stockFilter]);
+  }, [medications, searchQuery, stockFilter]);
 
   const toggleExpand = (id) => {
     setExpandedMeds((prev) => {
@@ -86,38 +76,6 @@ export default function UserPharmacyDetails() {
       return next;
     });
   };
-
-  if (isLoading) {
-    return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <Loader size={32} className="animate-spin" style={{ color: "var(--brand-primary)" }} />
-      </div>
-    );
-  }
-
-  if (error || !pharmacy) {
-    return (
-      <div className="p-6">
-        <button
-          onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 text-sm font-medium mb-6 hover:opacity-70 transition"
-          style={{ color: "var(--brand-primary)" }}
-        >
-          <ArrowLeft size={16} /> Back
-        </button>
-        <div className="rounded-2xl p-12 flex flex-col items-center justify-center text-center" style={{ background: "var(--bg-neutral)", border: "1px dashed var(--color-primary-25)" }}>
-          <AlertCircle size={40} className="mb-3" style={{ color: "var(--text-muted)" }} />
-          <p className="font-semibold" style={{ color: "var(--text-heading)" }}>Pharmacy not found</p>
-          <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>This pharmacy may no longer be available</p>
-        </div>
-      </div>
-    );
-  }
-
-  const isOpen = pharmacy.currentStatus === "open";
-  const totalMeds = pharmacy.medications?.length || 0;
-  const inStockCount = pharmacy.medications?.filter((m) => m.stock >= 10).length || 0;
-  const lowStockCount = pharmacy.medications?.filter((m) => m.stock > 0 && m.stock < 10).length || 0;
 
   return (
     <div className="p-6" style={{ background: "var(--color-bg-subtle)", minHeight: "100%" }}>
@@ -158,10 +116,10 @@ export default function UserPharmacyDetails() {
                 <span className={`w-1.5 h-1.5 rounded-full ${isOpen ? "bg-green-500" : "bg-red-500"}`} />
                 {isOpen ? "Open" : "Closed"}
               </span>
-              {distance !== null && (
+              {pharmacy.distanceKm != null && (
                 <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
                   <Navigation size={12} />
-                  {distance.toFixed(1)} km
+                  {Number(pharmacy.distanceKm).toFixed(1)} km
                 </span>
               )}
             </div>
@@ -178,30 +136,6 @@ export default function UserPharmacyDetails() {
         </div>
 
         <div className="px-6 pb-6 flex flex-wrap gap-3">
-          <a
-            href={`tel:${pharmacy.phoneNumber || ""}`}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200"
-            style={{
-              background: "var(--brand-primary)",
-              color: "#fff",
-            }}
-          >
-            <Phone size={16} />
-            {pharmacy.phoneNumber ? "Call" : "Call"}
-          </a>
-          <a
-            href={`https://wa.me/${pharmacy.phoneNumber || ""}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200"
-            style={{
-              background: "#25D366",
-              color: "#fff",
-            }}
-          >
-            <MessageCircle size={16} />
-            WhatsApp
-          </a>
           <a
             href={`https://www.google.com/maps/dir/?api=1&destination=${pharmacy.latitude},${pharmacy.longitude}`}
             target="_blank"
@@ -317,9 +251,6 @@ export default function UserPharmacyDetails() {
                       </div>
                       <div className="flex items-center gap-2 mt-0.5">
                         <Badge label={stockLabel} variant={stockVariant} />
-                        <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-                          {med.manufacturer}
-                        </span>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
@@ -333,14 +264,6 @@ export default function UserPharmacyDetails() {
                   {isExpanded && (
                     <div className="px-4 pb-3 pt-0 border-t border-gray-100">
                       <div className="pt-3 grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-                        <div>
-                          <span className="block font-medium" style={{ color: "var(--text-muted)" }}>Category</span>
-                          <span style={{ color: "var(--text-heading)" }}>{med.category}</span>
-                        </div>
-                        <div>
-                          <span className="block font-medium" style={{ color: "var(--text-muted)" }}>Manufacturer</span>
-                          <span style={{ color: "var(--text-heading)" }}>{med.manufacturer}</span>
-                        </div>
                         <div>
                           <span className="block font-medium" style={{ color: "var(--text-muted)" }}>Stock</span>
                           <span style={{ color: "var(--text-heading)" }}>{med.stock} units</span>

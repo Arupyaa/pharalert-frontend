@@ -1,13 +1,30 @@
+import { useMemo } from "react";
 import { CalendarCheck, ShoppingBag, MapPin, Loader, Clock, CheckCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import api from "../../api/api";
 
 export default function UserDashboard() {
   const { data, isLoading, error } = useQuery({
-    queryKey: ["user-dashboard"],
-    queryFn: () =>
-      api.get("/user/dashboard").then((res) => res.data.data),
+    queryKey: ["user-reservations"],
+    queryFn: async () => {
+      try {
+        const res = await api.get("/user/reservations");
+        return res.data.data || [];
+      } catch (err) {
+        if (err.response?.status === 403) return [];
+        throw err;
+      }
+    },
   });
+
+  const dashboardData = useMemo(() => {
+    if (!data || data.length === 0) return null;
+    const totalReservations = data.length;
+    const pendingReservations = data.filter((r) => r.status === "pending").length;
+    const totalSpent = data.reduce((sum, r) => sum + Number(r.totalPrice || 0), 0);
+    const recentReservations = data.slice(0, 5);
+    return { totalReservations, pendingReservations, totalSpent, recentReservations };
+  }, [data]);
 
   if (isLoading) {
     return (
@@ -57,28 +74,28 @@ export default function UserDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         <StatCard
           label="Total Reservations"
-          value={data?.totalReservations ?? 0}
+          value={dashboardData?.totalReservations ?? 0}
           icon={<CalendarCheck size={24} />}
         />
         <StatCard
           label="Pending Deliveries"
-          value={data?.pendingReservations ?? 0}
+          value={dashboardData?.pendingReservations ?? 0}
           icon={<Clock size={24} />}
         />
         <StatCard
           label="Total Spent"
-          value={`${Number(data?.totalSpent ?? 0).toFixed(2)} EGP`}
+          value={`${Number(dashboardData?.totalSpent ?? 0).toFixed(2)} EGP`}
           icon={<ShoppingBag size={24} />}
         />
       </div>
 
-      {data?.recentReservations?.length > 0 && (
+      {dashboardData?.recentReservations?.length > 0 && (
         <div className="mt-8">
           <h2 className="text-lg font-semibold mb-4" style={{ color: "var(--text-heading)" }}>
             Recent Reservations
           </h2>
           <div className="space-y-3">
-            {data.recentReservations.map((r) => (
+            {dashboardData.recentReservations.map((r) => (
               <div
                 key={r.id}
                 className="rounded-2xl p-4 flex items-center justify-between"
@@ -124,7 +141,7 @@ export default function UserDashboard() {
         </div>
       )}
 
-      {(!data?.recentReservations || data.recentReservations.length === 0) && (
+      {(!dashboardData?.recentReservations || dashboardData.recentReservations.length === 0) && (
         <div
           className="mt-8 rounded-2xl p-10 flex flex-col items-center justify-center text-center"
           style={{

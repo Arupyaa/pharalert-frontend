@@ -15,7 +15,6 @@ import {
   FileText,
   ShoppingBag,
   AlertCircle,
-  MoreHorizontal,
   Package,
   X,
 } from "lucide-react";
@@ -24,6 +23,8 @@ import { useDebounce } from "use-debounce";
 import api from "../../api/api";
 import Badge from "../../components/General/badge/Badge";
 import { useAuthStore } from "../../store/useAuthStore";
+import { useToast } from "../../hooks/useToast";
+import ToastContainer from "../../components/General/toast/ToastContainer";
 
 export default function UserReservations() {
   const accountType = useAuthStore((state) => state.accountType);
@@ -59,6 +60,7 @@ const STATUS_OPTIONS = [
 
 function PaidReservationsPage() {
   const queryClient = useQueryClient();
+  const { toast, toasts, dismiss } = useToast();
   const [medInput, setMedInput] = useState("");
   const [items, setItems] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -67,16 +69,15 @@ function PaidReservationsPage() {
   const [formError, setFormError] = useState(null);
   const [formSuccess, setFormSuccess] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [confirmingId, setConfirmingId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [expandedCard, setExpandedCard] = useState(null);
-  const [actionMenuId, setActionMenuId] = useState(null);
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
   const [deliveryOption, setDeliveryOption] = useState("pickup");
   const [notes, setNotes] = useState("");
   const dropdownRef = useRef(null);
-  const actionMenuRef = useRef(null);
 
   const [debouncedSearch] = useDebounce(medInput, 300);
 
@@ -143,9 +144,6 @@ function PaidReservationsPage() {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setShowDropdown(false);
       }
-      if (actionMenuRef.current && !actionMenuRef.current.contains(e.target)) {
-        setActionMenuId(null);
-      }
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
@@ -195,12 +193,14 @@ function PaidReservationsPage() {
 
   const handleDelete = async (id) => {
     setDeletingId(id);
-    setActionMenuId(null);
+    setConfirmingId(null);
     try {
       await api.delete(`/user/reservations/${id}`);
       queryClient.invalidateQueries({ queryKey: ["reservations"] });
+      toast.success("Reservation cancelled", "Your reservation has been cancelled successfully.");
     } catch (err) {
-      console.error("Failed to delete reservation", err);
+      const message = err.response?.data?.message || "Failed to cancel reservation";
+      toast.error("Error", message);
     } finally {
       setDeletingId(null);
     }
@@ -218,7 +218,9 @@ function PaidReservationsPage() {
   }, [reservations]);
 
   return (
-    <div className="p-6" style={{ background: "var(--color-bg-subtle)", minHeight: "100%" }}>
+    <>
+      <ToastContainer toasts={toasts} dismiss={dismiss} />
+      <div className="p-6" style={{ background: "var(--color-bg-subtle)", minHeight: "100%" }}>
       <div className="mb-6">
         <h1 className="text-3xl font-bold" style={{ color: "var(--text-heading)" }}>My Reservations</h1>
         <p className="mt-1 text-sm" style={{ color: "var(--text-muted)" }}>Create and manage your medicine reservations</p>
@@ -558,18 +560,17 @@ function PaidReservationsPage() {
               reservation={reservation}
               onDelete={handleDelete}
               deleting={deletingId === reservation.id}
+              confirming={confirmingId === reservation.id}
+              onRequestConfirm={() => setConfirmingId(reservation.id)}
+              onCancelConfirm={() => setConfirmingId(null)}
               isExpanded={expandedCard === reservation.id}
               onToggleExpand={() => toggleExpand(reservation.id)}
-              actionMenuOpen={actionMenuId === reservation.id}
-              onActionMenuToggle={() =>
-                setActionMenuId((prev) => (prev === reservation.id ? null : reservation.id))
-              }
-              actionMenuRef={actionMenuRef}
             />
           ))}
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
 
@@ -608,11 +609,11 @@ function ReservationCard({
   reservation,
   onDelete,
   deleting,
+  confirming,
+  onRequestConfirm,
+  onCancelConfirm,
   isExpanded,
   onToggleExpand,
-  actionMenuOpen,
-  onActionMenuToggle,
-  actionMenuRef,
 }) {
   const isPending = reservation.status === "pending";
   const itemCount = reservation.items?.length || 0;
@@ -677,31 +678,16 @@ function ReservationCard({
             <span className="text-sm font-bold min-w-[80px] text-right" style={{ color: "var(--text-heading)" }}>
               {Number(reservation.totalPrice).toFixed(2)} EGP
             </span>
-            <div className="relative" ref={actionMenuOpen ? actionMenuRef : null}>
-              {isPending && (
-                <button
-                  onClick={onActionMenuToggle}
-                  className="p-1.5 rounded-lg hover:bg-gray-100 transition"
-                >
-                  <MoreHorizontal size={16} className="text-gray-400" />
-                </button>
-              )}
-              {actionMenuOpen && isPending && (
-                <div
-                  className="absolute right-0 top-full mt-1 z-20 bg-white border border-gray-200 rounded-xl shadow-xl py-1 min-w-[140px]"
-                  style={{ boxShadow: "0 4px 24px var(--color-shadow-4)" }}
-                >
-                  <button
-                    onClick={() => onDelete(reservation.id)}
-                    disabled={deleting}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition disabled:opacity-50"
-                  >
-                    {deleting ? <Loader size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                    Cancel Reservation
-                  </button>
-                </div>
-              )}
-            </div>
+            {isPending && !confirming && (
+              <button
+                onClick={onRequestConfirm}
+                disabled={deleting}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 transition disabled:opacity-50"
+              >
+                <Trash2 size={14} />
+                Cancel
+              </button>
+            )}
             <button
               onClick={onToggleExpand}
               className="p-1.5 rounded-lg hover:bg-gray-100 transition"
@@ -715,6 +701,37 @@ function ReservationCard({
           </div>
         </div>
       </div>
+
+      {/* Inline Confirmation */}
+      {confirming && isPending && (
+        <div className="px-5 pb-0">
+          <div className="rounded-xl p-4 flex items-center justify-between gap-3" style={{ background: "#fef2f2", border: "1px solid #fecaca" }}>
+            <div className="flex items-center gap-2 text-sm font-medium text-red-700">
+              <AlertCircle size={16} />
+              Cancel this reservation?
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onCancelConfirm}
+                disabled={deleting}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium border transition hover:bg-white"
+                style={{ borderColor: "var(--border-gray)", color: "var(--text-heading)" }}
+              >
+                Keep it
+              </button>
+              <button
+                onClick={() => onDelete(reservation.id)}
+                disabled={deleting}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium text-white transition hover:opacity-90 disabled:opacity-50 inline-flex items-center gap-1.5"
+                style={{ background: "#dc2626" }}
+              >
+                {deleting ? <Loader size={12} className="animate-spin" /> : <Trash2 size={12} />}
+                Yes, cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Collapsed Summary */}
       {!isExpanded && (

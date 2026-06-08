@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { Search, MapPin, Loader, ChevronDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
 import api from "../../api/api";
@@ -15,6 +16,7 @@ export default function UserSearchMedicine() {
   const [longitude, setLongitude] = useState(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState(null);
+  const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
   const medicationIds = selectedMeds.map((m) => m.id);
@@ -263,6 +265,9 @@ export default function UserSearchMedicine() {
               isOpen={pharmacy.currentStatus === "open"}
               latitude={pharmacy.latitude}
               longitude={pharmacy.longitude}
+              onCardClick={() =>
+                navigate(`/user/pharmacy/${pharmacy.pharmacyId}`, { state: { pharmacy } })
+              }
             />
           ))}
         </div>
