@@ -30,6 +30,8 @@ import ApiTest from "./pages/testing/ApiTest";
 import PharmacyMaster from "./pages/pharmacy/PharmacyMaster";
 import AdminMaster from "./pages/admin/AdminMaster";
 import AdminAccounts from "./pages/admin/AdminAccounts";
+import AdminReservations from "./pages/admin/AdminReservations";
+import AdminMedications from "./pages/admin/AdminMedications";
 import AdminLogin from "./pages/admin/AdminLogin";
 
 // Dashboards
@@ -249,6 +251,14 @@ const routes = createBrowserRouter([
               {
                 path: "/admin/accounts",
                 element: <AdminAccounts />,
+              },
+              {
+                path: "/admin/reservations",
+                element: <AdminReservations />,
+              },
+              {
+                path: "/admin/medications",
+                element: <AdminMedications />,
               },
             ],
           },
