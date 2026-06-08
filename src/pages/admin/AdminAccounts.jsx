@@ -1,6 +1,9 @@
 import React, { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../api/api.js";
+import Overlay from "../../components/General/overLay/Overlay.jsx";
+import Table from "../../components/General/tables/Table.jsx";
+import TablePagination from "../../components/General/Pagination/TablePagination.jsx";
 
 // ── API helpers ───────────────────────────────────────────────────────────────
 
@@ -11,13 +14,14 @@ async function fetchAccounts({ accountType, accountStatus, page, limit }) {
   params.append("page", page);
   params.append("limit", limit);
 
-  const { data } = await api.get(`/host/admin/accounts?${params.toString()}`);
+  const { data } = await api.get(`/admin/accounts?${params.toString()}`);
+  console.log(`our data is${data}`)
   return data;
 }
 
 async function changeAccountStatus({ id, accountStatus }) {
   const { data } = await api.patch(
-    `/host/admin/accounts/change-account-status/${id}`,
+    `/admin/accounts/change-account-status/${id}`,
     { accountStatus }
   );
   return data;
@@ -25,7 +29,7 @@ async function changeAccountStatus({ id, accountStatus }) {
 
 async function changeUserType({ id, userType }) {
   const { data } = await api.patch(
-    `/host/admin/accounts/change-user-type/${id}`,
+    `/admin/accounts/change-user-type/${id}`,
     { userType }
   );
   return data;
@@ -60,25 +64,6 @@ function Chip({ label, styleMap }) {
     >
       {label}
     </span>
-  );
-}
-
-function Skeleton({ rows = 8 }) {
-  return (
-    <>
-      {Array.from({ length: rows }).map((_, i) => (
-        <tr key={i} className="border-b border-border-primary">
-          {Array.from({ length: 6 }).map((_, j) => (
-            <td key={j} className="px-4 py-3">
-              <div
-                className="h-4 rounded-lg animate-pulse"
-                style={{ background: "var(--bg-tertiary)", width: `${60 + ((i + j) % 3) * 20}%` }}
-              />
-            </td>
-          ))}
-        </tr>
-      ))}
-    </>
   );
 }
 
@@ -314,76 +299,183 @@ function FilterSelect({ value, onChange, options }) {
   );
 }
 
-// ── Pagination ────────────────────────────────────────────────────────────────
 
-function Pagination({ page, totalPages, onPageChange }) {
-  if (totalPages <= 1) return null;
 
-  const pages = [];
-  const delta = 1;
-  for (let i = Math.max(1, page - delta); i <= Math.min(totalPages, page + delta); i++) {
-    pages.push(i);
-  }
+// ── Account detail modal ──────────────────────────────────────────────────────
+
+function AccountDetailModal({ account, onClose, onStatusChange, onUserTypeChange, loading }) {
+  const [imgError, setImgError] = useState(false);
+
+  if (!account) return null;
+
+  const isEndUser = (type) => type === "FREE_USER" || type === "PAID_USER";
+
+  const detailRows = [
+    { label: "Account Type", value: account.accountType, chip: true, chipMap: TYPE_STYLES },
+    { label: "Account Status", value: account.accountStatus, chip: true, chipMap: STATUS_STYLES },
+    { label: "Address", value: account.address || "—" },
+    { label: "Region ID", value: account.regionId || "—" },
+    { label: "Latitude", value: account.latitude != null ? Number(account.latitude).toFixed(4) : "—" },
+    { label: "Longitude", value: account.longitude != null ? Number(account.longitude).toFixed(4) : "—" },
+    { label: "Opening Hour", value: account.openingHour || "—" },
+    { label: "Closing Hour", value: account.closingHour || "—" },
+    { label: "Current Status", value: account.currentStatus || "—" },
+    { label: "Created At", value: account.createdAt ? new Date(account.createdAt).toLocaleString() : "—" },
+    { label: "Deleted At", value: account.deletedAt ? new Date(account.deletedAt).toLocaleString() : "—" },
+  ];
 
   return (
-    <div className="flex items-center gap-1.5">
-      <button
-        disabled={page <= 1}
-        onClick={() => onPageChange(page - 1)}
-        className="w-8 h-8 flex items-center justify-center rounded-lg text-sm
-          disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200
-          hover:bg-[var(--color-primary-12)] hover:text-[var(--brand-primary)]"
-        style={{ color: "var(--text-muted)" }}
+    <>
+      <Overlay onClose={onClose} isVisible={true} />
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        onClick={onClose}
       >
-        ‹
-      </button>
-
-      {pages[0] > 1 && (
-        <>
-          <button onClick={() => onPageChange(1)} className="w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-all duration-200 hover:bg-[var(--color-primary-12)]" style={{ color: "var(--text-muted)" }}>1</button>
-          {pages[0] > 2 && <span style={{ color: "var(--text-muted)" }} className="text-sm">…</span>}
-        </>
-      )}
-
-      {pages.map((p) => (
-        <button
-          key={p}
-          onClick={() => onPageChange(p)}
-          className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-semibold transition-all duration-200"
-          style={
-            p === page
-              ? {
-                  background: "linear-gradient(135deg, var(--brand-primary), var(--brand-linear))",
-                  color: "#fff",
-                  boxShadow: "0 4px 14px var(--color-primary-25)",
-                }
-              : { color: "var(--text-muted)" }
-          }
-          onMouseEnter={(e) => { if (p !== page) e.currentTarget.style.background = "var(--color-primary-12)"; }}
-          onMouseLeave={(e) => { if (p !== page) e.currentTarget.style.background = ""; }}
+        <div
+          className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl shadow-2xl"
+          style={{
+            background: "var(--bg-neutral)",
+            border: "1px solid var(--border-gray)",
+          }}
+          onClick={(e) => e.stopPropagation()}
         >
-          {p}
-        </button>
-      ))}
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full transition-colors duration-150 hover:bg-[var(--color-primary-12)]"
+            style={{ color: "var(--text-muted)" }}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
 
-      {pages[pages.length - 1] < totalPages && (
-        <>
-          {pages[pages.length - 1] < totalPages - 1 && <span style={{ color: "var(--text-muted)" }} className="text-sm">…</span>}
-          <button onClick={() => onPageChange(totalPages)} className="w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-all duration-200 hover:bg-[var(--color-primary-12)]" style={{ color: "var(--text-muted)" }}>{totalPages}</button>
-        </>
-      )}
+          {/* Header */}
+          <div
+            className="px-6 py-5 border-b"
+            style={{ borderColor: "var(--border-gray)" }}
+          >
+            <h2 className="text-lg font-bold" style={{ color: "var(--text-heading)" }}>
+              {account.name || account.userName || "Account"}
+            </h2>
+            <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
+              {account.email}
+            </p>
+          </div>
 
-      <button
-        disabled={page >= totalPages}
-        onClick={() => onPageChange(page + 1)}
-        className="w-8 h-8 flex items-center justify-center rounded-lg text-sm
-          disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200
-          hover:bg-[var(--color-primary-12)] hover:text-[var(--brand-primary)]"
-        style={{ color: "var(--text-muted)" }}
-      >
-        ›
-      </button>
-    </div>
+          {/* Document image */}
+          <div className="px-6 py-4">
+            {account.documentImageUrl && !imgError ? (
+              <img
+                src={account.documentImageUrl}
+                alt="Document"
+                onError={() => setImgError(true)}
+                className="w-full h-48 object-contain rounded-xl border"
+                style={{
+                  borderColor: "var(--border-gray)",
+                  background: "var(--bg-secondary)",
+                }}
+              />
+            ) : (
+              <div
+                className="w-full h-48 rounded-xl flex flex-col items-center justify-center gap-2"
+                style={{
+                  background: "var(--bg-secondary)",
+                  border: "1px dashed var(--border-gray)",
+                }}
+              >
+                <svg className="w-12 h-12" style={{ color: "var(--border-gray)" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+                  No document image available
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Details grid */}
+          <div className="px-6 py-4">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+              {detailRows.map((row) => (
+                <div key={row.label}>
+                  <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+                    {row.label}
+                  </p>
+                  <p className="text-sm font-medium mt-0.5" style={{ color: "var(--text-heading)" }}>
+                    {row.chip ? (
+                      <Chip label={row.value} styleMap={row.chipMap} />
+                    ) : (
+                      row.value
+                    )}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Subscriptions */}
+            {account.subscriptions && account.subscriptions.length > 0 && (
+              <div className="mt-5">
+                <p className="text-xs font-medium mb-2" style={{ color: "var(--text-muted)" }}>
+                  Subscriptions
+                </p>
+                <div className="space-y-2">
+                  {account.subscriptions.map((sub) => (
+                    <div
+                      key={sub.id}
+                      className="rounded-xl px-4 py-3 text-sm"
+                      style={{
+                        background: "var(--bg-secondary)",
+                        border: "1px solid var(--border-gray)",
+                      }}
+                    >
+                      <p className="font-medium" style={{ color: "var(--text-heading)" }}>
+                        {sub.planName}
+                      </p>
+                      {sub.startDate && (
+                        <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+                          {new Date(sub.startDate).toLocaleDateString()}
+                          {sub.endDate ? ` – ${new Date(sub.endDate).toLocaleDateString()}` : ""}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Status / type controls */}
+          <div
+            className="px-6 py-4 border-t flex items-start gap-6 flex-wrap"
+            style={{ borderColor: "var(--border-gray)" }}
+          >
+            <div>
+              <p className="text-xs font-medium mb-1.5" style={{ color: "var(--text-muted)" }}>
+                Change Status
+              </p>
+              <StatusDropdown
+                account={account}
+                onMutate={onStatusChange}
+                loading={loading}
+              />
+            </div>
+            {isEndUser(account.accountType) && (
+              <div>
+                <p className="text-xs font-medium mb-1.5" style={{ color: "var(--text-muted)" }}>
+                  User Type
+                </p>
+                <UserTypeDropdown
+                  account={account}
+                  onMutate={onUserTypeChange}
+                  loading={loading}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -398,6 +490,7 @@ export default function AdminAccounts() {
   const [accountType, setAccountType] = useState("");
   const [accountStatus, setAccountStatus] = useState("");
   const [page, setPage] = useState(1);
+  const [selectedAccount, setSelectedAccount] = useState(null);
 
   // Toast stack
   const [toasts, setToasts] = useState([]);
@@ -444,6 +537,100 @@ export default function AdminAccounts() {
 
   const isEndUser = (type) => type === "FREE_USER" || type === "PAID_USER";
   const mutationLoading = statusLoading || typeLoading;
+
+  const handleNext = () => setPage((p) => p + 1);
+  const handlePrevious = () => setPage((p) => p - 1);
+
+  const tableHeaders = [
+    {
+      key: "name",
+      label: "Name",
+      render: (value, record) => (
+        <div className="flex items-center gap-2.5">
+          <div
+            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
+            style={{
+              background:
+                "linear-gradient(135deg, var(--brand-primary), var(--brand-linear))",
+            }}
+          >
+            {(record.name || record.userName || "?")
+              .split(" ")
+              .slice(0, 2)
+              .map((w) => w[0])
+              .join("")
+              .toUpperCase()}
+          </div>
+          <span
+            className="font-medium text-sm"
+            style={{ color: "var(--text-heading)" }}
+          >
+            {record.name || record.userName || "—"}
+          </span>
+        </div>
+      ),
+    },
+    { key: "email", label: "Email" },
+    {
+      key: "accountType",
+      label: "Type",
+      render: (value) => <Chip label={value} styleMap={TYPE_STYLES} />,
+    },
+    {
+      key: "address",
+      label: "Address",
+      render: (value) => (
+        <span
+          className="text-sm max-w-[160px] truncate inline-block"
+          style={{ color: "var(--text-muted)" }}
+        >
+          {value || "—"}
+        </span>
+      ),
+    },
+    {
+      key: "accountStatus",
+      label: "Account Status",
+      render: (value, record) => (
+        <StatusDropdown
+          account={record}
+          onMutate={mutateStatus}
+          loading={mutationLoading}
+        />
+      ),
+    },
+    {
+      key: "id",
+      label: "Actions",
+      render: (value, record) => (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSelectedAccount(record)}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold
+              border transition-all duration-200 hover:-translate-y-px"
+            style={{
+              background: "var(--bg-secondary)",
+              border: "1px solid var(--border-gray)",
+              color: "var(--brand-primary)",
+            }}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            View
+          </button>
+          {isEndUser(record.accountType) && (
+            <UserTypeDropdown
+              account={record}
+              onMutate={mutateUserType}
+              loading={mutationLoading}
+            />
+          )}
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div
@@ -543,147 +730,61 @@ export default function AdminAccounts() {
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr style={{ background: "var(--bg-secondary)" }}>
-                {["Name", "Email", "Type", "Address", "Account Status", "Actions"].map((h) => (
-                  <th
-                    key={h}
-                    className="px-4 py-3 text-left text-xs font-semibold tracking-wide"
-                    style={{ color: "var(--text-muted)", borderBottom: "1px solid var(--border-gray)" }}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-
-            <tbody>
-              {isLoading ? (
-                <Skeleton rows={LIMIT} />
-              ) : accounts.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-4 py-16 text-center">
-                    <div className="flex flex-col items-center gap-2">
-                      <svg className="w-10 h-10" style={{ color: "var(--border-gray)" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                      </svg>
-                      <p className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>
-                        No accounts found
-                      </p>
-                      <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                        Try adjusting your filters
-                      </p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                accounts.map((account, idx) => (
-                  <tr
-                    key={account.id}
-                    className="border-b transition-colors duration-150"
-                    style={{
-                      borderColor: "var(--border-gray)",
-                      background: idx % 2 === 0 ? "var(--bg-neutral)" : "var(--bg-secondary)",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "var(--color-primary-6)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background =
-                        idx % 2 === 0 ? "var(--bg-neutral)" : "var(--bg-secondary)";
-                    }}
-                  >
-                    {/* Name */}
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2.5">
-                        {/* Initials avatar */}
-                        <div
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-                          style={{
-                            background:
-                              "linear-gradient(135deg, var(--brand-primary), var(--brand-linear))",
-                          }}
-                        >
-                          {(account.name || account.userName || "?")
-                            .split(" ")
-                            .slice(0, 2)
-                            .map((w) => w[0])
-                            .join("")
-                            .toUpperCase()}
-                        </div>
-                        <span
-                          className="font-medium text-sm"
-                          style={{ color: "var(--text-heading)" }}
-                        >
-                          {account.name || account.userName || "—"}
-                        </span>
-                      </div>
-                    </td>
-
-                    {/* Email */}
-                    <td className="px-4 py-3 text-sm" style={{ color: "var(--text-muted)" }}>
-                      {account.email}
-                    </td>
-
-                    {/* Account type */}
-                    <td className="px-4 py-3">
-                      <Chip label={account.accountType} styleMap={TYPE_STYLES} />
-                    </td>
-
-                    {/* Address */}
-                    <td className="px-4 py-3 text-sm max-w-[160px] truncate" style={{ color: "var(--text-muted)" }}>
-                      {account.address || "—"}
-                    </td>
-
-                    {/* Account status — dropdown */}
-                    <td className="px-4 py-3">
-                      <StatusDropdown
-                        account={account}
-                        onMutate={mutateStatus}
-                        loading={mutationLoading}
-                      />
-                    </td>
-
-                    {/* Actions: user type change for end users */}
-                    <td className="px-4 py-3">
-                      {isEndUser(account.accountType) ? (
-                        <UserTypeDropdown
-                          account={account}
-                          onMutate={mutateUserType}
-                          loading={mutationLoading}
-                        />
-                      ) : (
-                        <span className="text-xs" style={{ color: "var(--text-muted)" }}>—</span>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        {isLoading ? (
+          <div className="px-5 py-12">
+            <div className="flex flex-col items-center gap-3">
+              <svg className="w-6 h-6 animate-spin" style={{ color: "var(--brand-primary)" }} fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              <p className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>
+                Loading accounts...
+              </p>
+            </div>
+          </div>
+        ) : accounts.length === 0 ? (
+          <div className="px-5 py-16 flex flex-col items-center gap-2">
+            <svg className="w-10 h-10" style={{ color: "var(--border-gray)" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            <p className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>
+              No accounts found
+            </p>
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+              Try adjusting your filters
+            </p>
+          </div>
+        ) : (
+          <Table headers={tableHeaders} records={accounts} />
+        )}
 
         {/* Footer / pagination */}
-        <div
-          className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-t"
-          style={{ borderColor: "var(--border-gray)" }}
-        >
-          <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-            Showing{" "}
-            <span className="font-semibold" style={{ color: "var(--text-heading)" }}>
-              {Math.min((page - 1) * LIMIT + 1, totalRecords)}–{Math.min(page * LIMIT, totalRecords)}
-            </span>{" "}
-            of{" "}
-            <span className="font-semibold" style={{ color: "var(--text-heading)" }}>
-              {totalRecords}
-            </span>{" "}
-            accounts
-          </p>
-          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
-        </div>
+        {!isLoading && accounts.length > 0 && (
+          <div
+            className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-t"
+            style={{ borderColor: "var(--border-gray)" }}
+          >
+            <TablePagination
+              limit={LIMIT}
+              total={totalRecords}
+              page={page}
+              onNext={handleNext}
+              onPrevious={handlePrevious}
+            />
+          </div>
+        )}
       </div>
+
+      {/* Account detail modal */}
+      {selectedAccount && (
+        <AccountDetailModal
+          account={selectedAccount}
+          onClose={() => setSelectedAccount(null)}
+          onStatusChange={mutateStatus}
+          onUserTypeChange={mutateUserType}
+          loading={mutationLoading}
+        />
+      )}
 
       {/* Toast notifications */}
       <Toast toasts={toasts} />

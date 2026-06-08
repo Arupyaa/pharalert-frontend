@@ -8,7 +8,6 @@ import DashboardNavBar from "../../components/layout/dashboardnavbar/DashboardNa
 import { useIsMobile } from "../../hooks/useIsMobile.js";
 
 import logoName from "../../assets/images/logo_name v1.1.svg";
-import DashboardIcon from "../../assets/svg/DashboardIcon.jsx";
 
 // ── Inline SVG icon components (matching existing icon style) ──────────────
 
@@ -30,7 +29,7 @@ function UsersIcon({ width = "w-4", height = "h-4" }) {
   );
 }
 
-function PharmacyIcon({ width = "w-4", height = "h-4" }) {
+function ReservationIcon({ width = "w-4", height = "h-4" }) {
   return (
     <svg
       className={`${width} ${height}`}
@@ -42,13 +41,13 @@ function PharmacyIcon({ width = "w-4", height = "h-4" }) {
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
-        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
       />
     </svg>
   );
 }
 
-function CompanyIcon({ width = "w-4", height = "h-4" }) {
+function MedicationIcon({ width = "w-4", height = "h-4" }) {
   return (
     <svg
       className={`${width} ${height}`}
@@ -60,7 +59,7 @@ function CompanyIcon({ width = "w-4", height = "h-4" }) {
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
-        d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V7a2 2 0 012-2h10a2 2 0 012 2v14"
+        d="M12 4v16m8-8H4"
       />
     </svg>
   );
@@ -70,24 +69,19 @@ function CompanyIcon({ width = "w-4", height = "h-4" }) {
 
 const adminSidebarItems = [
   {
-    name: "Dashboard",
-    path: "/admin/dashboard",
-    icon: DashboardIcon,
-  },
-  {
     name: "Accounts",
     path: "/admin/accounts",
     icon: UsersIcon,
   },
   {
-    name: "Pharmacies",
-    path: "/admin/pharmacies",
-    icon: PharmacyIcon,
+    name: "Reservations",
+    path: "/admin/reservations",
+    icon: ReservationIcon,
   },
   {
-    name: "Companies",
-    path: "/admin/companies",
-    icon: CompanyIcon,
+    name: "Medications",
+    path: "/admin/medications",
+    icon: MedicationIcon,
   },
 ];
 
