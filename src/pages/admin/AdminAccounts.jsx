@@ -2,7 +2,7 @@ import React, { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../api/api.js";
 
-// ── API helpers ───────────────────────────────────────────────────────────────
+// API helpers
 
 async function fetchAccounts({ accountType, accountStatus, page, limit }) {
   const params = new URLSearchParams();
@@ -31,7 +31,7 @@ async function changeUserType({ id, userType }) {
   return data;
 }
 
-// ── Small UI helpers ──────────────────────────────────────────────────────────
+//Small UI helpers 
 
 const STATUS_STYLES = {
   active:
@@ -82,7 +82,7 @@ function Skeleton({ rows = 8 }) {
   );
 }
 
-// ── Status change dropdown ────────────────────────────────────────────────────
+//Status change dropdown 
 
 const STATUS_OPTIONS = ["active", "inactive", "pending", "rejected"];
 
@@ -158,7 +158,7 @@ function StatusDropdown({ account, onMutate, loading }) {
   );
 }
 
-// ── User type change dropdown (for end users) ─────────────────────────────────
+// User type change dropdown 
 
 const USER_TYPE_OPTIONS = [
   { value: "free", label: "FREE_USER" },
@@ -236,7 +236,7 @@ function UserTypeDropdown({ account, onMutate, loading }) {
   );
 }
 
-// ── Toast notification ────────────────────────────────────────────────────────
+// Toast notification 
 
 function Toast({ toasts }) {
   return (
@@ -267,7 +267,7 @@ function Toast({ toasts }) {
   );
 }
 
-// ── Filter bar ────────────────────────────────────────────────────────────────
+//Filter bar 
 
 const ACCOUNT_TYPE_OPTIONS = [
   { value: "", label: "All Types" },
@@ -314,7 +314,7 @@ function FilterSelect({ value, onChange, options }) {
   );
 }
 
-// ── Pagination ────────────────────────────────────────────────────────────────
+// Pagination
 
 function Pagination({ page, totalPages, onPageChange }) {
   if (totalPages <= 1) return null;
@@ -387,7 +387,7 @@ function Pagination({ page, totalPages, onPageChange }) {
   );
 }
 
-// ── Main Page ─────────────────────────────────────────────────────────────────
+// ── Main Page
 
 const LIMIT = 10;
 
