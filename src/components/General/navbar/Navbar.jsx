@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import logo from "../../../assets/images/logo_name v1.1.svg";
 import { useEffect, useRef, useState } from "react";
 import Overlay from "../overLay/Overlay";
@@ -18,49 +18,35 @@ const ChevronIcon = ({ open }) => (
 function HoverDropdown({ label, links, basePath }) {
   const [open, setOpen] = useState(false);
   const timerRef = useRef(null);
-  const handleMouseEnter = () => {
-    clearTimeout(timerRef.current);
-    setOpen(true);
-  };
-  const handleMouseLeave = () => {
-    timerRef.current = setTimeout(() => setOpen(false), 120);
-  };
 
   return (
     <li
       className="relative"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={() => {
+        clearTimeout(timerRef.current);
+        setOpen(true);
+      }}
+      onMouseLeave={() => {
+        timerRef.current = setTimeout(() => setOpen(false), 120);
+      }}
     >
       <button
-        className={`flex items-center gap-1.5 font-medium transition-colors duration-200 ${
-          open
-            ? "text-[var(--brand-primary)]"
-            : "hover:text-[var(--brand-primary)]"
-        }`}
+        className={`flex items-center gap-1.5 font-medium transition-colors duration-200 ${open ? "text-[var(--brand-primary)]" : "hover:text-[var(--brand-primary)]"}`}
       >
         {label} <ChevronIcon open={open} />
       </button>
 
       <ul
-        className={`absolute left-0 top-full pt-3 w-[180px] z-50 transition-all duration-200 origin-top ${
-          open
-            ? "opacity-100 scale-y-100 translate-y-0 pointer-events-auto"
-            : "opacity-0 scale-y-95 -translate-y-1 pointer-events-none"
-        }`}
+        className={`absolute left-0 top-full pt-3 w-[180px] z-50 transition-all duration-200 origin-top ${open ? "opacity-100 scale-y-100 translate-y-0 pointer-events-auto" : "opacity-0 scale-y-95 -translate-y-1 pointer-events-none"}`}
       >
         <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.12)] border border-gray-100/80 overflow-hidden">
-          {links.map((item, i) => (
+          {links.map((item) => (
             <li key={item}>
               <NavLink
                 to={`${basePath}/${item.toLowerCase().replace(" ", "-")}`}
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center gap-2.5 px-4 py-3 text-sm transition-colors duration-150 ${
-                    isActive
-                      ? "text-[var(--brand-primary)] bg-emerald-50/80 font-semibold"
-                      : "text-slate-500 hover:bg-gray-50 hover:text-[var(--brand-primary)]"
-                  }`
+                  `flex items-center gap-2.5 px-4 py-3 text-sm transition-colors duration-150 ${isActive ? "text-[var(--brand-primary)] bg-emerald-50/80 font-semibold" : "text-slate-500 hover:bg-gray-50 hover:text-[var(--brand-primary)]"}`
                 }
               >
                 <span className="w-1 h-1 rounded-full bg-[var(--brand-primary)] opacity-60" />
@@ -80,12 +66,29 @@ export default function Navbar() {
   const [openHelp, setOpenHelp] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const isLoginPage = location.pathname === "/login";
+  const isLandingPage = location.pathname === "/";
 
   function closeAll() {
     setIsOpen(false);
     setOpenPortals(false);
     setOpenHelp(false);
+  }
+
+  // Smooth scroll helper (only on landing page)
+  function scrollToSection(sectionId) {
+    closeAll();
+    if (!isLandingPage) {
+      navigate("/");
+      setTimeout(() => {
+        const el = document.getElementById(sectionId);
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }, 200);
+      return;
+    }
+    const el = document.getElementById(sectionId);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
   }
 
   useEffect(() => {
@@ -113,11 +116,7 @@ export default function Navbar() {
   if (isLoginPage) {
     return (
       <nav
-        className={`w-[95%] max-w-7xl rounded-full px-4 py-3 fixed top-3 left-1/2 -translate-x-1/2 z-[1000] flex items-center justify-between transition-all duration-300 ${
-          scrolled
-            ? "bg-white/95 shadow-[0_4px_30px_rgba(0,0,0,0.1)] backdrop-blur-xl"
-            : "bg-white/80 backdrop-blur-xl shadow-[0_2px_20px_rgba(0,0,0,0.06)]"
-        } border border-white/60`}
+        className={`w-[95%] max-w-7xl rounded-full px-4 py-3 fixed top-3 left-1/2 -translate-x-1/2 z-[1000] flex items-center justify-between transition-all duration-300 ${scrolled ? "bg-white/95 shadow-[0_4px_30px_rgba(0,0,0,0.1)] backdrop-blur-xl" : "bg-white/80 backdrop-blur-xl shadow-[0_2px_20px_rgba(0,0,0,0.06)]"} border border-white/60`}
       >
         <NavLink to="/">
           <img src={logo} className="h-[34px]" alt="logo" />
@@ -135,11 +134,7 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`w-[95%] sm:w-[92%] lg:w-[85%] xl:w-[80%] max-w-7xl rounded-full px-4 sm:px-6 md:px-10 lg:px-12 xl:px-16 py-3 fixed top-3 left-1/2 -translate-x-1/2 z-[1000] flex items-center justify-between transition-all duration-300 ${
-          scrolled
-            ? "bg-white/97 shadow-[0_8px_40px_rgba(0,0,0,0.1)] backdrop-blur-2xl"
-            : "bg-white/75 backdrop-blur-xl shadow-[0_2px_24px_rgba(0,0,0,0.06)]"
-        } border border-[rgba(0,171,121,0.1)]`}
+        className={`w-[95%] sm:w-[92%] lg:w-[85%] xl:w-[80%] max-w-7xl rounded-full px-4 sm:px-6 md:px-10 lg:px-12 xl:px-16 py-3 fixed top-3 left-1/2 -translate-x-1/2 z-[1000] flex items-center justify-between transition-all duration-300 ${scrolled ? "bg-white/97 shadow-[0_8px_40px_rgba(0,0,0,0.1)] backdrop-blur-2xl" : "bg-white/75 backdrop-blur-xl shadow-[0_2px_24px_rgba(0,0,0,0.06)]"} border border-[rgba(0,171,121,0.1)]`}
       >
         {/* LOGO */}
         <NavLink to="/" onClick={closeAll} className="flex-shrink-0">
@@ -157,15 +152,20 @@ export default function Navbar() {
               to="/"
               end
               className={({ isActive }) =>
-                `transition-colors duration-200 ${
-                  isActive
-                    ? "text-[var(--brand-primary)] font-semibold"
-                    : "hover:text-[var(--brand-primary)]"
-                }`
+                `transition-colors duration-200 ${isActive ? "text-[var(--brand-primary)] font-semibold" : "hover:text-[var(--brand-primary)]"}`
               }
             >
               Home
             </NavLink>
+          </li>
+
+          <li>
+            <button
+              onClick={() => scrollToSection("services")}
+              className="transition-colors duration-200 hover:text-[var(--brand-primary)]"
+            >
+              Services
+            </button>
           </li>
 
           <HoverDropdown
@@ -178,11 +178,7 @@ export default function Navbar() {
             <NavLink
               to="/pricing"
               className={({ isActive }) =>
-                `transition-colors duration-200 ${
-                  isActive
-                    ? "text-[var(--accent)] font-semibold"
-                    : "hover:text-[var(--brand-primary)]"
-                }`
+                `transition-colors duration-200 ${isActive ? "text-[var(--accent)] font-semibold" : "hover:text-[var(--brand-primary)]"}`
               }
             >
               Pricing
@@ -199,11 +195,7 @@ export default function Navbar() {
             <NavLink
               to="/about"
               className={({ isActive }) =>
-                `transition-colors duration-200 ${
-                  isActive
-                    ? "text-[var(--accent)] font-semibold"
-                    : "hover:text-[var(--brand-primary)]"
-                }`
+                `transition-colors duration-200 ${isActive ? "text-[var(--accent)] font-semibold" : "hover:text-[var(--brand-primary)]"}`
               }
             >
               About
@@ -219,7 +211,6 @@ export default function Navbar() {
           >
             Login
           </NavLink>
-
           <NavLink
             to="/signup"
             className="bg-[var(--brand-primary)] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:scale-105 hover:shadow-[0_6px_20px_rgba(0,171,121,0.35)] transition-all duration-200"
@@ -242,9 +233,7 @@ export default function Navbar() {
 
       {/* MOBILE DRAWER */}
       <div
-        className={`xl:hidden fixed top-0 left-0 h-full w-[80%] max-w-[300px] bg-white z-[1001] shadow-2xl transition-transform duration-300 ease-in-out flex flex-col ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`xl:hidden fixed top-0 left-0 h-full w-[80%] max-w-[300px] bg-white z-[1001] shadow-2xl transition-transform duration-300 ease-in-out flex flex-col ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <NavLink to="/" onClick={closeAll}>
@@ -264,15 +253,18 @@ export default function Navbar() {
             end
             onClick={closeAll}
             className={({ isActive }) =>
-              `block px-3 py-3 rounded-xl font-medium text-sm transition-colors ${
-                isActive
-                  ? "text-[var(--brand-primary)] bg-[var(--brand-light)]"
-                  : "text-slate-600 hover:bg-gray-50 hover:text-[var(--brand-primary)]"
-              }`
+              `block px-3 py-3 rounded-xl font-medium text-sm transition-colors ${isActive ? "text-[var(--brand-primary)] bg-[var(--brand-light)]" : "text-slate-600 hover:bg-gray-50 hover:text-[var(--brand-primary)]"}`
             }
           >
             Home
           </NavLink>
+
+          <button
+            onClick={() => scrollToSection("services")}
+            className="block w-full text-left px-3 py-3 rounded-xl font-medium text-sm text-slate-600 hover:bg-gray-50 hover:text-[var(--brand-primary)] transition-colors"
+          >
+            Services
+          </button>
 
           <div>
             <button
@@ -290,7 +282,7 @@ export default function Navbar() {
                     key={item}
                     to={`/portal/${item.toLowerCase()}`}
                     onClick={closeAll}
-                    className="block px-3 py-2.5 text-slate-400 hover:text-[var(--accent)] hover:bg-gray-50 rounded-lg text-sm transition-colors"
+                    className="block px-3 py-2.5 text-slate-400 hover:text-[var(--brand-primary)] hover:bg-gray-50 rounded-lg text-sm transition-colors"
                   >
                     {item}
                   </NavLink>
@@ -303,11 +295,7 @@ export default function Navbar() {
             to="/pricing"
             onClick={closeAll}
             className={({ isActive }) =>
-              `block px-3 py-3 rounded-xl text-sm font-medium transition-colors ${
-                isActive
-                  ? "text-[var(--brand-primary)] bg-[var(--brand-light)]"
-                  : "text-slate-600 hover:bg-gray-50 hover:text-[var(--brand-primary)]"
-              }`
+              `block px-3 py-3 rounded-xl text-sm font-medium transition-colors ${isActive ? "text-[var(--brand-primary)] bg-[var(--brand-light)]" : "text-slate-600 hover:bg-gray-50 hover:text-[var(--brand-primary)]"}`
             }
           >
             Pricing
@@ -342,11 +330,7 @@ export default function Navbar() {
             to="/about"
             onClick={closeAll}
             className={({ isActive }) =>
-              `block px-3 py-3 rounded-xl text-sm font-medium transition-colors ${
-                isActive
-                  ? "text-[var(--brand-primary)] bg-[var(--brand-light)]"
-                  : "text-slate-600 hover:bg-gray-50 hover:text-[var(--brand-primary)]"
-              }`
+              `block px-3 py-3 rounded-xl text-sm font-medium transition-colors ${isActive ? "text-[var(--brand-primary)] bg-[var(--brand-light)]" : "text-slate-600 hover:bg-gray-50 hover:text-[var(--brand-primary)]"}`
             }
           >
             About

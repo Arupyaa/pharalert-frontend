@@ -1,4 +1,5 @@
 
+
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
@@ -19,6 +20,12 @@ import MasterGrid from "./pages/master/MasterGrid";
 import LandingPage from "./pages/LandingPage";
 import Login from "./components/auth/Login";
 import Signup from "./components/auth/Signup";
+import AboutPage from "./pages/puplic/AboutPage";
+import HelpCenterPage from "./pages/puplic/HelpCenterPage";
+import FAQPage from "./pages/puplic/FAQPage";
+import ContactPage from "./pages/puplic/ContactPage";
+import SupportPage from "./pages/puplic/SupportPage";
+import PortalPage from "./pages/puplic/PortalPage";
 import ApiTest from "./pages/testing/ApiTest";
 import PharmacyMaster from "./pages/pharmacy/PharmacyMaster";
 import AdminMaster from "./pages/admin/AdminMaster";
@@ -63,6 +70,32 @@ const routes = createBrowserRouter([
   {
     path: "/",
     element: <LandingPage />,
+  },
+
+  // Public info pages
+  {
+    path: "/about",
+    element: <AboutPage />,
+  },
+  {
+    path: "/help",
+    element: <HelpCenterPage />,
+  },
+  {
+    path: "/help/faq",
+    element: <FAQPage />,
+  },
+  {
+    path: "/help/contact-us",
+    element: <ContactPage />,
+  },
+  {
+    path: "/help/support",
+    element: <SupportPage />,
+  },
+  {
+    path: "/portal/:type",
+    element: <PortalPage />,
   },
 
   // API testing route (development/debugging only)
