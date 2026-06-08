@@ -55,7 +55,9 @@ export default function CompanyDashboard() {
 
     setMedLoading(true);
     api
-      .get("/medications", { params: { companyId } })
+      .get("/medications"
+        // ,{ params: { companyId } }
+      )
       .then((res) => {
         const meds = (res.data?.data ?? []).map((m) => ({
           value: m.id,
