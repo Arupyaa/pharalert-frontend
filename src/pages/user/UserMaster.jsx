@@ -1,3 +1,5 @@
+
+
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { Search, CalendarCheck } from "lucide-react";
@@ -53,21 +55,33 @@ export default function UserMaster() {
             className="min-h-full"
             style={{ background: "var(--color-bg-subtle)" }}
           >
-            <div className="px-6 pt-6 pb-0">
-              <div className="inline-flex bg-gray-100 p-1 rounded-full shadow-inner border border-gray-200">
+            {/* Tab Bar */}
+            <div
+              className="px-6 pt-5 pb-0"
+              style={{ borderBottom: "1px solid var(--border-gray)" }}
+            >
+              <div className="inline-flex gap-1 pb-0">
                 {tabItems.map((tab) => (
                   <NavLink
                     key={tab.path}
                     to={tab.path}
                     className={({ isActive }) =>
-                      `inline-flex items-center gap-2 px-5 py-2 text-sm font-medium rounded-full transition-all duration-200 ${
+                      `inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-t-xl transition-all duration-200 relative ${
                         isActive
-                          ? "bg-green-500 text-white shadow-md"
-                          : "text-gray-500 hover:text-gray-700"
+                          ? "text-white"
+                          : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
                       }`
                     }
+                    style={({ isActive }) =>
+                      isActive
+                        ? {
+                            background: "var(--brand-primary)",
+                            boxShadow: "0 -2px 12px var(--color-primary-20)",
+                          }
+                        : {}
+                    }
                   >
-                    <tab.icon size={16} />
+                    <tab.icon size={15} />
                     {tab.name}
                   </NavLink>
                 ))}
