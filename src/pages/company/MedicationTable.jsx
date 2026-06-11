@@ -1,3 +1,7 @@
+
+
+
+
 import { useEffect, useRef, useState, useCallback } from "react";
 import api from "../../api/api";
 import TabsLinks from "../../components/General/tabslink/Tabslink.jsx";
@@ -115,7 +119,7 @@ export default function MedicationTable() {
     setError(null);
 
     try {
-      const params = { regionId: 1, page, limit };
+      const params = { page, limit };
       if (search.trim()) params.search = search.trim();
       if (categoryId) params.categoryId = categoryId;
       if (fromDate) params.from = fromDate;

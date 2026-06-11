@@ -1,3 +1,6 @@
+
+
+
 import React from "react";
 import RetractableSidebar from "../../components/General/retractablesidebar/RetractableSidebar.jsx";
 import PDashboardMain from "../../components/layout/PDashboardMain/PDashboardMain.jsx";
@@ -8,16 +11,18 @@ import DashboardIcon from "../../assets/svg/DashboardIcon.jsx";
 import SettingsIcon from "../../assets/svg/SettingsIcon.jsx";
 import TablesIcon from "../../assets/svg/TablesIcon.jsx";
 import ChartsIcon from "../../assets/svg/ChartsIcon.jsx";
+import PillIcon from "../../assets/svg/PillIcon.jsx";
 import DashboardNavBar from "../../components/layout/dashboardnavbar/DashboardNavBar.jsx";
 import { useState } from "react";
 import { useIsMobile } from "../../hooks/useIsMobile.js";
 import { Outlet } from "react-router-dom";
 
 const sidebarItems = [
-  { name: "Dashboard", path: "/company/dashboard", icon: DashboardIcon },
-  { name: "Tables",    path: "/company/tables/medications", icon: TablesIcon },
-  { name: "Charts",    path: "/company/charts/regions", icon: ChartsIcon },
-  { name: "Settings",  path: "/company/settings", icon: SettingsIcon  },
+  { name: "Dashboard",    path: "/company/dashboard",          icon: DashboardIcon },
+  { name: "Tables",       path: "/company/tables/medications", icon: TablesIcon },
+  { name: "Charts",       path: "/company/charts/regions",     icon: ChartsIcon },
+  { name: "Suggestions",  path: "/company/suggestions",        icon: PillIcon },
+  { name: "Settings",     path: "/company/settings",           icon: SettingsIcon },
 ];
 
 export default function CompanyMaster() {

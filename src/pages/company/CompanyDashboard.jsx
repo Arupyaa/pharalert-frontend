@@ -1,3 +1,6 @@
+
+
+
 import { useState, useEffect, useCallback } from "react";
 import api from "../../api/api.js";
 import { useAuthStore } from "../../store/useAuthStore.js";
@@ -54,10 +57,9 @@ export default function CompanyDashboard() {
     } catch {}
 
     setMedLoading(true);
+    const medParams = companyId ? { companyId } : {};
     api
-      .get("/medications"
-        // ,{ params: { companyId } }
-      )
+      .get("/medications", { params: medParams })
       .then((res) => {
         const meds = (res.data?.data ?? []).map((m) => ({
           value: m.id,
