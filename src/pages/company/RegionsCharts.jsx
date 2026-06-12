@@ -48,7 +48,7 @@ export default function RegionsCharts() {
 
     api
       .get("/medications"
-        // ,{ params: { companyId } }
+        ,{ params: { companyId } }
       )
       .then((res) => {
         const meds = (res.data?.data ?? []).map((m) => ({
