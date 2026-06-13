@@ -333,7 +333,11 @@ import MedicationsCharts from "./pages/company/MedicationsCharts";
 import PharmaciesCharts from "./pages/company/PharmaciesCharts";
 import CompanySettings from "./pages/company/CompanySettings";
 import CompanySuggestions from "./pages/company/CompanySuggestions";
+import CompanySubscriptions from "./pages/company/CompanySubscriptions";
 import UserDashboard from "./pages/user/UserDashboard";
+import UserDashboardContent from "./pages/user/UserDashboardContent";
+import UserSubscriptions from "./pages/user/UserSubscriptions";
+import PharmacySubscriptions from "./pages/pharmacy/PharmacySubscriptions";
 import Cashier from "./pages/pharmacy/Cashier";
 
 // Route protection layer
@@ -440,6 +444,10 @@ const routes = createBrowserRouter([
                 path: "/pharmacy/settings",
                 element: <Settings />,
               },
+              {
+                path: "/pharmacy/subscriptions",
+                element: <PharmacySubscriptions />,
+              },
             ],
           },
         ],
@@ -502,6 +510,10 @@ const routes = createBrowserRouter([
                 path: "/company/suggestions",
                 element: <CompanySuggestions />,
               },
+              {
+                path: "/company/subscriptions",
+                element: <CompanySubscriptions />,
+              },
             ],
           },
         ],
@@ -512,12 +524,21 @@ const routes = createBrowserRouter([
         element: <ProtectedRoute allowedRoles={["user"]} />,
         children: [
           {
-            path: "/user",
-            element: <Navigate to="/user/dashboard" replace />,
-          },
-          {
-            path: "/user/dashboard",
             element: <UserDashboard />,
+            children: [
+              {
+                path: "/user",
+                element: <Navigate to="/user/dashboard" replace />,
+              },
+              {
+                path: "/user/dashboard",
+                element: <UserDashboardContent />,
+              },
+              {
+                path: "/user/subscriptions",
+                element: <UserSubscriptions />,
+              },
+            ],
           },
         ],
       },

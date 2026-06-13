@@ -6,6 +6,7 @@ import api from "../../api/api";
 import TablePagination from "../../components/General/Pagination/TablePagination";
 import { IoMdCloseCircle } from "react-icons/io";
 import { twMerge } from "tailwind-merge";
+import RequireActiveSubscription from "../../components/General/RequireActiveSubscription";
 
 //helpers
 
@@ -212,6 +213,14 @@ function SalesTable({ records, loading }) {
 const { from: DEFAULT_FROM, to: DEFAULT_TO } = getDefaultDates();
 
 export default function Sales() {
+  return (
+    <RequireActiveSubscription role="pharmacy">
+      <SalesInner />
+    </RequireActiveSubscription>
+  );
+}
+
+function SalesInner() {
   const [dateTab,  setDateTab]  = useState("month");
   const [fromDate, setFromDate] = useState(DEFAULT_FROM);
   const [toDate,   setToDate]   = useState(DEFAULT_TO);

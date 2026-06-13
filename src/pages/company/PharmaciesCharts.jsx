@@ -5,8 +5,17 @@ import { useEffect, useState, useCallback } from "react";
 import api from "../../api/api";
 import SimpleBarChart from "../../components/General/charts/SimpleBarChart.jsx";
 import { useAuthStore } from "../../store/useAuthStore";
+import RequireActiveSubscription from "../../components/General/RequireActiveSubscription";
 
 export default function RegionsCharts() {
+  return (
+    <RequireActiveSubscription role="company">
+      <PharmaciesChartsInner />
+    </RequireActiveSubscription>
+  );
+}
+
+function PharmaciesChartsInner() {
   const [medicationId, setMedicationId] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");

@@ -1,8 +1,17 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import api from "../../api/api";
 import LineChartExample from "../../components/General/charts/LineChartExample.jsx";
+import RequireActiveSubscription from "../../components/General/RequireActiveSubscription";
 
 export default function MedicationsCharts() {
+  return (
+    <RequireActiveSubscription role="company">
+      <MedicationsChartsInner />
+    </RequireActiveSubscription>
+  );
+}
+
+function MedicationsChartsInner() {
   const [regionId, setRegionId] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");

@@ -241,7 +241,17 @@ function MedicationsTable({ medications }) {
   );
 }
 
+import RequireActiveSubscription from "../../components/General/RequireActiveSubscription";
+
 export default function PharmaciesTable() {
+  return (
+    <RequireActiveSubscription role="company">
+      <PharmaciesTableInner />
+    </RequireActiveSubscription>
+  );
+}
+
+function PharmaciesTableInner() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [categoryId, setCategoryId] = useState("");

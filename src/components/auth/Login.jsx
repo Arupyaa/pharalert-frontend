@@ -120,8 +120,8 @@ export default function Login() {
 
       const res = await api.post("/auth/login", payload);
 
-      const { accessToken, refreshToken, accountType } = res.data;
-      setAuth({ accessToken, refreshToken, role: roleValue, accountType });
+      const { accessToken, refreshToken, accountType, accountStatus } = res.data;
+      setAuth({ accessToken, refreshToken, role: roleValue, accountType, accountStatus });
 
       toast.success("Welcome back!", "You've been signed in successfully.");
       reset();

@@ -853,8 +853,17 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useCashierStore } from "../../store/UseCashierStore.js";
+import RequireActiveSubscription from "../../components/General/RequireActiveSubscription";
 
 export default function CashierPage() {
+  return (
+    <RequireActiveSubscription role="pharmacy">
+      <CashierInner />
+    </RequireActiveSubscription>
+  );
+}
+
+function CashierInner() {
   const {
     cart,
     searchTerm,

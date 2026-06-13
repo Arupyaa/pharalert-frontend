@@ -3,8 +3,17 @@ import { useEffect, useState, useCallback } from "react";
 import api from "../../api/api";
 import Table from "../../components/General/tables/Table";
 import TablePagination from "../../components/General/Pagination/TablePagination";
+import RequireActiveSubscription from "../../components/General/RequireActiveSubscription";
 
 export default function Receipts() {
+  return (
+    <RequireActiveSubscription role="pharmacy">
+      <ReceiptsInner />
+    </RequireActiveSubscription>
+  );
+}
+
+function ReceiptsInner() {
   const [records, setRecords] = useState([]);
   const [page, setPage] = useState(1);
   const [limit] = useState(10);

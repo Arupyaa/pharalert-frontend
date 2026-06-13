@@ -97,7 +97,17 @@ function SkeletonRows({ cols = 8, rows = 8 }) {
   );
 }
 
+import RequireActiveSubscription from "../../components/General/RequireActiveSubscription";
+
 export default function MedicationTable() {
+  return (
+    <RequireActiveSubscription role="company">
+      <MedicationTableInner />
+    </RequireActiveSubscription>
+  );
+}
+
+function MedicationTableInner() {
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [fromDate, setFromDate] = useState("");
