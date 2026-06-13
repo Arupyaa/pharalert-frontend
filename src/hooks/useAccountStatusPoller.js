@@ -1,9 +1,15 @@
 import { useEffect } from "react";
 import api from "../api/api";
 import { useAuthStore } from "../store/useAuthStore";
+import { useAvatarStore } from "../store/UseAvatarStore";
+
+function getDisplayName(d) {
+  return d.companyName || d.name || d.userName || d.email?.split("@")[0] || "User";
+}
 
 export default function useAccountStatusPoller(intervalMs = 30000) {
   const updateAccountStatus = useAuthStore((s) => s.updateAccountStatus);
+  const changeAvatarName = useAvatarStore((s) => s.changeAvatarName);
 
   useEffect(() => {
     let mounted = true;
@@ -12,9 +18,11 @@ export default function useAccountStatusPoller(intervalMs = 30000) {
       try {
         const { data } = await api.get("/auth/identify");
         if (!mounted) return;
-        if (data?.data?.accountStatus) {
-          updateAccountStatus(data.data.accountStatus);
+        const d = data?.data;
+        if (d?.accountStatus) {
+          updateAccountStatus(d.accountStatus);
         }
+        changeAvatarName(getDisplayName(d ?? {}));
       } catch {
         // silently ignore poll errors
       }
@@ -27,5 +35,5 @@ export default function useAccountStatusPoller(intervalMs = 30000) {
       mounted = false;
       clearInterval(id);
     };
-  }, [intervalMs, updateAccountStatus]);
+  }, [intervalMs, updateAccountStatus, changeAvatarName]);
 }

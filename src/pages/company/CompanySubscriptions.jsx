@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import api from "../../api/api";
 import { useAuthStore, selectAccountStatus } from "../../store/useAuthStore";
+import { useAvatarStore } from "../../store/UseAvatarStore";
 
 const PLAN_PRICE = 2000;
 
@@ -20,6 +21,7 @@ export default function CompanySubscriptions() {
   const [error, setError] = useState(null);
   const accountStatus = useAuthStore(selectAccountStatus);
   const updateAccountStatus = useAuthStore((s) => s.updateAccountStatus);
+  const changeAvatarName = useAvatarStore((s) => s.changeAvatarName);
 
   const fetchSubscriptions = useCallback(async () => {
     try {
@@ -42,8 +44,13 @@ export default function CompanySubscriptions() {
     try {
       await api.post("/auth/subscribe", { paymentMethod: "Card" });
       const { data } = await api.get("/auth/identify");
-      if (data?.data?.accountStatus) {
-        updateAccountStatus(data.data.accountStatus);
+      const d = data?.data;
+      if (d?.accountStatus) {
+        updateAccountStatus(d.accountStatus);
+      }
+      if (d) {
+        const name = d.companyName || d.name || d.userName || d.email?.split("@")[0] || "User";
+        changeAvatarName(name);
       }
       await fetchSubscriptions();
     } catch (err) {

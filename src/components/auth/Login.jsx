@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "../../validations/loginSchema";
 import api from "../../api/api";
 import { useAuthStore } from "../../store/useAuthStore";
+import { useAvatarStore } from "../../store/UseAvatarStore";
 import { useToast } from "../../hooks/useToast";
 import ToastContainer from "../General/toast/ToastContainer";
 
@@ -87,6 +88,7 @@ export default function Login() {
   const navigate = useNavigate();
   const { toast, toasts, dismiss } = useToast();
   const setAuth = useAuthStore((s) => s.setAuth);
+  const changeAvatarName = useAvatarStore((s) => s.changeAvatarName);
 
   const roles = [
     { id: "pharmacies", label: "Pharmacies" },
@@ -122,6 +124,14 @@ export default function Login() {
 
       const { accessToken, refreshToken, accountType, accountStatus } = res.data;
       setAuth({ accessToken, refreshToken, role: roleValue, accountType, accountStatus });
+
+      api.get("/auth/identify").then(({ data: idData }) => {
+        const d = idData?.data;
+        if (d) {
+          const name = d.companyName || d.name || d.userName || d.email?.split("@")[0] || "User";
+          changeAvatarName(name);
+        }
+      }).catch(() => {});
 
       toast.success("Welcome back!", "You've been signed in successfully.");
       reset();
