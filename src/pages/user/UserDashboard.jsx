@@ -1,211 +1,193 @@
-import { useState } from "react";
-
-import RetractableSidebar from "../../components/General/retractablesidebar/RetractableSidebar.jsx";
-import Overlay from "../../components/General/overLay/Overlay.jsx";
-import DashboardNavBar from "../../components/layout/dashboardnavbar/DashboardNavBar.jsx";
-
-import logoName from "../../assets/images/logo_name v1.1.svg";
-
-import DashboardIcon from "../../assets/svg/DashboardIcon.jsx";
-import SettingsIcon from "../../assets/svg/SettingsIcon.jsx";
-import PillIcon from "../../assets/svg/PillIcon.jsx";
-
-import { useIsMobile } from "../../hooks/useIsMobile.js";
-
-// Sidebar navigation items
-const sidebarItems = [
-  {
-    name: "Dashboard",
-    path: "/user/dashboard",
-    icon: DashboardIcon,
-  },
-  {
-    name: "My Orders",
-    path: "/user/orders",
-    icon: PillIcon,
-  },
-  {
-    name: "Settings",
-    path: "/user/settings",
-    icon: SettingsIcon,
-  },
-];
+import { useMemo } from "react";
+import { CalendarCheck, ShoppingBag, MapPin, Loader, Clock, CheckCircle } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import api from "../../api/api";
 
 export default function UserDashboard() {
-  // Detect mobile screen size
-  const isMobile = useIsMobile();
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["user-reservations"],
+    queryFn: async () => {
+      try {
+        const res = await api.get("/user/reservations");
+        return res.data.data || [];
+      } catch (err) {
+        if (err.response?.status === 403) return [];
+        throw err;
+      }
+    },
+  });
 
-  // Overlay visibility state
-  const [overlay, setOverlay] = useState(false);
+  const dashboardData = useMemo(() => {
+    if (!data || data.length === 0) return null;
+    const totalReservations = data.length;
+    const pendingReservations = data.filter((r) => r.status === "pending").length;
+    const totalSpent = data.reduce((sum, r) => sum + Number(r.totalPrice || 0), 0);
+    const recentReservations = data.slice(0, 5);
+    return { totalReservations, pendingReservations, totalSpent, recentReservations };
+  }, [data]);
 
-  // Sidebar collapse state
-  const [collapsed, setCollapsed] = useState(isMobile ? true : false);
+  if (isLoading) {
+    return (
+      <div className="p-6 flex items-center justify-center" style={{ background: "var(--color-bg-subtle)", minHeight: "100%" }}>
+        <Loader size={32} className="animate-spin" style={{ color: "var(--brand-primary)" }} />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6" style={{ background: "var(--color-bg-subtle)", minHeight: "100%" }}>
+        <div className="p-4 rounded-xl text-sm font-medium text-red-700 bg-red-50 border border-red-200">
+          Failed to load dashboard data
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      {/* Background overlay for mobile sidebar */}
-      <Overlay
-        isVisible={overlay}
-        onClose={() => {
-          setOverlay(false);
-
-          // Collapse sidebar on close
-          setCollapsed(true);
-        }}
-      />
-
-      {/* Dashboard sidebar */}
-      <RetractableSidebar
-        sidebarLogo={logoName}
-        sidebarItems={sidebarItems}
-        setOverlay={setOverlay}
-        setCollapsed={setCollapsed}
-        collapsed={collapsed}
-      />
-
-      {/* Main dashboard content */}
-      <div className="flex flex-col w-full h-screen">
-        {/* Top navigation bar */}
-        <DashboardNavBar />
-
+    <div className="p-6" style={{ background: "var(--color-bg-subtle)", minHeight: "100%" }}>
+      <div className="mb-8">
         <div
-          className="flex-1 p-6 min-h-screen"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-4"
           style={{
-            background: "var(--color-bg-subtle)",
+            background: "linear-gradient(135deg, var(--color-primary-12), var(--color-primary-6))",
+            border: "1px solid var(--color-primary-25)",
+            color: "var(--brand-dark)",
           }}
         >
-          {/* Dashboard header */}
-          <div className="mb-8">
-            <div
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-4"
-              style={{
-                background:
-                  "linear-gradient(135deg, var(--color-primary-12), var(--color-primary-6))",
+          <span
+            className="w-1.5 h-1.5 rounded-full animate-pulse"
+            style={{ background: "var(--brand-primary)" }}
+          />
+          User Portal
+        </div>
 
-                border: "1px solid var(--color-primary-25)",
+        <h1 className="text-3xl font-bold" style={{ color: "var(--text-heading)" }}>
+          My Dashboard
+        </h1>
 
-                color: "var(--brand-dark)",
-              }}
-            >
-              {/* Animated status indicator */}
-              <span
-                className="w-1.5 h-1.5 rounded-full animate-pulse"
-                style={{
-                  background: "var(--brand-primary)",
-                }}
-              />
-              User Portal
-            </div>
+        <p className="mt-1 text-sm" style={{ color: "var(--text-muted)" }}>
+          Track your medicine orders and history
+        </p>
+      </div>
 
-            <h1
-              className="text-3xl font-bold"
-              style={{
-                color: "var(--text-heading)",
-              }}
-            >
-              My Dashboard
-            </h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <StatCard
+          label="Total Reservations"
+          value={dashboardData?.totalReservations ?? 0}
+          icon={<CalendarCheck size={24} />}
+        />
+        <StatCard
+          label="Pending Deliveries"
+          value={dashboardData?.pendingReservations ?? 0}
+          icon={<Clock size={24} />}
+        />
+        <StatCard
+          label="Total Spent"
+          value={`${Number(dashboardData?.totalSpent ?? 0).toFixed(2)} EGP`}
+          icon={<ShoppingBag size={24} />}
+        />
+      </div>
 
-            <p
-              className="mt-1 text-sm"
-              style={{
-                color: "var(--text-muted)",
-              }}
-            >
-              Track your medicine orders and history
-            </p>
-          </div>
-
-          {/* Dashboard statistics cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[
-              {
-                label: "My Orders",
-                value: "—",
-                icon: "🛒",
-              },
-
-              {
-                label: "Saved Items",
-                value: "—",
-                icon: "💊",
-              },
-
-              {
-                label: "Nearby Pharmacies",
-                value: "—",
-                icon: "📍",
-              },
-            ].map((s) => (
+      {dashboardData?.recentReservations?.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-lg font-semibold mb-4" style={{ color: "var(--text-heading)" }}>
+            Recent Reservations
+          </h2>
+          <div className="space-y-3">
+            {dashboardData.recentReservations.map((r) => (
               <div
-                key={s.label}
-                className="rounded-2xl p-5"
+                key={r.id}
+                className="rounded-2xl p-4 flex items-center justify-between"
                 style={{
                   background: "var(--bg-neutral)",
-
                   border: "1px solid var(--border-gray)",
-
                   boxShadow: "0 1px 12px var(--color-shadow-4)",
                 }}
               >
-                {/* Card header */}
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-2xl">{s.icon}</span>
-
-                  <span
-                    className="text-xs font-semibold uppercase tracking-wider"
-                    style={{
-                      color: "var(--text-muted)",
-                    }}
-                  >
-                    {s.label}
-                  </span>
+                <div className="flex items-center gap-3">
+                  {r.status === "pending" ? (
+                    <Clock size={18} style={{ color: "var(--text-muted)" }} />
+                  ) : (
+                    <CheckCircle size={18} className="text-green-600" />
+                  )}
+                  <div>
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        r.status === "pending"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-green-100 text-green-700"
+                      }`}
+                    >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          r.status === "pending" ? "bg-yellow-500" : "bg-green-500"
+                        }`}
+                      />
+                      {r.status.charAt(0).toUpperCase() + r.status.slice(1)}
+                    </span>
+                    <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
+                      {r.items?.length} item{r.items?.length !== 1 ? "s" : ""} &middot;{" "}
+                      {Number(r.totalPrice).toFixed(2)} EGP
+                    </p>
+                  </div>
                 </div>
-
-                {/* Card value */}
-                <p
-                  className="text-3xl font-bold"
-                  style={{
-                    color: "var(--brand-primary)",
-                  }}
-                >
-                  {s.value}
-                </p>
+                <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                  {new Date(r.deliveryDate).toLocaleDateString()}
+                </span>
               </div>
             ))}
           </div>
-
-          {/* Placeholder section */}
-          <div
-            className="mt-8 rounded-2xl p-10 flex flex-col items-center justify-center text-center"
-            style={{
-              background: "var(--bg-neutral)",
-
-              border: "1px dashed var(--color-primary-25)",
-            }}
-          >
-            <span className="text-4xl mb-3">🏗️</span>
-
-            <p
-              className="font-semibold"
-              style={{
-                color: "var(--text-heading)",
-              }}
-            >
-              User features coming soon
-            </p>
-
-            <p
-              className="text-sm mt-1"
-              style={{
-                color: "var(--text-muted)",
-              }}
-            >
-              Connect your API endpoints to populate this dashboard
-            </p>
-          </div>
         </div>
+      )}
+
+      {(!dashboardData?.recentReservations || dashboardData.recentReservations.length === 0) && (
+        <div
+          className="mt-8 rounded-2xl p-10 flex flex-col items-center justify-center text-center"
+          style={{
+            background: "var(--bg-neutral)",
+            border: "1px dashed var(--color-primary-25)",
+          }}
+        >
+          <MapPin size={40} className="mb-3" style={{ color: "var(--text-muted)" }} />
+          <p className="font-semibold" style={{ color: "var(--text-heading)" }}>
+            No reservations yet
+          </p>
+          <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
+            Search for medicines and create your first reservation
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StatCard({ label, value, icon }) {
+  return (
+    <div
+      className="rounded-2xl p-5"
+      style={{
+        background: "var(--bg-neutral)",
+        border: "1px solid var(--border-gray)",
+        boxShadow: "0 1px 12px var(--color-shadow-4)",
+      }}
+    >
+      <div className="flex items-center gap-3 mb-3">
+        <span style={{ color: "var(--brand-primary)" }}>{icon}</span>
+        <span
+          className="text-xs font-semibold uppercase tracking-wider"
+          style={{ color: "var(--text-muted)" }}
+        >
+          {label}
+        </span>
       </div>
-    </>
+
+      <p
+        className="text-3xl font-bold"
+        style={{ color: "var(--brand-primary)" }}
+      >
+        {value}
+      </p>
+    </div>
   );
 }

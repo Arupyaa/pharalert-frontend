@@ -81,11 +81,6 @@ const UsersPage = () => {
       },
 
       {
-        accessorKey: "customerName",
-        header: "Customer",
-      },
-
-      {
         accessorKey: "date",
         header: "Date",
 
