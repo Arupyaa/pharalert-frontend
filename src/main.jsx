@@ -314,6 +314,7 @@ import AdminMaster from "./pages/admin/AdminMaster";
 import AdminAccounts from "./pages/admin/AdminAccounts";
 import AdminReservations from "./pages/admin/AdminReservations";
 import AdminMedications from "./pages/admin/AdminMedications";
+import AdminSettings from "./pages/admin/AdminSettings";
 import AdminLogin from "./pages/admin/AdminLogin";
 
 // Dashboards
@@ -337,6 +338,7 @@ import CompanySubscriptions from "./pages/company/CompanySubscriptions";
 import UserDashboard from "./pages/user/UserDashboard";
 import UserDashboardContent from "./pages/user/UserDashboardContent";
 import UserSubscriptions from "./pages/user/UserSubscriptions";
+import UserSettings from "./pages/user/UserSettings";
 import PharmacySubscriptions from "./pages/pharmacy/PharmacySubscriptions";
 import Cashier from "./pages/pharmacy/Cashier";
 
@@ -538,6 +540,10 @@ const routes = createBrowserRouter([
                 path: "/user/subscriptions",
                 element: <UserSubscriptions />,
               },
+              {
+                path: "/user/settings",
+                element: <UserSettings />,
+              },
             ],
           },
         ],
@@ -567,6 +573,10 @@ const routes = createBrowserRouter([
               {
                 path: "/admin/medications",
                 element: <AdminMedications />,
+              },
+              {
+                path: "/admin/settings",
+                element: <AdminSettings />,
               },
             ],
           },
