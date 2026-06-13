@@ -302,6 +302,7 @@ import MasterGrid from "./pages/master/MasterGrid";
 import LandingPage from "./pages/LandingPage";
 import Login from "./components/auth/Login";
 import Signup from "./components/auth/Signup";
+import ForgotPassword from "./components/auth/ForgotPassword";
 import AboutPage from "./pages/puplic/AboutPage";
 import HelpCenterPage from "./pages/puplic/HelpCenterPage";
 import FAQPage from "./pages/puplic/FAQPage";
@@ -409,6 +410,10 @@ const routes = createBrowserRouter([
       {
         path: "/signup",
         element: <Signup />,
+      },
+      {
+        path: "/forgot-password",
+        element: <ForgotPassword />,
       },
 
       // Pharmacy routes (protected)

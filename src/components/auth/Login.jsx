@@ -402,6 +402,16 @@ export default function Login() {
                       <FieldError message={errors.password?.message} />
                     </div>
 
+                    <div className="flex justify-end mt-1">
+                      <Link
+                        to="/forgot-password"
+                        className="text-xs font-semibold hover:underline"
+                        style={{ color: "var(--brand-primary)" }}
+                      >
+                        Forgot password?
+                      </Link>
+                    </div>
+
                     <button
                       type="submit"
                       disabled={loading}
