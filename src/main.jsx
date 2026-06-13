@@ -50,7 +50,7 @@
 // import MedicationsCharts from "./pages/company/MedicationsCharts";
 // import PharmaciesCharts from "./pages/company/PharmaciesCharts";
 // import CompanySettings from "./pages/company/CompanySettings";
-// import UserDashboard from "./pages/user/UserDashboard";
+// import UserMaster from "./pages/user/UserMaster";
 // import Cashier from "./pages/pharmacy/Cashier";
 
 // // Route protection layer
@@ -230,7 +230,7 @@
 //           },
 //           {
 //             path: "/user/dashboard",
-//             element: <UserDashboard />,
+//             element: <UserMaster />,
 //           },
 //         ],
 //       },
@@ -337,8 +337,8 @@ import PharmaciesCharts from "./pages/company/PharmaciesCharts";
 import CompanySettings from "./pages/company/CompanySettings";
 import CompanySuggestions from "./pages/company/CompanySuggestions";
 import CompanySubscriptions from "./pages/company/CompanySubscriptions";
-import UserDashboard from "./pages/user/UserDashboard";
-import UserDashboardContent from "./pages/user/UserDashboardContent";
+import UserMaster from "./pages/user/UserMaster";
+import UserMasterContent from "./pages/user/UserMasterContent";
 import UserSubscriptions from "./pages/user/UserSubscriptions";
 import UserSettings from "./pages/user/UserSettings";
 import PharmacySubscriptions from "./pages/pharmacy/PharmacySubscriptions";
@@ -536,7 +536,7 @@ const routes = createBrowserRouter([
         element: <ProtectedRoute allowedRoles={["user"]} />,
         children: [
           {
-            element: <UserDashboard />,
+            element: <UserMaster />,
             children: [
               {
                 path: "/user",

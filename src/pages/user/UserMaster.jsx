@@ -38,7 +38,7 @@ const sidebarItems = [
   },
 ];
 
-export default function UserDashboard() {
+export default function UserMaster() {
   const isMobile = useIsMobile();
   const [overlay, setOverlay] = useState(false);
   const [collapsed, setCollapsed] = useState(isMobile ? true : false);

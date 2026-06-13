@@ -1,4 +1,4 @@
-export default function UserDashboardContent() {
+export default function UserMasterContent() {
   return (
     <div className="p-6">
       <div className="mb-8">
