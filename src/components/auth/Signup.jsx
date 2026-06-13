@@ -1271,6 +1271,12 @@ const ENDPOINT_MAP = {
   users: "/auth/register/user",
 };
 
+const ROLE_MAP = {
+  pharmacies: "pharmacy",
+  companies: "company",
+  users: "user",
+};
+
 function parseApiError(err) {
   const data = err.response?.data;
   if (!data) return err.message || "Something went wrong. Please try again.";
@@ -1326,8 +1332,8 @@ function RoleForm({ activeRole, onSuccess, onError }) {
     setLoading(true);
     try {
       const res = await api.post(ENDPOINT_MAP[activeRole], payload);
-      onSuccess(activeRole, res.data?.message);
-      setTimeout(() => navigate("/login"), 3500);
+      onSuccess(activeRole, res.data?.message, payload.email);
+      setTimeout(() => navigate("/login"), 10000);
     } catch (err) {
       onError(parseApiError(err));
       if (activeRole === "companies") setCompanyStep(1);
@@ -1840,10 +1846,15 @@ const roles = [
 export default function Signup() {
   const [activeRole, setActiveRole] = useState("companies");
   const [successInfo, setSuccessInfo] = useState(null);
+  const [resendEmail, setResendEmail] = useState(null);
+  const [resendAccountType, setResendAccountType] = useState(null);
+  const [resending, setResending] = useState(false);
   const { toast, toasts, dismiss } = useToast();
 
-  function handleSuccess(role, msg) {
+  function handleSuccess(role, msg, email) {
     setSuccessInfo({ role, msg });
+    setResendEmail(email);
+    setResendAccountType(ROLE_MAP[role]);
     if (role === "users") {
       toast.success("Account created! 🎉", msg || "You can now sign in.");
     } else {
@@ -1851,6 +1862,24 @@ export default function Signup() {
         "Registration submitted! 🎉",
         msg || "Your application is under review.",
       );
+    }
+  }
+
+  async function handleResendVerification() {
+    setResending(true);
+    try {
+      const res = await api.post("/auth/resend-verification", {
+        email: resendEmail,
+        accountType: resendAccountType,
+      });
+      toast.success("Email sent", res.data?.message || "Verification email resent.");
+    } catch (err) {
+      const msg =
+        err.response?.data?.message ||
+        "Failed to resend verification email.";
+      toast.error("Error", msg);
+    } finally {
+      setResending(false);
     }
   }
 
@@ -1988,6 +2017,28 @@ export default function Signup() {
                           able to sign in once approved.
                         </p>
                       )}
+                      <div className="mt-4 text-sm text-slate-600 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-left">
+                        <p className="font-medium text-slate-800 mb-1">
+                          Verify your email
+                        </p>
+                        <p className="text-xs">
+                          A verification email has been sent to{" "}
+                          <span className="font-semibold">{resendEmail}</span>.
+                          Please check your inbox and click the link to
+                          activate your account. The link will expire after
+                          some time.
+                        </p>
+                      </div>
+                      <button
+                        onClick={handleResendVerification}
+                        disabled={resending}
+                        className="mt-3 text-xs font-semibold hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{ color: "var(--brand-primary)" }}
+                      >
+                        {resending
+                          ? "Sending…"
+                          : "Resend verification email"}
+                      </button>
                       <p className="text-xs text-slate-400 mt-4">
                         Redirecting to login…
                       </p>
