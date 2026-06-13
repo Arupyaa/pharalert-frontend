@@ -50,7 +50,11 @@ import RegionsCharts from "./pages/company/RegionsCharts";
 import MedicationsCharts from "./pages/company/MedicationsCharts";
 import PharmaciesCharts from "./pages/company/PharmaciesCharts";
 import CompanySettings from "./pages/company/CompanySettings";
+import UserMaster from "./pages/user/UserMaster";
 import UserDashboard from "./pages/user/UserDashboard";
+import UserSearchMedicine from "./pages/user/UserSearchMedicine";
+import UserReservations from "./pages/user/UserReservations";
+import UserPharmacyDetails from "./pages/user/UserPharmacyDetails";
 import Cashier from "./pages/pharmacy/Cashier";
 
 // Route protection layer
@@ -225,12 +229,29 @@ const routes = createBrowserRouter([
         element: <ProtectedRoute allowedRoles={["user"]} />,
         children: [
           {
-            path: "/user",
-            element: <Navigate to="/user/dashboard" replace />,
-          },
-          {
-            path: "/user/dashboard",
-            element: <UserDashboard />,
+            element: <UserMaster />,
+            children: [
+              {
+                path: "/user",
+                element: <Navigate to="/user/dashboard" replace />,
+              },
+              {
+                path: "/user/dashboard",
+                element: <UserDashboard />,
+              },
+              {
+                path: "/user/search-medicine",
+                element: <UserSearchMedicine />,
+              },
+              {
+                path: "/user/reservations",
+                element: <UserReservations />,
+              },
+              {
+                path: "/user/pharmacy/:id",
+                element: <UserPharmacyDetails />,
+              },
+            ],
           },
         ],
       },
