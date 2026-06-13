@@ -304,6 +304,7 @@ import Login from "./components/auth/Login";
 import Signup from "./components/auth/Signup";
 import ForgotPassword from "./components/auth/ForgotPassword";
 import AboutPage from "./pages/puplic/AboutPage";
+import PricingPage from "./pages/PricingPage";
 import HelpCenterPage from "./pages/puplic/HelpCenterPage";
 import FAQPage from "./pages/puplic/FAQPage";
 import ContactPage from "./pages/puplic/ContactPage";
@@ -365,6 +366,10 @@ const routes = createBrowserRouter([
   },
 
   // Public info pages
+  {
+    path: "/pricing",
+    element: <PricingPage />,
+  },
   {
     path: "/about",
     element: <AboutPage />,
