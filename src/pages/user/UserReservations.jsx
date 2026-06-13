@@ -9,10 +9,6 @@ import {
   Trash2,
   ChevronDown,
   ChevronUp,
-  MapPin,
-  Phone,
-  User,
-  FileText,
   ShoppingBag,
   AlertCircle,
   Package,
@@ -21,7 +17,6 @@ import {
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
 import api from "../../api/api";
-import Badge from "../../components/General/badge/Badge";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useToast } from "../../hooks/useToast";
 import ToastContainer from "../../components/General/toast/ToastContainer";
@@ -72,11 +67,6 @@ function PaidReservationsPage() {
   const [confirmingId, setConfirmingId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [expandedCard, setExpandedCard] = useState(null);
-  const [customerName, setCustomerName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [customerAddress, setCustomerAddress] = useState("");
-  const [deliveryOption, setDeliveryOption] = useState("pickup");
-  const [notes, setNotes] = useState("");
   const dropdownRef = useRef(null);
 
   const [debouncedSearch] = useDebounce(medInput, 300);
@@ -168,20 +158,10 @@ function PaidReservationsPage() {
           quantity: item.quantity,
         })),
         deliveryDate: new Date(deliveryDate).toISOString(),
-        customerName: customerName || undefined,
-        customerPhone: customerPhone || undefined,
-        customerAddress: customerAddress || undefined,
-        deliveryOption: deliveryOption,
-        notes: notes || undefined,
       });
       setFormSuccess(true);
       setItems([]);
       setDeliveryDate("");
-      setCustomerName("");
-      setCustomerPhone("");
-      setCustomerAddress("");
-      setDeliveryOption("pickup");
-      setNotes("");
       queryClient.invalidateQueries({ queryKey: ["reservations"] });
     } catch (err) {
       const message = err.response?.data?.message || "Failed to create reservation";
@@ -322,78 +302,6 @@ function PaidReservationsPage() {
               <p className="mt-4 text-sm" style={{ color: "var(--text-muted)" }}>No medications added yet. Search for a medicine above.</p>
             )}
 
-            {/* Customer Information */}
-            <div className="mt-6 pt-5 border-t border-gray-200">
-              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2" style={{ color: "var(--text-heading)" }}>
-                <User size={14} />
-                Customer Information
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--text-muted)" }}>Full Name</label>
-                  <input
-                    type="text"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    placeholder="Your name"
-                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--text-muted)" }}>Phone Number</label>
-                  <input
-                    type="tel"
-                    value={customerPhone}
-                    onChange={(e) => setCustomerPhone(e.target.value)}
-                    placeholder="Your phone number"
-                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--text-muted)" }}>Address</label>
-                  <input
-                    type="text"
-                    value={customerAddress}
-                    onChange={(e) => setCustomerAddress(e.target.value)}
-                    placeholder="Delivery address"
-                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Delivery Options */}
-            <div className="mt-5">
-              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2" style={{ color: "var(--text-heading)" }}>
-                <MapPin size={14} />
-                Delivery Options
-              </h3>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setDeliveryOption("pickup")}
-                  className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border ${
-                    deliveryOption === "pickup"
-                      ? "bg-green-50 border-green-300 text-green-700"
-                      : "bg-white border-gray-200 text-gray-500 hover:border-gray-300"
-                  }`}
-                >
-                  Pickup
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDeliveryOption("delivery")}
-                  className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border ${
-                    deliveryOption === "delivery"
-                      ? "bg-green-50 border-green-300 text-green-700"
-                      : "bg-white border-gray-200 text-gray-500 hover:border-gray-300"
-                  }`}
-                >
-                  Delivery
-                </button>
-              </div>
-            </div>
-
             {/* Delivery Date */}
             <div className="mt-5">
               <h3 className="text-sm font-semibold mb-2" style={{ color: "var(--text-heading)" }}>Delivery Date</h3>
@@ -403,21 +311,6 @@ function PaidReservationsPage() {
                 onChange={(e) => setDeliveryDate(e.target.value)}
                 min={new Date().toISOString().split("T")[0]}
                 className="w-full max-w-xs px-4 py-2.5 text-sm border border-gray-200 rounded-xl bg-white outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-
-            {/* Notes */}
-            <div className="mt-5">
-              <h3 className="text-sm font-semibold mb-2 flex items-center gap-2" style={{ color: "var(--text-heading)" }}>
-                <FileText size={14} />
-                Notes
-              </h3>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Any special instructions..."
-                rows={2}
-                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-green-500 resize-none"
               />
             </div>
 
@@ -499,10 +392,7 @@ function PaidReservationsPage() {
                 <span className="text-green-500 mt-0.5">•</span>
                 Search for medicines by brand or generic name
               </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-500 mt-0.5">•</span>
-                Choose delivery or pickup at the pharmacy
-              </li>
+
               <li className="flex items-start gap-2">
                 <span className="text-green-500 mt-0.5">•</span>
                 You can cancel pending reservations anytime
@@ -661,12 +551,6 @@ function ReservationCard({
                 <StatusTimeline status={reservation.status} />
               </div>
               <div className="flex items-center gap-2 mt-0.5">
-                {reservation.deliveryOption && (
-                  <Badge
-                    label={reservation.deliveryOption === "delivery" ? "Delivery" : "Pickup"}
-                    variant={reservation.deliveryOption === "delivery" ? "info" : "neutral"}
-                  />
-                )}
                 <span className="text-xs" style={{ color: "var(--text-muted)" }}>
                   {new Date(reservation.createdAt).toLocaleDateString()}
                 </span>
@@ -784,43 +668,6 @@ function ReservationCard({
                 ))}
               </div>
             </div>
-
-            {/* Customer Info */}
-            {(reservation.customerName || reservation.customerPhone || reservation.customerAddress) && (
-              <div>
-                <h4 className="text-xs font-semibold mb-2" style={{ color: "var(--text-muted)" }}>
-                  Customer Information
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
-                  {reservation.customerName && (
-                    <div className="flex items-center gap-1.5">
-                      <User size={12} className="text-gray-400" />
-                      <span style={{ color: "var(--text-heading)" }}>{reservation.customerName}</span>
-                    </div>
-                  )}
-                  {reservation.customerPhone && (
-                    <div className="flex items-center gap-1.5">
-                      <Phone size={12} className="text-gray-400" />
-                      <span style={{ color: "var(--text-heading)" }}>{reservation.customerPhone}</span>
-                    </div>
-                  )}
-                  {reservation.customerAddress && (
-                    <div className="flex items-center gap-1.5 sm:col-span-1">
-                      <MapPin size={12} className="text-gray-400" />
-                      <span className="truncate" style={{ color: "var(--text-heading)" }}>{reservation.customerAddress}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Notes */}
-            {reservation.notes && (
-              <div>
-                <h4 className="text-xs font-semibold mb-1" style={{ color: "var(--text-muted)" }}>Notes</h4>
-                <p className="text-sm" style={{ color: "var(--text-heading)" }}>{reservation.notes}</p>
-              </div>
-            )}
 
             {/* Dates & Totals */}
             <div className="flex items-center justify-between pt-2 border-t border-gray-200">
