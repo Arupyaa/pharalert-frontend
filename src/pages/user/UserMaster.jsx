@@ -7,6 +7,7 @@ import Overlay from "../../components/General/overLay/Overlay.jsx";
 import DashboardNavBar from "../../components/layout/dashboardnavbar/DashboardNavBar.jsx";
 import PDashboardMain from "../../components/layout/PDashboardMain/PDashboardMain.jsx";
 import SubscriptionIcon from "../../assets/svg/SubscriptionIcon.jsx";
+import BellIcon from "../../assets/svg/BellIcon.jsx";
 import useAccountStatusPoller from "../../hooks/useAccountStatusPoller.js";
 import logoName from "../../assets/images/logo_name v1.1.svg";
 import DashboardIcon from "../../assets/svg/DashboardIcon.jsx";
@@ -21,6 +22,11 @@ const sidebarItems = [
     name: "My Reservations",
     path: "/user/reservations",
     icon: PillIcon,
+  },
+  {
+    name: "Stock Alerts",
+    path: "/user/alerts",
+    icon: BellIcon,
   },
   { name: "Settings", path: "/user/settings", icon: SettingsIcon },
   {
@@ -66,7 +72,7 @@ export default function UserMaster() {
           >
             <div className="px-6 pt-6 pb-0">
               <div className="inline-flex bg-gray-100 p-1 rounded-full shadow-inner border border-gray-200">
-                {tabItems.map((tab) => (
+                {/* {tabItems.map((tab) => (
                   <NavLink
                     key={tab.path}
                     to={tab.path}
@@ -80,7 +86,7 @@ export default function UserMaster() {
                     <tab.icon size={16} />
                     {tab.name}
                   </NavLink>
-                ))}
+                ))} */}
               </div>
             </div>
             <Outlet />
