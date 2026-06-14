@@ -13,6 +13,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import api from "../../api/api";
+import RequireActiveSubscription from "../../components/General/RequireActiveSubscription";
 
 //Helpers 
 function getDefaultDates() {
@@ -164,6 +165,14 @@ function SectionHeader({ icon, title, subtitle }) {
 
 // Main Dashboard 
 export default function PharmacyDashboard() {
+  return (
+    <RequireActiveSubscription role="pharmacy">
+      <DashboardInner />
+    </RequireActiveSubscription>
+  );
+}
+
+function DashboardInner() {
   const defaults = getDefaultDates();
   const [fromDate, setFromDate] = useState(defaults.from);
   const [toDate, setToDate] = useState(defaults.to);

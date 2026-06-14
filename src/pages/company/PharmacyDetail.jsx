@@ -49,7 +49,17 @@ const MED_HEADERS = [
   { key: "percentageCustomersRefused", label: "Refused %" },
 ];
 
+import RequireActiveSubscription from "../../components/General/RequireActiveSubscription";
+
 export default function PharmacyDetail() {
+  return (
+    <RequireActiveSubscription role="company">
+      <PharmacyDetailInner />
+    </RequireActiveSubscription>
+  );
+}
+
+function PharmacyDetailInner() {
   const { pharmacyName } = useParams();
   const location = useLocation();
   const navigate = useNavigate();

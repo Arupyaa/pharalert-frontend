@@ -28,14 +28,14 @@ function Field({ label, field, type = "text", placeholder = "", form, onChange }
   );
 }
 
-export default function CompanySettings() {
+export default function AdminSettings() {
   const [tab, setTab] = useState("general");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const { toast, toasts, dismiss } = useToast();
 
   const [form, setForm] = useState({
-    companyName: "", email: "", phoneNumber: "", documentImageUrl: "",
+    userName: "", email: "",
   });
 
   const fetchSettings = useCallback(async () => {
@@ -43,10 +43,8 @@ export default function CompanySettings() {
       const { data } = await api.get("/settings/me");
       const d = data?.data ?? {};
       setForm({
-        companyName: d.companyName ?? "",
+        userName: d.userName ?? "",
         email: d.email ?? "",
-        phoneNumber: d.phoneNumber ?? "",
-        documentImageUrl: d.documentImageUrl ?? "",
       });
     } catch {
       toast.error("Error", "Failed to load settings.");
@@ -66,7 +64,7 @@ export default function CompanySettings() {
     setSaving(true);
     try {
       const payload = {};
-      for (const key of ["companyName", "email", "phoneNumber", "documentImageUrl"]) {
+      for (const key of ["userName", "email"]) {
         if (form[key] !== "") payload[key] = form[key];
       }
       await api.patch("/settings/me", payload);
@@ -92,7 +90,7 @@ export default function CompanySettings() {
       <div className="min-h-screen p-6" style={{ background: "var(--bg-secondary)" }}>
         <div className="mb-6">
           <h1 className="text-2xl font-bold" style={{ color: "var(--text-heading)" }}>Settings</h1>
-          <p className="mt-1 text-sm" style={{ color: "var(--text-muted)" }}>Manage your company preferences</p>
+          <p className="mt-1 text-sm" style={{ color: "var(--text-muted)" }}>Manage your admin preferences</p>
         </div>
 
         <div className="flex gap-1.5 p-1 rounded-2xl mb-6 w-fit" style={{ background: "#f8fafc", border: "1px solid var(--border-gray)" }}>
@@ -115,11 +113,9 @@ export default function CompanySettings() {
         {tab === "general" && (
           <form onSubmit={handleSave} className="max-w-2xl space-y-5">
             <div className="rounded-2xl p-6 space-y-5" style={{ background: "var(--bg-neutral)", border: "1px solid var(--border-gray)", boxShadow: "0 2px 12px rgba(0,0,0,0.05)" }}>
-              <h2 className="text-sm font-semibold" style={{ color: "var(--text-heading)" }}>Company Information</h2>
-              <Field form={form} onChange={handleChange} label="Company Name" field="companyName" placeholder="Eva Pharma" />
-              <Field form={form} onChange={handleChange} label="Email" field="email" type="email" placeholder="company@example.com" />
-              <Field form={form} onChange={handleChange} label="Phone Number" field="phoneNumber" type="tel" placeholder="01098765432" />
-              <Field form={form} onChange={handleChange} label="Document / License URL" field="documentImageUrl" type="url" placeholder="https://cdn.example.com/document.jpg" />
+              <h2 className="text-sm font-semibold" style={{ color: "var(--text-heading)" }}>Admin Information</h2>
+              <Field form={form} onChange={handleChange} label="Username" field="userName" placeholder="admin" />
+              <Field form={form} onChange={handleChange} label="Email" field="email" type="email" placeholder="admin@example.com" />
             </div>
 
             <button

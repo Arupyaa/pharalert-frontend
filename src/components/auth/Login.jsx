@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "../../validations/loginSchema";
 import api from "../../api/api";
 import { useAuthStore } from "../../store/useAuthStore";
+import { useAvatarStore } from "../../store/UseAvatarStore";
 import { useToast } from "../../hooks/useToast";
 import ToastContainer from "../General/toast/ToastContainer";
 
@@ -84,9 +85,13 @@ export default function Login() {
   const [activeRole, setActiveRole] = useState("pharmacies");
   const [loading, setLoading] = useState(false);
   const [pendingMsg, setPendingMsg] = useState("");
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState("");
+  const [resending, setResending] = useState(false);
   const navigate = useNavigate();
   const { toast, toasts, dismiss } = useToast();
   const setAuth = useAuthStore((s) => s.setAuth);
+  const changeAvatarName = useAvatarStore((s) => s.changeAvatarName);
 
   const roles = [
     { id: "pharmacies", label: "Pharmacies" },
@@ -105,6 +110,26 @@ export default function Login() {
   function handleRoleSwitch(roleId) {
     setActiveRole(roleId);
     setPendingMsg("");
+    setNeedsVerification(false);
+    setVerificationEmail("");
+  }
+
+  async function handleResendVerification() {
+    setResending(true);
+    try {
+      const res = await api.post("/auth/resend-verification", {
+        email: verificationEmail,
+        accountType: ROLE_MAP[activeRole],
+      });
+      toast.success("Email sent", res.data?.message || "Verification email resent.");
+    } catch (err) {
+      const msg =
+        err.response?.data?.message ||
+        "Failed to resend verification email.";
+      toast.error("Error", msg);
+    } finally {
+      setResending(false);
+    }
   }
 
   async function onSubmit(data) {
@@ -120,8 +145,27 @@ export default function Login() {
 
       const res = await api.post("/auth/login", payload);
 
-      const { accessToken, refreshToken, accountType } = res.data;
-      setAuth({ accessToken, refreshToken, role: roleValue, accountType });
+      setNeedsVerification(false);
+      setVerificationEmail("");
+
+      const { accessToken, refreshToken, accountType, accountStatus } = res.data;
+      setAuth({ accessToken, refreshToken, role: roleValue, accountType, accountStatus });
+
+      const updateAccessToken = useAuthStore.getState().updateAccessToken;
+      const updateAccountType = useAuthStore.getState().updateAccountType;
+      api.get("/auth/identify").then(({ data: idData }) => {
+        const d = idData?.data;
+        if (idData?.accessToken) {
+          updateAccessToken(idData.accessToken);
+        }
+        if (d?.accountType) {
+          updateAccountType(d.accountType);
+        }
+        if (d) {
+          const name = d.companyName || d.name || d.userName || d.email?.split("@")[0] || "User";
+          changeAvatarName(name);
+        }
+      }).catch(() => {});
 
       toast.success("Welcome back!", "You've been signed in successfully.");
       reset();
@@ -130,11 +174,18 @@ export default function Login() {
       setTimeout(() => navigate(dest), 1200);
     } catch (err) {
       const status = err.response?.status;
+      const errData = err.response?.data;
       const msg = parseApiError(err);
 
       if (status === 403) {
-        // Show persistent banner instead of toast for pending/rejected
         setPendingMsg(msg);
+        if (errData?.needsVerification || /verify/i.test(msg)) {
+          setNeedsVerification(true);
+          setVerificationEmail(errData?.email || data.email);
+        } else {
+          setNeedsVerification(false);
+          setVerificationEmail("");
+        }
       } else {
         toast.error("Login failed", msg);
       }
@@ -293,14 +344,18 @@ export default function Login() {
                     </div>
                   )}
 
-                  {/* Pending / Rejected banner */}
+                  {/* Pending / Rejected / Unverified banner */}
                   {pendingMsg && (
                     <div
                       className="flex items-start gap-3 px-4 py-3.5 rounded-xl mb-4"
                       style={{
-                        background: "rgba(234,179,8,0.08)",
-                        border: "1.5px solid rgba(234,179,8,0.35)",
-                        color: "#92400e",
+                        background: needsVerification
+                          ? "rgba(59,130,246,0.08)"
+                          : "rgba(234,179,8,0.08)",
+                        border: needsVerification
+                          ? "1.5px solid rgba(59,130,246,0.35)"
+                          : "1.5px solid rgba(234,179,8,0.35)",
+                        color: needsVerification ? "#1e40af" : "#92400e",
                       }}
                     >
                       <svg
@@ -316,11 +371,21 @@ export default function Login() {
                           d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
                         />
                       </svg>
-                      <div>
+                      <div className="flex-1">
                         <p className="font-semibold text-sm mb-0.5">
-                          Access Denied
+                          {needsVerification ? "Email Not Verified" : "Access Denied"}
                         </p>
                         <p className="text-xs opacity-80">{pendingMsg}</p>
+                        {needsVerification && (
+                          <button
+                            onClick={handleResendVerification}
+                            disabled={resending}
+                            className="mt-2 text-xs font-semibold hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                            style={{ color: "var(--brand-primary)" }}
+                          >
+                            {resending ? "Sending…" : "Resend verification email"}
+                          </button>
+                        )}
                       </div>
                     </div>
                   )}
@@ -390,6 +455,16 @@ export default function Login() {
                         {...register("password")}
                       />
                       <FieldError message={errors.password?.message} />
+                    </div>
+
+                    <div className="flex justify-end mt-1">
+                      <Link
+                        to="/forgot-password"
+                        className="text-xs font-semibold hover:underline"
+                        style={{ color: "var(--brand-primary)" }}
+                      >
+                        Forgot password?
+                      </Link>
                     </div>
 
                     <button

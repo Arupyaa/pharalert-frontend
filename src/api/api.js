@@ -92,6 +92,10 @@ api.interceptors.response.use(
       const newAccessToken = data.accessToken;
       useAuthStore.getState().updateAccessToken(newAccessToken);
 
+      if (data.accountStatus) {
+        useAuthStore.getState().updateAccountStatus(data.accountStatus);
+      }
+
       if (data.refreshToken) {
         const current = useAuthStore.getState();
         useAuthStore.getState().setAuth({
@@ -99,6 +103,7 @@ api.interceptors.response.use(
           refreshToken: data.refreshToken,
           role: current.role,
           accountType: current.accountType,
+          accountStatus: data.accountStatus ?? current.accountStatus,
         });
       }
 

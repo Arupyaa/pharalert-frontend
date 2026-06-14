@@ -3,6 +3,7 @@ import api from "../../api/api";
 import TablePagination from "../../components/General/Pagination/TablePagination";
 import { formatTableData } from "../../utils/formatTableData";
 import { FaSearch } from "react-icons/fa";
+import RequireActiveSubscription from "../../components/General/RequireActiveSubscription";
 import { IoMdCloseCircle } from "react-icons/io";
 import { twMerge } from "tailwind-merge";
 import { ChevronDownIcon } from "../../assets/svg/icons";
@@ -319,6 +320,14 @@ function InventoryTable({ headers, records }) {
 
 //  Main Component
 export default function Inventory() {
+  return (
+    <RequireActiveSubscription role="pharmacy">
+      <InventoryInner />
+    </RequireActiveSubscription>
+  );
+}
+
+function InventoryInner() {
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [stockStatus, setStockStatus] = useState("");

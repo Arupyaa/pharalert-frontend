@@ -1,6 +1,10 @@
+
+
+
 import { useState, useEffect, useCallback } from "react";
 import api from "../../api/api.js";
 import { useAuthStore } from "../../store/useAuthStore.js";
+import RequireActiveSubscription from "../../components/General/RequireActiveSubscription";
 import CompanyDashboardAnalytics from "../../components/General/dashboardcard/CompanyDashboardAnalytics/CompanyDashboardAnalytics.jsx";
 import DemandChart from "../../components/General/charts/DemandChart/DemandChart.jsx";
 
@@ -37,6 +41,14 @@ const labelStyle = {
 };
 
 export default function CompanyDashboard() {
+  return (
+    <RequireActiveSubscription role="company">
+      <CompanyDashboardInner />
+    </RequireActiveSubscription>
+  );
+}
+
+function CompanyDashboardInner() {
   const defaults = getDefaultDates();
   const [fromDate, setFromDate] = useState(defaults.from);
   const [toDate, setToDate] = useState(defaults.to);
@@ -54,10 +66,9 @@ export default function CompanyDashboard() {
     } catch {}
 
     setMedLoading(true);
+    const medParams = companyId ? { companyId } : {};
     api
-      .get("/medications"
-        // ,{ params: { companyId } }
-      )
+      .get("/medications", { params: medParams })
       .then((res) => {
         const meds = (res.data?.data ?? []).map((m) => ({
           value: m.id,
