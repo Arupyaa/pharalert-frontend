@@ -21,6 +21,8 @@ export default function UserSubscriptions() {
   const [error, setError] = useState(null);
   const accountStatus = useAuthStore(selectAccountStatus);
   const updateAccountStatus = useAuthStore((s) => s.updateAccountStatus);
+  const updateAccountType = useAuthStore((s) => s.updateAccountType);
+  const updateAccessToken = useAuthStore((s) => s.updateAccessToken);
   const changeAvatarName = useAvatarStore((s) => s.changeAvatarName);
 
   const fetchSubscriptions = useCallback(async () => {
@@ -45,8 +47,14 @@ export default function UserSubscriptions() {
       await api.post("/auth/subscribe", { paymentMethod: "Card" });
       const { data } = await api.get("/auth/identify");
       const d = data?.data;
+      if (data?.accessToken) {
+        updateAccessToken(data.accessToken);
+      }
       if (d?.accountStatus) {
         updateAccountStatus(d.accountStatus);
+      }
+      if (d?.accountType) {
+        updateAccountType(d.accountType);
       }
       if (d) {
         const name = d.companyName || d.name || d.userName || d.email?.split("@")[0] || "User";

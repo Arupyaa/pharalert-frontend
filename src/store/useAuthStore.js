@@ -70,6 +70,12 @@ export const useAuthStore = create((set) => ({
     localStorage.setItem(ACCOUNT_STATUS_KEY, normalized);
     set({ accountStatus: normalized });
   },
+
+  updateAccountType: (accountType) => {
+    const normalized = (accountType ?? "").toLowerCase();
+    localStorage.setItem(ACCOUNT_TYPE_KEY, normalized);
+    set({ accountType: normalized });
+  },
 }));
 
 export const selectIsAuthenticated = (state) => Boolean(state.accessToken);

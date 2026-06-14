@@ -151,8 +151,16 @@ export default function Login() {
       const { accessToken, refreshToken, accountType, accountStatus } = res.data;
       setAuth({ accessToken, refreshToken, role: roleValue, accountType, accountStatus });
 
+      const updateAccessToken = useAuthStore.getState().updateAccessToken;
+      const updateAccountType = useAuthStore.getState().updateAccountType;
       api.get("/auth/identify").then(({ data: idData }) => {
         const d = idData?.data;
+        if (idData?.accessToken) {
+          updateAccessToken(idData.accessToken);
+        }
+        if (d?.accountType) {
+          updateAccountType(d.accountType);
+        }
         if (d) {
           const name = d.companyName || d.name || d.userName || d.email?.split("@")[0] || "User";
           changeAvatarName(name);
