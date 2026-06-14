@@ -1,3 +1,6 @@
+
+
+
 import React from "react";
 import RetractableSidebar from "../../components/General/retractablesidebar/RetractableSidebar.jsx";
 import PDashboardMain from "../../components/layout/PDashboardMain/PDashboardMain.jsx";
@@ -8,22 +11,39 @@ import DashboardIcon from "../../assets/svg/DashboardIcon.jsx";
 import SettingsIcon from "../../assets/svg/SettingsIcon.jsx";
 import TablesIcon from "../../assets/svg/TablesIcon.jsx";
 import ChartsIcon from "../../assets/svg/ChartsIcon.jsx";
+import PillIcon from "../../assets/svg/PillIcon.jsx";
+import SubscriptionIcon from "../../assets/svg/SubscriptionIcon.jsx";
 import DashboardNavBar from "../../components/layout/dashboardnavbar/DashboardNavBar.jsx";
 import { useState } from "react";
 import { useIsMobile } from "../../hooks/useIsMobile.js";
 import { Outlet } from "react-router-dom";
+import useAccountStatusPoller from "../../hooks/useAccountStatusPoller.js";
+import { useAuthStore, selectAccountStatus } from "../../store/useAuthStore.js";
 
-const sidebarItems = [
-  { name: "Dashboard", path: "/company/dashboard", icon: DashboardIcon },
-  { name: "Tables",    path: "/company/tables/medications", icon: TablesIcon },
-  { name: "Charts",    path: "/company/charts/regions", icon: ChartsIcon },
-  { name: "Settings",  path: "/company/settings", icon: SettingsIcon  },
+const allItems = [
+  { name: "Dashboard",    path: "/company/dashboard",          icon: DashboardIcon },
+  { name: "Tables",       path: "/company/tables/medications", icon: TablesIcon },
+  { name: "Charts",       path: "/company/charts/regions",     icon: ChartsIcon },
+  { name: "Suggestions",  path: "/company/suggestions",        icon: PillIcon },
+  { name: "Subscriptions",path: "/company/subscriptions",      icon: SubscriptionIcon },
+  { name: "Settings",     path: "/company/settings",           icon: SettingsIcon },
+];
+
+const inactiveItems = [
+  { name: "Suggestions",  path: "/company/suggestions",        icon: PillIcon },
+  { name: "Subscriptions",path: "/company/subscriptions",      icon: SubscriptionIcon },
+  { name: "Settings",     path: "/company/settings",           icon: SettingsIcon },
 ];
 
 export default function CompanyMaster() {
     const isMobile = useIsMobile();
     const [overlay, setOverlay] = useState(false);
     const [collapsed, setCollapsed] = useState(isMobile ? true : false);
+    const accountStatus = useAuthStore(selectAccountStatus);
+
+    useAccountStatusPoller();
+
+    const sidebarItems = accountStatus === "inactive" ? inactiveItems : allItems;
   return (
     <>
       <Overlay

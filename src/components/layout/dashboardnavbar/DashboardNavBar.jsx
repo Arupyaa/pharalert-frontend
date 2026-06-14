@@ -2,10 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import AvatarWithName from "../../General/avatar/AvatarWithName";
+import { useAvatarStore } from "../../../store/UseAvatarStore";
 import { handleLogout as logoutUser } from "../../../utils/logout";
 
 export default function DashboardNavBar({ propClassName = "" }) {
   const navigate = useNavigate();
+  const { avatar } = useAvatarStore();
 
   const [loading, setLoading] = useState(false);
 
@@ -24,7 +26,7 @@ export default function DashboardNavBar({ propClassName = "" }) {
 
       {/* Right section: user avatar + logout button */}
       <div className="flex items-center gap-3">
-        <AvatarWithName />
+        <AvatarWithName avatarImg={avatar.image} avatarName={avatar.name} />
 
         <button
           onClick={handleLogout}

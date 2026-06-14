@@ -1,89 +1,109 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+
+
+
+import { useEffect, useState, useCallback } from "react";
 import api from "../../api/api";
 import SimpleBarChart from "../../components/General/charts/SimpleBarChart.jsx";
+import { useAuthStore } from "../../store/useAuthStore";
+import RequireActiveSubscription from "../../components/General/RequireActiveSubscription";
 
-export default function PharmaciesCharts() {
-  const [regionId, setRegionId] = useState("1");
+export default function RegionsCharts() {
+  return (
+    <RequireActiveSubscription role="company">
+      <PharmaciesChartsInner />
+    </RequireActiveSubscription>
+  );
+}
+
+function PharmaciesChartsInner() {
+  const [medicationId, setMedicationId] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [data, setData] = useState([]);
-  const [regions, setRegions] = useState([]);
+  const [medications, setMedications] = useState([]);
   const [loading, setLoading] = useState(false);
-  const hasMounted = useRef(false);
 
   const fetchChart = useCallback(async () => {
     setLoading(true);
     try {
-      const params = { regionId };
+      const params = { medicationId };
       if (fromDate) params.from = fromDate;
       if (toDate) params.to = toDate;
 
-      const { data: res } = await api.get(
-        "/company/analytics/pharmacies/charts",
-        { params },
-      );
+      const { data: res } = await api.get("/company/analytics/regions/charts", {
+        params,
+      });
+      console.log("FULL RESPONSE:", res);
+      console.log("RESPONSE DATA:", res?.data);
       setData(res?.data ?? []);
     } catch {
       setData([]);
     } finally {
       setLoading(false);
     }
-  }, [regionId, fromDate, toDate]);
+  }, [medicationId, fromDate, toDate]);
 
   useEffect(() => {
+    if (!medicationId) return;
+
     fetchChart();
-  }, []);
+  }, [fetchChart, medicationId, fromDate, toDate]);
 
   useEffect(() => {
-    if (!hasMounted.current) {
-      hasMounted.current = true;
-      return;
-    }
-    fetchChart();
-  }, [regionId, fromDate, toDate]);
+    const token = useAuthStore.getState().accessToken;
+    let companyId = "";
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      companyId = payload.id ?? "";
+      console.log(`companyId is ${companyId}`);
+    } catch {}
 
-  useEffect(() => {
+    const medParams = companyId ? { companyId } : {};
     api
-      .get("/regions")
+      .get("/medications", { params: medParams })
       .then((res) => {
-        const regs = (res.data?.data ?? []).map((r) => ({
-          value: r.id,
-          label: r.name,
+        const meds = (res.data?.data ?? []).map((m) => ({
+          value: m.id,
+          label: m.brandName,
         }));
-        setRegions(regs);
+        setMedications(meds);
+
+        if (meds.length > 0) {
+          setMedicationId(meds[0].value);
+        }
       })
       .catch(() => {});
   }, []);
 
   const barKeys =
-    data.length > 0 ? Object.keys(data[0]).filter((k) => k !== "pharmacy") : [];
+    data.length > 0 ? Object.keys(data[0]).filter((k) => k !== "region") : [];
 
   return (
     <div className="bg-neutral-secondary min-h-screen p-4 sm:p-6">
       <div className="mb-5">
         <h1 className="text-xl sm:text-2xl font-bold text-heading tracking-tight">
-          Pharmacies Charts
+          Regions Charts
         </h1>
         <p className="text-muted text-sm mt-0.5">
-          Pharmacy inventory distribution by medication
+          Stock overview across regions
         </p>
       </div>
 
       <div className="bg-neutral-main rounded-2xl border border-border-primary shadow-sm p-4 mb-4">
         <div className="flex flex-wrap items-end gap-3">
-          {regions.length > 0 && (
+          {medications.length > 0 && (
             <div className="flex-1 min-w-[140px] max-w-[200px]">
               <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">
-                Region
+                Medication
               </label>
               <select
-                value={regionId}
-                onChange={(e) => setRegionId(e.target.value)}
+                value={medicationId}
+                onChange={(e) => setMedicationId(e.target.value)}
                 className="w-full appearance-none px-3 py-2 bg-neutral-main border border-border-primary text-paragraph text-sm rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all cursor-pointer"
               >
-                {regions.map((r) => (
-                  <option key={r.value} value={r.value}>
-                    {r.label}
+                {medications.map((m) => (
+                  <option key={m.value} value={m.value}>
+                    {m.label}
                   </option>
                 ))}
               </select>
@@ -125,10 +145,10 @@ export default function PharmaciesCharts() {
       ) : (
         <SimpleBarChart
           data={data}
-          xKey="pharmacy"
+          xKey="region"
           bars={barKeys}
-          title="Pharmacy Inventory by Medication"
-          subtitle="Per-pharmacy stock breakdown"
+          title="Region Stock Overview"
+          subtitle="Stock levels across all regions"
         />
       )}
     </div>

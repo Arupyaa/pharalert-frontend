@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import api from "../../api/api";
+import LocationPickerModal from "../../components/auth/LocationPickerModal";
 import PasswordChangeSection from "../../components/General/Settings/PasswordChangeSection";
 import { useToast } from "../../hooks/useToast";
 import ToastContainer from "../../components/General/toast/ToastContainer";
@@ -28,14 +29,15 @@ function Field({ label, field, type = "text", placeholder = "", form, onChange }
   );
 }
 
-export default function CompanySettings() {
+export default function UserSettings() {
   const [tab, setTab] = useState("general");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showMap, setShowMap] = useState(false);
   const { toast, toasts, dismiss } = useToast();
 
   const [form, setForm] = useState({
-    companyName: "", email: "", phoneNumber: "", documentImageUrl: "",
+    userName: "", email: "", phoneNumber: "", address: "", latitude: "", longitude: "",
   });
 
   const fetchSettings = useCallback(async () => {
@@ -43,10 +45,12 @@ export default function CompanySettings() {
       const { data } = await api.get("/settings/me");
       const d = data?.data ?? {};
       setForm({
-        companyName: d.companyName ?? "",
+        userName: d.userName ?? "",
         email: d.email ?? "",
         phoneNumber: d.phoneNumber ?? "",
-        documentImageUrl: d.documentImageUrl ?? "",
+        address: d.address ?? "",
+        latitude: d.latitude ?? "",
+        longitude: d.longitude ?? "",
       });
     } catch {
       toast.error("Error", "Failed to load settings.");
@@ -61,12 +65,17 @@ export default function CompanySettings() {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
+  function handleLocationConfirm({ lat, lng, address }) {
+    setForm((prev) => ({ ...prev, latitude: lat, longitude: lng, address }));
+    setShowMap(false);
+  }
+
   async function handleSave(e) {
     e.preventDefault();
     setSaving(true);
     try {
       const payload = {};
-      for (const key of ["companyName", "email", "phoneNumber", "documentImageUrl"]) {
+      for (const key of ["userName", "email", "phoneNumber", "address", "latitude", "longitude"]) {
         if (form[key] !== "") payload[key] = form[key];
       }
       await api.patch("/settings/me", payload);
@@ -89,10 +98,18 @@ export default function CompanySettings() {
   return (
     <>
       <ToastContainer toasts={toasts} dismiss={dismiss} />
+      {showMap && (
+        <LocationPickerModal
+          onConfirm={handleLocationConfirm}
+          onClose={() => setShowMap(false)}
+          initialLat={parseFloat(form.latitude) || 30.0444}
+          initialLng={parseFloat(form.longitude) || 31.2357}
+        />
+      )}
       <div className="min-h-screen p-6" style={{ background: "var(--bg-secondary)" }}>
         <div className="mb-6">
           <h1 className="text-2xl font-bold" style={{ color: "var(--text-heading)" }}>Settings</h1>
-          <p className="mt-1 text-sm" style={{ color: "var(--text-muted)" }}>Manage your company preferences</p>
+          <p className="mt-1 text-sm" style={{ color: "var(--text-muted)" }}>Manage your account preferences</p>
         </div>
 
         <div className="flex gap-1.5 p-1 rounded-2xl mb-6 w-fit" style={{ background: "#f8fafc", border: "1px solid var(--border-gray)" }}>
@@ -115,11 +132,33 @@ export default function CompanySettings() {
         {tab === "general" && (
           <form onSubmit={handleSave} className="max-w-2xl space-y-5">
             <div className="rounded-2xl p-6 space-y-5" style={{ background: "var(--bg-neutral)", border: "1px solid var(--border-gray)", boxShadow: "0 2px 12px rgba(0,0,0,0.05)" }}>
-              <h2 className="text-sm font-semibold" style={{ color: "var(--text-heading)" }}>Company Information</h2>
-              <Field form={form} onChange={handleChange} label="Company Name" field="companyName" placeholder="Eva Pharma" />
-              <Field form={form} onChange={handleChange} label="Email" field="email" type="email" placeholder="company@example.com" />
+              <h2 className="text-sm font-semibold" style={{ color: "var(--text-heading)" }}>Account Information</h2>
+              <Field form={form} onChange={handleChange} label="Username" field="userName" placeholder="ahmed_mohamed" />
+              <Field form={form} onChange={handleChange} label="Email" field="email" type="email" placeholder="user@example.com" />
               <Field form={form} onChange={handleChange} label="Phone Number" field="phoneNumber" type="tel" placeholder="01098765432" />
-              <Field form={form} onChange={handleChange} label="Document / License URL" field="documentImageUrl" type="url" placeholder="https://cdn.example.com/document.jpg" />
+
+              <h2 className="text-sm font-semibold pt-2" style={{ color: "var(--text-heading)" }}>Location</h2>
+              <Field form={form} onChange={handleChange} label="Address" field="address" placeholder="Street, City, Governorate" />
+              <div className="grid grid-cols-2 gap-3">
+                <Field form={form} onChange={handleChange} label="Latitude" field="latitude" type="number" placeholder="30.0444" />
+                <Field form={form} onChange={handleChange} label="Longitude" field="longitude" type="number" placeholder="31.2357" />
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowMap(true)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all"
+                style={{
+                  background: "var(--color-primary-6)",
+                  color: "var(--brand-primary)",
+                  border: "1.5px solid var(--color-primary-25)",
+                }}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Pick on Map
+              </button>
             </div>
 
             <button

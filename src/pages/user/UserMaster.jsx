@@ -6,7 +6,8 @@ import RetractableSidebar from "../../components/General/retractablesidebar/Retr
 import Overlay from "../../components/General/overLay/Overlay.jsx";
 import DashboardNavBar from "../../components/layout/dashboardnavbar/DashboardNavBar.jsx";
 import PDashboardMain from "../../components/layout/PDashboardMain/PDashboardMain.jsx";
-
+import SubscriptionIcon from "../../assets/svg/SubscriptionIcon.jsx";
+import useAccountStatusPoller from "../../hooks/useAccountStatusPoller.js";
 import logoName from "../../assets/images/logo_name v1.1.svg";
 import DashboardIcon from "../../assets/svg/DashboardIcon.jsx";
 import SettingsIcon from "../../assets/svg/SettingsIcon.jsx";
@@ -16,8 +17,17 @@ import { useIsMobile } from "../../hooks/useIsMobile.js";
 
 const sidebarItems = [
   { name: "Dashboard", path: "/user/dashboard", icon: DashboardIcon },
-  { name: "My Orders", path: "/user/orders", icon: PillIcon },
+  {
+    name: "My Reservations",
+    path: "/user/reservations",
+    icon: PillIcon,
+  },
   { name: "Settings", path: "/user/settings", icon: SettingsIcon },
+  {
+    name: "Subscriptions",
+    path: "/user/subscriptions",
+    icon: SubscriptionIcon,
+  },
 ];
 
 const tabItems = [
@@ -26,6 +36,7 @@ const tabItems = [
 ];
 
 export default function UserMaster() {
+  useAccountStatusPoller();
   const isMobile = useIsMobile();
   const [overlay, setOverlay] = useState(false);
   const [collapsed, setCollapsed] = useState(isMobile ? true : false);
@@ -60,10 +71,9 @@ export default function UserMaster() {
                     key={tab.path}
                     to={tab.path}
                     className={({ isActive }) =>
-                      `inline-flex items-center gap-2 px-5 py-2 text-sm font-medium rounded-full transition-all duration-200 ${
-                        isActive
-                          ? "bg-green-500 text-white shadow-md"
-                          : "text-gray-500 hover:text-gray-700"
+                      `inline-flex items-center gap-2 px-5 py-2 text-sm font-medium rounded-full transition-all duration-200 ${isActive
+                        ? "bg-green-500 text-white shadow-md"
+                        : "text-gray-500 hover:text-gray-700"
                       }`
                     }
                   >

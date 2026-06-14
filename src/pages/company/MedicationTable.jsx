@@ -1,3 +1,7 @@
+
+
+
+
 import { useEffect, useRef, useState, useCallback } from "react";
 import api from "../../api/api";
 import TabsLinks from "../../components/General/tabslink/Tabslink.jsx";
@@ -93,7 +97,17 @@ function SkeletonRows({ cols = 8, rows = 8 }) {
   );
 }
 
+import RequireActiveSubscription from "../../components/General/RequireActiveSubscription";
+
 export default function MedicationTable() {
+  return (
+    <RequireActiveSubscription role="company">
+      <MedicationTableInner />
+    </RequireActiveSubscription>
+  );
+}
+
+function MedicationTableInner() {
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [fromDate, setFromDate] = useState("");
@@ -115,7 +129,7 @@ export default function MedicationTable() {
     setError(null);
 
     try {
-      const params = { regionId: 1, page, limit };
+      const params = { page, limit };
       if (search.trim()) params.search = search.trim();
       if (categoryId) params.categoryId = categoryId;
       if (fromDate) params.from = fromDate;
