@@ -11,6 +11,7 @@ import { useToast } from "../../hooks/useToast";
 import ToastContainer from "../../components/General/toast/ToastContainer";
 import AddInventoryModal from "./AddInventoryModal";
 import AddOrderModal from "./AddOrderModal";
+import MedicationFormModal from "../../components/General/MedicationFormModal";
 
 const STOCK_TABS = [
   { label: "All", value: "" },
@@ -350,6 +351,7 @@ function InventoryInner() {
   const [error, setError] = useState(null);
   const [addInventoryOpen, setAddInventoryOpen] = useState(false);
   const [addOrderOpen, setAddOrderOpen] = useState(false);
+  const [medFormOpen, setMedFormOpen] = useState(false);
   const { toast, toasts, dismiss } = useToast();
 
   function applyColumnRenderers(head) {
@@ -585,6 +587,40 @@ function InventoryInner() {
             Place Order
           </button>
 
+          {/* Add Medication */}
+          <button
+            type="button"
+            onClick={() => { setEditingMed(null); setMedFormOpen(true); }}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all shadow-sm"
+            style={{
+              background:
+                "linear-gradient(135deg, var(--brand-primary), var(--brand-linear))",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-1px)";
+              e.currentTarget.style.boxShadow = "var(--shadow-button-hover)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "none";
+              e.currentTarget.style.boxShadow = "var(--shadow-button)";
+            }}
+          >
+            <svg
+              className="w-3.5 h-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            Add Medication
+          </button>
+
           {/* Total badge */}
           {!loading && total > 0 && (
             <div className="flex items-center gap-1.5 bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-xs font-semibold px-3 py-1.5 rounded-full">
@@ -745,6 +781,14 @@ function InventoryInner() {
           onPrevious={() => setPage((p) => Math.max(1, p - 1))}
         />
       )}
+
+      <MedicationFormModal
+        open={medFormOpen}
+        onClose={() => setMedFormOpen(false)}
+        onSuccess={() => toast.success("Created", "Medication created successfully.")}
+        medication={null}
+        role="pharmacy"
+      />
     </div>
   );
 }

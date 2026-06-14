@@ -98,6 +98,9 @@ function SkeletonRows({ cols = 8, rows = 8 }) {
 }
 
 import RequireActiveSubscription from "../../components/General/RequireActiveSubscription";
+import MedicationFormModal from "../../components/General/MedicationFormModal";
+import { useToast } from "../../hooks/useToast";
+import ToastContainer from "../../components/General/toast/ToastContainer";
 
 export default function MedicationTable() {
   return (
@@ -123,6 +126,8 @@ function MedicationTableInner() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [medFormOpen, setMedFormOpen] = useState(false);
+  const { toast, toasts, dismiss } = useToast();
 
   const fetchMedications = useCallback(async () => {
     setLoading(true);
@@ -208,6 +213,8 @@ function MedicationTableInner() {
         <TabsLinks tabs={tabs} />
       </div>
 
+      <ToastContainer toasts={toasts} dismiss={dismiss} />
+
       {/* Page Header */}
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
@@ -218,12 +225,35 @@ function MedicationTableInner() {
             View medication analytics across pharmacies
           </p>
         </div>
-        {!loading && total > 0 && (
-          <div className="shrink-0 flex items-center gap-1.5 bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-xs font-semibold px-3 py-1.5 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
-            {total} items
-          </div>
-        )}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => { setEditingMed(null); setMedFormOpen(true); }}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all shadow-sm"
+            style={{
+              background: "linear-gradient(135deg, var(--brand-primary), var(--brand-linear))",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-1px)";
+              e.currentTarget.style.boxShadow = "var(--shadow-button-hover)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "none";
+              e.currentTarget.style.boxShadow = "var(--shadow-button)";
+            }}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Add Medication
+          </button>
+          {!loading && total > 0 && (
+            <div className="flex items-center gap-1.5 bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-xs font-semibold px-3 py-1.5 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
+              {total} items
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Filters */}
@@ -335,6 +365,14 @@ function MedicationTableInner() {
           onPrevious={() => setPage((p) => Math.max(1, p - 1))}
         />
       )}
+
+      <MedicationFormModal
+        open={medFormOpen}
+        onClose={() => setMedFormOpen(false)}
+        onSuccess={() => toast.success("Created", "Medication created successfully.")}
+        medication={null}
+        role="company"
+      />
     </div>
   );
 }
