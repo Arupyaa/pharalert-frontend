@@ -18,6 +18,7 @@ import { useIsMobile } from "../../hooks/useIsMobile.js";
 
 const sidebarItems = [
   { name: "Dashboard", path: "/user/dashboard", icon: DashboardIcon },
+  { name: "Search Medicine", path: "/user/search-medicine", icon: PillIcon },
   {
     name: "My Reservations",
     path: "/user/reservations",
