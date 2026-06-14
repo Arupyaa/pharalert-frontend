@@ -344,6 +344,7 @@ import CompanySuggestions from "./pages/company/CompanySuggestions";
 import CompanySubscriptions from "./pages/company/CompanySubscriptions";
 
 import UserSubscriptions from "./pages/user/UserSubscriptions";
+import UserStockAlerts from "./pages/user/UserStockAlerts";
 import UserSettings from "./pages/user/UserSettings";
 import PharmacySubscriptions from "./pages/pharmacy/PharmacySubscriptions";
 import Cashier from "./pages/pharmacy/Cashier";
@@ -565,6 +566,10 @@ const routes = createBrowserRouter([
               {
                 path: "/user/subscriptions",
                 element: <UserSubscriptions />,
+              },
+              {
+                path: "/user/alerts",
+                element: <UserStockAlerts />,
               },
               {
                 path: "/user/settings",
