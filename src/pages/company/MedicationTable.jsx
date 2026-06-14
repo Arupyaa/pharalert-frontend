@@ -129,12 +129,15 @@ function MedicationTableInner() {
   const [medFormOpen, setMedFormOpen] = useState(false);
   const { toast, toasts, dismiss } = useToast();
 
+  const [regionId, setRegionId] = useState("1");
+  const [regions, setRegions] = useState([]);
+
   const fetchMedications = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const params = { page, limit };
+      const params = { page, limit, regionId };
       if (search.trim()) params.search = search.trim();
       if (categoryId) params.categoryId = categoryId;
       if (fromDate) params.from = fromDate;
@@ -166,7 +169,7 @@ function MedicationTableInner() {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, search, categoryId, fromDate, toDate]);
+  }, [page, limit, search, categoryId, fromDate, toDate, regionId]);
 
   useEffect(() => {
     fetchMedications();
@@ -180,6 +183,14 @@ function MedicationTableInner() {
           label: c.categoryName,
         }));
         setCategories(cats);
+      })
+      .catch(() => {});
+
+    api.get("/regions")
+      .then((res) => {
+        const list = res.data?.data ?? [];
+        setRegions(list);
+        setRegionId((prev) => prev || (list.length > 0 ? list[0].id : ""));
       })
       .catch(() => {});
   }, []);
@@ -202,6 +213,7 @@ function MedicationTableInner() {
     setFromDate("");
     setToDate("");
     setPage(1);
+    setRegionId(regions.length > 0 ? regions[0].id : "");
   };
 
   const skeletonCols = headers.length || 8;
@@ -282,6 +294,26 @@ function MedicationTableInner() {
               </select>
             </div>
           )}
+          {/* Region */}
+          {regions.length > 0 && (
+            <div className="w-full xs:w-auto flex-1 min-w-[140px] max-w-[200px]">
+              <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">
+                Region
+              </label>
+              <select
+                value={regionId}
+                onChange={(e) => { setRegionId(e.target.value); setPage(1); }}
+                className={twMerge(
+                  "w-full appearance-none px-3 py-2 bg-neutral-main border border-border-primary text-paragraph text-sm rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all cursor-pointer",
+                )}
+              >
+                {regions.map((r) => (
+                  <option key={r.id} value={r.id}>{r.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* From */}
           <div>
             <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">
