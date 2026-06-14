@@ -854,6 +854,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useCashierStore } from "../../store/UseCashierStore.js";
 import RequireActiveSubscription from "../../components/General/RequireActiveSubscription";
+import DemandModal from "./DemandModal";
 
 export default function CashierPage() {
   return (
@@ -885,9 +886,12 @@ function CashierInner() {
     orderLoading,
     orderSuccess,
     orderError,
+    lastFailedBarcode,
   } = useCashierStore();
 
   const [customerPaid, setCustomerPaid] = useState("");
+  const [demandModalOpen, setDemandModalOpen] = useState(false);
+  const [demandPreselect, setDemandPreselect] = useState(null);
 
   // Load products from API on mount
   useEffect(() => {
@@ -1079,7 +1083,21 @@ function CashierInner() {
             <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            {addItemError}
+            <span className="flex-1">{addItemError}</span>
+            <button
+              type="button"
+              onClick={() => {
+                setDemandPreselect(lastFailedBarcode);
+                setDemandModalOpen(true);
+              }}
+              className="ml-auto px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all shadow-sm"
+              style={{
+                background:
+                  "linear-gradient(135deg, var(--brand-primary), var(--brand-linear))",
+              }}
+            >
+              Log Demand
+            </button>
           </div>
         )}
 
@@ -1730,6 +1748,16 @@ function CashierInner() {
           </div>
         </div>
       </div>
+
+      <DemandModal
+        open={demandModalOpen}
+        onClose={() => setDemandModalOpen(false)}
+        onSuccess={() => {
+          setDemandModalOpen(false);
+          setDemandPreselect(null);
+        }}
+        preselectedMedication={demandPreselect}
+      />
     </div>
   );
 }

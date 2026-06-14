@@ -12,6 +12,7 @@ import ToastContainer from "../../components/General/toast/ToastContainer";
 import AddInventoryModal from "./AddInventoryModal";
 import AddOrderModal from "./AddOrderModal";
 import MedicationFormModal from "../../components/General/MedicationFormModal";
+import DemandModal from "./DemandModal";
 
 const STOCK_TABS = [
   { label: "All", value: "" },
@@ -352,6 +353,7 @@ function InventoryInner() {
   const [addInventoryOpen, setAddInventoryOpen] = useState(false);
   const [addOrderOpen, setAddOrderOpen] = useState(false);
   const [medFormOpen, setMedFormOpen] = useState(false);
+  const [demandModalOpen, setDemandModalOpen] = useState(false);
   const { toast, toasts, dismiss } = useToast();
 
   function applyColumnRenderers(head) {
@@ -621,6 +623,31 @@ function InventoryInner() {
             Add Medication
           </button>
 
+          {/* Add Demand */}
+          <button
+            type="button"
+            onClick={() => setDemandModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all shadow-sm"
+            style={{
+              background:
+                "linear-gradient(135deg, var(--brand-primary), var(--brand-linear))",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-1px)";
+              e.currentTarget.style.boxShadow = "var(--shadow-button-hover)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "none";
+              e.currentTarget.style.boxShadow = "var(--shadow-button)";
+            }}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Add Demand
+          </button>
+
           {/* Total badge */}
           {!loading && total > 0 && (
             <div className="flex items-center gap-1.5 bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-xs font-semibold px-3 py-1.5 rounded-full">
@@ -788,6 +815,12 @@ function InventoryInner() {
         onSuccess={() => toast.success("Created", "Medication created successfully.")}
         medication={null}
         role="pharmacy"
+      />
+
+      <DemandModal
+        open={demandModalOpen}
+        onClose={() => setDemandModalOpen(false)}
+        onSuccess={() => toast.success("Demand", "Demand recorded successfully.")}
       />
     </div>
   );
