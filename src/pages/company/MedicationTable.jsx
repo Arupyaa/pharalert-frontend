@@ -98,6 +98,9 @@ function SkeletonRows({ cols = 8, rows = 8 }) {
 }
 
 import RequireActiveSubscription from "../../components/General/RequireActiveSubscription";
+import MedicationFormModal from "../../components/General/MedicationFormModal";
+import { useToast } from "../../hooks/useToast";
+import ToastContainer from "../../components/General/toast/ToastContainer";
 
 export default function MedicationTable() {
   return (
@@ -123,13 +126,18 @@ function MedicationTableInner() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [medFormOpen, setMedFormOpen] = useState(false);
+  const { toast, toasts, dismiss } = useToast();
+
+  const [regionId, setRegionId] = useState("1");
+  const [regions, setRegions] = useState([]);
 
   const fetchMedications = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const params = { page, limit };
+      const params = { page, limit, regionId };
       if (search.trim()) params.search = search.trim();
       if (categoryId) params.categoryId = categoryId;
       if (fromDate) params.from = fromDate;
@@ -161,7 +169,7 @@ function MedicationTableInner() {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, search, categoryId, fromDate, toDate]);
+  }, [page, limit, search, categoryId, fromDate, toDate, regionId]);
 
   useEffect(() => {
     fetchMedications();
@@ -175,6 +183,14 @@ function MedicationTableInner() {
           label: c.categoryName,
         }));
         setCategories(cats);
+      })
+      .catch(() => {});
+
+    api.get("/regions")
+      .then((res) => {
+        const list = res.data?.data ?? [];
+        setRegions(list);
+        setRegionId((prev) => prev || (list.length > 0 ? list[0].id : ""));
       })
       .catch(() => {});
   }, []);
@@ -197,6 +213,7 @@ function MedicationTableInner() {
     setFromDate("");
     setToDate("");
     setPage(1);
+    setRegionId(regions.length > 0 ? regions[0].id : "");
   };
 
   const skeletonCols = headers.length || 8;
@@ -208,6 +225,8 @@ function MedicationTableInner() {
         <TabsLinks tabs={tabs} />
       </div>
 
+      <ToastContainer toasts={toasts} dismiss={dismiss} />
+
       {/* Page Header */}
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
@@ -218,12 +237,35 @@ function MedicationTableInner() {
             View medication analytics across pharmacies
           </p>
         </div>
-        {!loading && total > 0 && (
-          <div className="shrink-0 flex items-center gap-1.5 bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-xs font-semibold px-3 py-1.5 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
-            {total} items
-          </div>
-        )}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => { setEditingMed(null); setMedFormOpen(true); }}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all shadow-sm"
+            style={{
+              background: "linear-gradient(135deg, var(--brand-primary), var(--brand-linear))",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-1px)";
+              e.currentTarget.style.boxShadow = "var(--shadow-button-hover)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "none";
+              e.currentTarget.style.boxShadow = "var(--shadow-button)";
+            }}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Add Medication
+          </button>
+          {!loading && total > 0 && (
+            <div className="flex items-center gap-1.5 bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-xs font-semibold px-3 py-1.5 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
+              {total} items
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Filters */}
@@ -252,6 +294,26 @@ function MedicationTableInner() {
               </select>
             </div>
           )}
+          {/* Region */}
+          {regions.length > 0 && (
+            <div className="w-full xs:w-auto flex-1 min-w-[140px] max-w-[200px]">
+              <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">
+                Region
+              </label>
+              <select
+                value={regionId}
+                onChange={(e) => { setRegionId(e.target.value); setPage(1); }}
+                className={twMerge(
+                  "w-full appearance-none px-3 py-2 bg-neutral-main border border-border-primary text-paragraph text-sm rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all cursor-pointer",
+                )}
+              >
+                {regions.map((r) => (
+                  <option key={r.id} value={r.id}>{r.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* From */}
           <div>
             <label className="block text-xs font-semibold mb-1 uppercase tracking-wider text-muted">
@@ -335,6 +397,14 @@ function MedicationTableInner() {
           onPrevious={() => setPage((p) => Math.max(1, p - 1))}
         />
       )}
+
+      <MedicationFormModal
+        open={medFormOpen}
+        onClose={() => setMedFormOpen(false)}
+        onSuccess={() => toast.success("Created", "Medication created successfully.")}
+        medication={null}
+        role="company"
+      />
     </div>
   );
 }

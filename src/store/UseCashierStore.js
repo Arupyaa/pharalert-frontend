@@ -418,7 +418,7 @@ export const useCashierStore = create((set, get) => ({
     const found = await lookupBarcode(addItemValue.trim());
 
     if (!found) {
-      set({ addItemError: "Product not found" });
+      set({ addItemError: "Product not found", lastFailedBarcode: addItemValue });
       setTimeout(() => set({ addItemError: null }), 3000);
       set({ addItemValue: "" });
       return;
@@ -445,6 +445,7 @@ export const useCashierStore = create((set, get) => ({
   },
 
   addItemError: null,
+  lastFailedBarcode: null,
 
   // =========================================
   // INCREASE / DECREASE / REMOVE

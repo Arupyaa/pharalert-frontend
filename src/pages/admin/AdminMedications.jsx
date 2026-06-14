@@ -1,8 +1,9 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../../api/api.js";
 import Table from "../../components/General/tables/Table.jsx";
 import TablePagination from "../../components/General/Pagination/TablePagination.jsx";
+import MedicationFormModal from "../../components/General/MedicationFormModal";
 
 // ── API helpers ───────────────────────────────────────────────────────────────
 
@@ -89,6 +90,23 @@ export default function AdminMedications() {
     value: r.id,
     label: r.name,
   }));
+
+  // Master catalog state
+  const [allMedications, setAllMedications] = useState([]);
+  const [medFormOpen, setMedFormOpen] = useState(false);
+  const [editingMed, setEditingMed] = useState(null);
+
+  useEffect(() => {
+    api.get("/medications").then(({ data }) => {
+      setAllMedications(data?.data ?? []);
+    }).catch(() => {});
+  }, []);
+
+  function refreshAllMedications() {
+    api.get("/medications").then(({ data }) => {
+      setAllMedications(data?.data ?? []);
+    }).catch(() => {});
+  }
 
   // Toast stack
   const [toasts, setToasts] = useState([]);
@@ -294,6 +312,21 @@ export default function AdminMedications() {
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
             )}
+            <button
+              type="button"
+              onClick={() => { setEditingMed(null); setMedFormOpen(true); }}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-white transition-all shadow-sm"
+              style={{
+                background: "linear-gradient(135deg, var(--brand-primary), var(--brand-linear))",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "var(--shadow-button-hover)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "var(--shadow-button)"; }}
+            >
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Add
+            </button>
           </div>
 
           <div className="flex items-center gap-2">
@@ -392,6 +425,92 @@ export default function AdminMedications() {
           </div>
         )}
       </div>
+
+      {/* ── Master Catalog Card ── */}
+      <div
+        className="rounded-2xl overflow-hidden mt-6"
+        style={{
+          background: "var(--bg-neutral)",
+          border: "1px solid var(--border-gray)",
+          boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
+        }}
+      >
+        <div
+          className="flex items-center justify-between px-5 py-4 border-b"
+          style={{ borderColor: "var(--border-gray)" }}
+        >
+          <h2 className="text-sm font-semibold" style={{ color: "var(--text-heading)" }}>
+            Master Catalog
+          </h2>
+          <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+            {allMedications.length} medication{allMedications.length !== 1 ? "s" : ""}
+          </span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left" style={{ color: "var(--text-main)", minWidth: "600px" }}>
+            <thead>
+              <tr className="border-b" style={{ borderColor: "var(--border-gray)" }}>
+                {["Brand Name", "Generic Name", "Category", "Price", "Manufacturer", ""].map((h) => (
+                  <th
+                    key={h}
+                    className="px-4 py-3 text-xs font-semibold uppercase tracking-wider"
+                    style={{ color: "var(--text-muted)", background: "var(--bg-secondary)" }}
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {allMedications.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-4 py-12 text-center text-sm" style={{ color: "var(--text-muted)" }}>
+                    No medications in the catalog
+                  </td>
+                </tr>
+              ) : (
+                allMedications.map((med) => (
+                  <tr key={med.id} className="border-b hover:bg-neutral-secondary transition-colors" style={{ borderColor: "var(--border-gray)" }}>
+                    <td className="px-4 py-3 font-medium" style={{ color: "var(--text-heading)" }}>
+                      {med.brandName}
+                    </td>
+                    <td className="px-4 py-3" style={{ color: "var(--text-muted)" }}>
+                      {med.genericName}
+                    </td>
+                    <td className="px-4 py-3">{med.category?.categoryName || "—"}</td>
+                    <td className="px-4 py-3">EGP {med.unitPrice || "—"}</td>
+                    <td className="px-4 py-3">{med.companyName || med.manufacturingCompany || "—"}</td>
+                    <td className="px-4 py-3">
+                      <button
+                        type="button"
+                        onClick={() => { setEditingMed(med); setMedFormOpen(true); }}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
+                        style={{ color: "var(--text-muted)" }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-primary-6)"; e.currentTarget.style.color = "var(--brand-primary)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-muted)"; }}
+                        title="Edit"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <MedicationFormModal
+        open={medFormOpen}
+        onClose={() => { setMedFormOpen(false); setEditingMed(null); }}
+        onSuccess={() => { refreshAllMedications(); addToast(editingMed ? "Medication updated" : "Medication created", "success"); }}
+        medication={editingMed}
+        role="admin"
+      />
 
       {/* Toast notifications */}
       <div className="fixed bottom-6 right-6 z-[200] flex flex-col gap-2 pointer-events-none">
