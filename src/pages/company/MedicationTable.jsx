@@ -240,7 +240,7 @@ function MedicationTableInner() {
         <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
-            onClick={() => { setEditingMed(null); setMedFormOpen(true); }}
+            onClick={() => setMedFormOpen(true)}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all shadow-sm"
             style={{
               background: "linear-gradient(135deg, var(--brand-primary), var(--brand-linear))",
