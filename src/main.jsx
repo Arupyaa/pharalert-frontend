@@ -317,6 +317,7 @@ import AdminAccounts from "./pages/admin/AdminAccounts";
 import AdminReservations from "./pages/admin/AdminReservations";
 import AdminMedications from "./pages/admin/AdminMedications";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminLocationsCategories from "./pages/admin/AdminLocationsCategories";
 import AdminLogin from "./pages/admin/AdminLogin";
 
 // Dashboards
@@ -605,10 +606,14 @@ const routes = createBrowserRouter([
                 path: "/admin/medications",
                 element: <AdminMedications />,
               },
-              {
-                path: "/admin/settings",
-                element: <AdminSettings />,
-              },
+          {
+            path: "/admin/locations-categories",
+            element: <AdminLocationsCategories />,
+          },
+          {
+            path: "/admin/settings",
+            element: <AdminSettings />,
+          },
             ],
           },
         ],
