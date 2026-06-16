@@ -1,7 +1,26 @@
+import { useLocation, useNavigate } from "react-router-dom";
 import Button from "../../General/button/Button";
 import BottomFooter from "./BottomFooter";
 
 export default function TopFooter() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isLandingPage = location.pathname === "/";
+
+  function handleExploreServices() {
+    if (!isLandingPage) {
+      navigate("/");
+      // Wait for the landing page to mount before scrolling to the section
+      setTimeout(() => {
+        document
+          .getElementById("services")
+          ?.scrollIntoView({ behavior: "smooth" });
+      }, 200);
+      return;
+    }
+    document.getElementById("services")?.scrollIntoView({ behavior: "smooth" });
+  }
+
   return (
     <>
       <section
@@ -70,7 +89,12 @@ export default function TopFooter() {
 
         {/* Button */}
         <div className="relative flex flex-wrap gap-3 justify-center mt-2">
-          <Button btnName="Explore Services" variant="white" size="lg" />
+          <Button
+            btnName="Explore Services"
+            variant="white"
+            size="lg"
+            onClick={handleExploreServices}
+          />
         </div>
       </section>
 
