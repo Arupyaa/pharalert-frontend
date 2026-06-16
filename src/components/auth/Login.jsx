@@ -1,5 +1,6 @@
 import { useState } from "react";
 import waveIcon from "../../assets/icons/waving-hand-svgrepo-com.svg";
+import logo from "../../assets/images/logo_name v1.1.svg";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -121,11 +122,13 @@ export default function Login() {
         email: verificationEmail,
         accountType: ROLE_MAP[activeRole],
       });
-      toast.success("Email sent", res.data?.message || "Verification email resent.");
+      toast.success(
+        "Email sent",
+        res.data?.message || "Verification email resent.",
+      );
     } catch (err) {
       const msg =
-        err.response?.data?.message ||
-        "Failed to resend verification email.";
+        err.response?.data?.message || "Failed to resend verification email.";
       toast.error("Error", msg);
     } finally {
       setResending(false);
@@ -148,24 +151,39 @@ export default function Login() {
       setNeedsVerification(false);
       setVerificationEmail("");
 
-      const { accessToken, refreshToken, accountType, accountStatus } = res.data;
-      setAuth({ accessToken, refreshToken, role: roleValue, accountType, accountStatus });
+      const { accessToken, refreshToken, accountType, accountStatus } =
+        res.data;
+      setAuth({
+        accessToken,
+        refreshToken,
+        role: roleValue,
+        accountType,
+        accountStatus,
+      });
 
       const updateAccessToken = useAuthStore.getState().updateAccessToken;
       const updateAccountType = useAuthStore.getState().updateAccountType;
-      api.get("/auth/identify").then(({ data: idData }) => {
-        const d = idData?.data;
-        if (idData?.accessToken) {
-          updateAccessToken(idData.accessToken);
-        }
-        if (d?.accountType) {
-          updateAccountType(d.accountType);
-        }
-        if (d) {
-          const name = d.companyName || d.name || d.userName || d.email?.split("@")[0] || "User";
-          changeAvatarName(name);
-        }
-      }).catch(() => {});
+      api
+        .get("/auth/identify")
+        .then(({ data: idData }) => {
+          const d = idData?.data;
+          if (idData?.accessToken) {
+            updateAccessToken(idData.accessToken);
+          }
+          if (d?.accountType) {
+            updateAccountType(d.accountType);
+          }
+          if (d) {
+            const name =
+              d.companyName ||
+              d.name ||
+              d.userName ||
+              d.email?.split("@")[0] ||
+              "User";
+            changeAvatarName(name);
+          }
+        })
+        .catch(() => {});
 
       toast.success("Welcome back!", "You've been signed in successfully.");
       reset();
@@ -272,6 +290,12 @@ export default function Login() {
                   className="w-full max-w-[480px] bg-white rounded-3xl p-7 sm:p-9"
                   style={{ boxShadow: "var(--shadow-card)" }}
                 >
+                  <div className="mb-6 flex justify-center">
+                    <Link to="/" className="inline-flex">
+                      <img src={logo} alt="PharAlert" className="h-9 w-auto" />
+                    </Link>
+                  </div>
+
                   <div className="mb-8">
                     <h2 className="text-[28px] sm:text-3xl font-bold flex items-center gap-3 text-slate-800 mb-2">
                       Welcome Back!
@@ -373,7 +397,9 @@ export default function Login() {
                       </svg>
                       <div className="flex-1">
                         <p className="font-semibold text-sm mb-0.5">
-                          {needsVerification ? "Email Not Verified" : "Access Denied"}
+                          {needsVerification
+                            ? "Email Not Verified"
+                            : "Access Denied"}
                         </p>
                         <p className="text-xs opacity-80">{pendingMsg}</p>
                         {needsVerification && (
@@ -383,7 +409,9 @@ export default function Login() {
                             className="mt-2 text-xs font-semibold hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                             style={{ color: "var(--brand-primary)" }}
                           >
-                            {resending ? "Sending…" : "Resend verification email"}
+                            {resending
+                              ? "Sending…"
+                              : "Resend verification email"}
                           </button>
                         )}
                       </div>

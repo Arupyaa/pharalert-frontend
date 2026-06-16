@@ -1,4 +1,43 @@
-import { useEffect, useState } from "react";
+
+
+import { useEffect, useRef, useState } from "react";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
+// Leaflet's default marker icon points at relative paths that break once
+// bundled by Vite. Point it at the actual bundled asset URLs instead.
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
+
+// Marker that follows clicks/drags on the map and reports the new position.
+function PickableMarker({ position, onPick }) {
+  useMapEvents({
+    click(e) {
+      onPick(e.latlng.lat, e.latlng.lng);
+    },
+  });
+
+  return (
+    <Marker
+      position={position}
+      draggable
+      eventHandlers={{
+        dragend(e) {
+          const { lat, lng } = e.target.getLatLng();
+          onPick(lat, lng);
+        },
+      }}
+    />
+  );
+}
 
 export default function LocationPickerModal({
   onConfirm,
@@ -10,6 +49,7 @@ export default function LocationPickerModal({
   const [address, setAddress] = useState("");
   const [loadingAddress, setLoadingAddress] = useState(false);
   const [locating, setLocating] = useState(false);
+  const mapRef = useRef(null);
 
   // Reverse geocode using free Nominatim (no API key needed)
   async function reverseGeocode(lat, lng) {
@@ -32,6 +72,11 @@ export default function LocationPickerModal({
     reverseGeocode(coords.lat, coords.lng);
   }, [coords.lat, coords.lng]);
 
+  // Called whenever the marker is clicked into place or dragged.
+  function pickLocation(lat, lng) {
+    setCoords({ lat, lng });
+  }
+
   function useMyLocation() {
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
@@ -39,6 +84,7 @@ export default function LocationPickerModal({
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
         setCoords({ lat, lng });
+        mapRef.current?.setView([lat, lng], 16);
         setLocating(false);
       },
       () => setLocating(false),
@@ -46,10 +92,7 @@ export default function LocationPickerModal({
     );
   }
 
-  // Map URL: uses OpenStreetMap embed (free, no key needed)
-  const mapSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${coords.lng - 0.01},${coords.lat - 0.01},${coords.lng + 0.01},${coords.lat + 0.01}&layer=mapnik&marker=${coords.lat},${coords.lng}`;
-
-  // Allow user to manually type lat/lng
+  // Manual lat/lng inputs stay in sync with the map in both directions.
   function handleLatChange(e) {
     const v = parseFloat(e.target.value);
     if (!isNaN(v)) setCoords((c) => ({ ...c, lat: v }));
@@ -57,6 +100,9 @@ export default function LocationPickerModal({
   function handleLngChange(e) {
     const v = parseFloat(e.target.value);
     if (!isNaN(v)) setCoords((c) => ({ ...c, lng: v }));
+  }
+  function recenterFromInputs() {
+    mapRef.current?.setView([coords.lat, coords.lng]);
   }
 
   return (
@@ -113,7 +159,7 @@ export default function LocationPickerModal({
                 Pick Your Location
               </h3>
               <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                Adjust coordinates then confirm
+                Click or drag the pin to set your pharmacy's location
               </p>
             </div>
           </div>
@@ -151,14 +197,23 @@ export default function LocationPickerModal({
 
         {/* Map */}
         <div className="relative" style={{ height: "300px" }}>
-          <iframe
-            key={`${coords.lat}-${coords.lng}`}
-            src={mapSrc}
-            width="100%"
-            height="100%"
-            style={{ border: "none" }}
-            title="Location Map"
-          />
+          <MapContainer
+            ref={mapRef}
+            center={[coords.lat, coords.lng]}
+            zoom={15}
+            scrollWheelZoom
+            style={{ height: "100%", width: "100%" }}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <PickableMarker
+              position={[coords.lat, coords.lng]}
+              onPick={pickLocation}
+            />
+          </MapContainer>
+
           {/* Open in Google Maps button */}
           <a
             href={`https://www.google.com/maps?q=${coords.lat},${coords.lng}`}
@@ -168,6 +223,7 @@ export default function LocationPickerModal({
             style={{
               background: "var(--brand-primary)",
               boxShadow: "0 2px 8px rgba(0,171,121,0.4)",
+              zIndex: 500,
             }}
           >
             <svg
@@ -188,7 +244,7 @@ export default function LocationPickerModal({
         </div>
 
         {/* Controls */}
-        <div className="p-5 space-y-4">
+        <div className="p-5 space-y-4 overflow-y-auto">
           {/* Use my location */}
           <button
             type="button"
@@ -270,8 +326,13 @@ export default function LocationPickerModal({
               <input
                 type="number"
                 step="any"
-                defaultValue={coords.lat}
-                onBlur={handleLatChange}
+                value={coords.lat}
+                onChange={handleLatChange}
+                onBlur={(e) => {
+                  recenterFromInputs();
+                  e.target.style.borderColor = "var(--border-gray)";
+                  e.target.style.boxShadow = "none";
+                }}
                 className="w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-all"
                 style={{
                   border: "1.5px solid var(--border-gray)",
@@ -282,10 +343,6 @@ export default function LocationPickerModal({
                   e.target.style.borderColor = "var(--brand-primary)";
                   e.target.style.boxShadow =
                     "0 0 0 3px var(--color-primary-12)";
-                }}
-                onBlurCapture={(e) => {
-                  e.target.style.borderColor = "var(--border-gray)";
-                  e.target.style.boxShadow = "none";
                 }}
               />
             </div>
@@ -299,8 +356,13 @@ export default function LocationPickerModal({
               <input
                 type="number"
                 step="any"
-                defaultValue={coords.lng}
-                onBlur={handleLngChange}
+                value={coords.lng}
+                onChange={handleLngChange}
+                onBlur={(e) => {
+                  recenterFromInputs();
+                  e.target.style.borderColor = "var(--border-gray)";
+                  e.target.style.boxShadow = "none";
+                }}
                 className="w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-all"
                 style={{
                   border: "1.5px solid var(--border-gray)",
@@ -311,10 +373,6 @@ export default function LocationPickerModal({
                   e.target.style.borderColor = "var(--brand-primary)";
                   e.target.style.boxShadow =
                     "0 0 0 3px var(--color-primary-12)";
-                }}
-                onBlurCapture={(e) => {
-                  e.target.style.borderColor = "var(--border-gray)";
-                  e.target.style.boxShadow = "none";
                 }}
               />
             </div>
